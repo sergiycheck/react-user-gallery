@@ -1,0 +1,22 @@
+{
+  "data":[
+    {
+      "postId":"post1",
+      "commentId":"comment1",
+      "commentatorAvatar":"https://www.pngkey.com/png/full/73-730477_first-name-profile-image-placeholder-png.png",
+      "commentText":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi, sed ullamcorper ipsum dignissim ac. In at libero sed nunc venenatis imperdiet sed ornare turpis. Donec vitae dui eget tellus gravida venenatis.Integer fringilla congue eros non fermentum. Sed dapibus pulvinar nibh tempor porta."
+    },
+    {
+      "postId":"post2",
+      "commentId":"comment2",
+      "commentatorAvatar":"https://www.pngkey.com/png/full/73-730477_first-name-profile-image-placeholder-png.png",
+      "commentText":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi, sed ullamcorper ipsum dignissim ac. In at libero sed nunc venenatis imperdiet sed ornare turpis. Donec vitae dui eget tellus gravida venenatis.Integer fringilla congue eros non fermentum. Sed dapibus pulvinar nibh tempor porta."
+    },
+    {
+      "postId":"post3",
+      "commentId":"comment3",
+      "commentatorAvatar":"https://www.pngkey.com/png/full/950-9501315_katie-notopoulos-katienotopoulos-i-write-about-tech-user.png",
+      "commentText":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa. Fusce luctus vestibulum augue ut aliquet. Nunc sagittis dictum nisi, sed ullamcorper ipsum dignissim ac. In at libero sed nunc venenatis imperdiet sed ornare turpis. Donec vitae dui eget tellus gravida venenatis.Integer fringilla congue eros non fermentum. Sed dapibus pulvinar nibh tempor porta."
+    }
+  ]
+}
