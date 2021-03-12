@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 
 import Home from './components/home/Home.jsx';
+import Explore from './components/explore/Explore.jsx';
 
 class App extends React.Component {
 
@@ -150,9 +151,9 @@ class App extends React.Component {
 //   return <h2 className="mt-5">Home</h2>;
 // }
 
-function Explore() {
-  return <h2 className="mt-5">Explore</h2>;
-}
+// function Explore() {
+//   return <h2 className="mt-5">Explore</h2>;
+// }
 
 function Messages() {
   return <h2 className="mt-5">Messages</h2>;
