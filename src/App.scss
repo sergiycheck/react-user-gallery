@@ -1,0 +1,53 @@
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
+@mixin media-breakpoint-up($var){
+  @media (min-width:$var){
+    @content
+  }
+}
+
+.wrapper {
+	position: relative;
+	top: 0;
+	height: 100vh;
+}
+.mainContent{
+  min-height: 100%;
+  position: relative;
+
+  .user-wrapper{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+  }
+}
+
+$svg-search-icon:url("./assets/img/search.svg");
+#search{
+	background:$svg-search-icon scroll 85% 50%;
+	padding-left: 10%;
+	background-repeat: no-repeat;
+	margin-right: .5rem;
+
+	&:focus{
+		background-image: none;
+		flex-grow: 3;
+	}
+
+  @include media-breakpoint-up(
+    map-get($map: $grid-breakpoints, $key: md )){
+    &.focus {
+      width: 135%;
+    }
+  }
+
+}
+
