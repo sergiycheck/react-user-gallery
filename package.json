@@ -2,7 +2,6 @@
   "name": "react_app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://sergiycheck.github.io/react-user-gallery",
   "dependencies": {
     "@popperjs/core": "^2.9.1",
     "@testing-library/jest-dom": "^5.11.4",
@@ -19,8 +18,6 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -b gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
