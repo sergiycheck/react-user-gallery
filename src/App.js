@@ -10,6 +10,8 @@ import {
 
 import Home from './components/home/Home.jsx';
 import Explore from './components/explore/Explore.jsx';
+import Messages from './components/messages/Messages.jsx';
+import Profile from './components/profile/Profile.jsx';
 
 class App extends React.Component {
 
@@ -155,12 +157,12 @@ class App extends React.Component {
 //   return <h2 className="mt-5">Explore</h2>;
 // }
 
-function Messages() {
-  return <h2 className="mt-5">Messages</h2>;
-}
-function Profile() {
-  return <h2 className="mt-5">Profile</h2>;
-}
+// function Messages() {
+//   return <h2 className="mt-5">Messages</h2>;
+// }
+// function Profile() {
+//   return <h2 className="mt-5">Profile</h2>;
+// }
 
 function Options() {
   return <h2 className="mt-5">Options</h2>;
