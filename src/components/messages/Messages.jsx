@@ -4,21 +4,123 @@ import React, { Component } from 'react';
 
 import activateMessageHandlers from './message-scripts.js';
 
+let FRIENDS = [
+	{id:'1',name:'Stephanie',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/5.jpg",
+	
+	messages:[
+		{
+			id:'1',
+			date:'2021-04-06',
+			data:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore'
+		}
+	]
+	
+	},
+	{id:'2',name:'Julie',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/6.jpg",
+
+	messages:[
+		{
+			id:'2',
+			date:'2021-05-07',
+			data:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore'
+		}
+	]
+
+},
+	{id:'3',name:'Terrence ',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/7.jpg",
+	
+	messages:[
+		{
+			id:'3',
+			date:'2021-08-12',
+			data:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore'
+		}
+	]
+
+},
+	{id:'4',name:'Bradley ',isOnline:false,img:"https://randomuser.me/api/portraits/med/men/5.jpg",
+
+	messages:[
+		{
+			id:'4',
+			date:'2021-09-01',
+			data:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore'
+		}
+	]
+},
+	{id:'5',name:'Regina ',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/8.jpg",
+	
+	messages:[
+		{
+			id:'5',
+			date:'2021-10-05',
+			data:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore'
+		}
+	]
+},
+	{id:'6',name:'Dana ',isOnline:false,img:"https://randomuser.me/api/portraits/med/women/9.jpg",
+	
+	messages:[
+		{
+			id:'6',
+			date:'2021-06-18',
+			data:'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore'
+		}
+	]
+},
+]
+
+const MyId = '&n3f11ve';
+
 export default class Messages extends Component {
 
 	constructor(props) {
 		super(props)
 	
 		this.state = {
-			 
-		}
+			friends:FRIENDS,
+			friend:null,
+			filterText:''
+	 };
 
+
+	 this.handleInputChange = this.handleInputChange.bind(this);
+
+	 this.startChatWithFriend = this.startChatWithFriend.bind(this);
+
+	 this.sendMessage = this.sendMessage.bind(this);
 	}
+
+	handleInputChange(event){
+		this.setState((state)=>({
+			filterText:event.target.value
+		}))
+	};
+
 
 	componentDidMount(){
 		activateMessageHandlers();
 	}
-	
+	startChatWithFriend(friend){
+
+		this.setState({
+			friend:friend
+		})
+		//console.log(friend);
+	}
+
+	sendMessage(msg){
+		let message = {
+			id:MyId,
+			data:msg,
+			date:Date.now()
+		};
+		let friend = this.state.friends.find(friend=>friend.id===this.state.friend.id);
+		friend.messages.push(message);
+		this.setState({
+			friend:friend
+		})
+	}
 
 	render() {
 
@@ -42,203 +144,23 @@ export default class Messages extends Component {
 				<form action="#" className="colorlib-subscribe-form">
 					<div className="form-group d-flex">
 						<div className="icon"><span className="icon-paper-plane"></span></div>
-						<input type="text" className="form-control" placeholder="search user name"/>
+						<input 
+							onChange={this.handleInputChange}
+							value={this.state.filterText}
+							type="text" className="form-control" placeholder="search user name"/>
 					</div>
 				</form>
 			</div>
 
 			<ul className="list-unstyled components mb-5">
 
-				<li className="active">
-					<a href="#"
-						data-bs-target="#homeSubmenu" aria-controls="homeSubmenu"
-						data-bs-toggle="collapse" aria-expanded="true"
-						className="dropdown-toggle">Group 1</a>
-					<ul className="collapse list-unstyled list-group" id="homeSubmenu">
-
-						<a className="list-group-item list-group-item-action rounded-0">
-							<div className="d-flex flex-row">
-								<img className=" me-1"
-								src="https://cdn.iconscout.com/icon/free/png-256/avatar-human-man-profile-auto-user-30483.png"
-								alt="user" width="50" height="65" className="rounded-circle" />
-
-								<div className="ml-4">
-									<div className="d-flex align-items-center justify-content-between mb-1">
-										<h6 className="mb-0">First1 Last1</h6><small className="small font-weight-bold">25 Feb</small>
-									</div>
-									<p className="font-italic mb-0 text-small">
-										Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-										eiusmod tempor incididunt ut labore.
-									</p>
-								</div>
-							</div>
-						</a>
-
-						<a className="list-group-item list-group-item-action rounded-0">
-							<div className="d-flex flex-row">
-								<img className=" me-1"
-								src="https://cdn.iconscout.com/icon/free/png-256/avatar-human-man-profile-auto-user-30483.png"
-								alt="user" width="50" height="65" className="rounded-circle"/>
-
-								<div className="ml-4">
-									<div className="d-flex align-items-center justify-content-between mb-1">
-										<h6 className="mb-0">First1 Last1</h6><small className="small font-weight-bold">25 Feb</small>
-									</div>
-									<p className="font-italic mb-0 text-small">
-										Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-										eiusmod tempor incididunt ut labore.
-									</p>
-								</div>
-							</div>
-						</a>
-
-						<a className="list-group-item list-group-item-action rounded-0">
-							<div className="d-flex flex-row">
-								<img className=" me-1"
-								src="https://cdn.iconscout.com/icon/free/png-256/avatar-human-man-profile-auto-user-30483.png"
-								alt="user" width="50" height="65" className="rounded-circle"/>
-
-								<div className="ml-4">
-									<div className="d-flex align-items-center justify-content-between mb-1">
-										<h6 className="mb-0">First1 Last1</h6><small className="small font-weight-bold">25 Feb</small>
-									</div>
-									<p className="font-italic mb-0 text-small">
-										Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-										eiusmod tempor incididunt ut labore.
-									</p>
-								</div>
-							</div>
-						</a>
-
-					</ul>
-				</li>
-
-				<li>
-					<a className="list-group-item list-group-item-action rounded-0  ">
-						<div className="d-flex flex-row">
-							<img className=" me-1"
-							src="https://cdn.iconscout.com/icon/free/png-256/avatar-human-man-profile-auto-user-30483.png"
-							alt="user" width="50" height="65" className="rounded-circle"/>
-
-							<div className="ml-4">
-								<div className="d-flex align-items-center justify-content-between mb-1">
-									<h6 className="mb-0">First1 Last1</h6><small className="small font-weight-bold">25 Feb</small>
-								</div>
-								<p className="font-italic mb-0 text-small">
-									Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-									eiusmod tempor incididunt ut labore.
-								</p>
-							</div>
-						</div>
-					</a>
-				</li>
-
-
-				<li>
-					<a href="#"
-					data-bs-target="#pageSubmenu" aria-controls="pageSubmenu"
-					data-bs-toggle="collapse" aria-expanded="true"
-					className="dropdown-toggle">Group 2</a>
-					<ul className="collapse list-unstyled list-group" id="pageSubmenu">
-						<li>
-							<a className="list-group-item list-group-item-action rounded-0  ">
-								<div className="d-flex flex-row">
-									<img className=" me-1"
-									src="https://cdn.iconscout.com/icon/free/png-256/avatar-human-man-profile-auto-user-30483.png"
-									alt="user" width="50" height="65" className="rounded-circle"/>
-
-									<div className="ml-4">
-										<div className="d-flex align-items-center justify-content-between mb-1">
-											<h6 className="mb-0">First1 Last1</h6><small className="small font-weight-bold">25 Feb</small>
-										</div>
-										<p className="font-italic mb-0 text-small">
-											Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-											eiusmod tempor incididunt ut labore.
-										</p>
-									</div>
-								</div>
-							</a>
-						</li>
-						<li>
-							<a className="list-group-item list-group-item-action rounded-0  ">
-								<div className="d-flex flex-row">
-									<img className=" me-1"
-									src="https://cdn.iconscout.com/icon/free/png-256/avatar-human-man-profile-auto-user-30483.png"
-									alt="user" width="50" height="65" className="rounded-circle"/>
-
-									<div className="ml-4">
-										<div className="d-flex align-items-center justify-content-between mb-1">
-											<h6 className="mb-0">First1 Last1</h6><small className="small font-weight-bold">25 Feb</small>
-										</div>
-										<p className="font-italic mb-0 text-small">
-											Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-											eiusmod tempor incididunt ut labore.
-										</p>
-									</div>
-								</div>
-							</a>
-						</li>
-						<li>
-							<a className="list-group-item list-group-item-action rounded-0  ">
-								<div className="d-flex flex-row">
-									<img className=" me-1"
-									src="https://cdn.iconscout.com/icon/free/png-256/avatar-human-man-profile-auto-user-30483.png"
-									alt="user" width="50" height="65" className="rounded-circle"/>
-
-									<div className="ml-4">
-										<div className="d-flex align-items-center justify-content-between mb-1">
-											<h6 className="mb-0">First1 Last1</h6><small className="small font-weight-bold">25 Feb</small>
-										</div>
-										<p className="font-italic mb-0 text-small">
-											Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-											eiusmod tempor incididunt ut labore.
-										</p>
-									</div>
-								</div>
-							</a>
-						</li>
-					</ul>
-				</li>
-
-				<li>
-					<a className="list-group-item list-group-item-action rounded-0  ">
-						<div className="d-flex flex-row">
-							<img className=" me-1"
-							src="https://cdn.iconscout.com/icon/free/png-256/avatar-human-man-profile-auto-user-30483.png"
-							alt="user" width="50" height="65" className="rounded-circle"/>
-
-							<div className="ml-4">
-								<div className="d-flex align-items-center justify-content-between mb-1">
-									<h6 className="mb-0">First1 Last1</h6><small className="small font-weight-bold">25 Feb</small>
-								</div>
-								<p className="font-italic mb-0 text-small">
-									Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-									eiusmod tempor incididunt ut labore.
-								</p>
-							</div>
-						</div>
-					</a>
-				</li>
-
-				<li>
-					<a className="list-group-item list-group-item-action rounded-0  ">
-						<div className="d-flex flex-row">
-							<img className=" me-1"
-							src="https://cdn.iconscout.com/icon/free/png-256/avatar-human-man-profile-auto-user-30483.png"
-							alt="user" width="50" height="65" className="rounded-circle"/>
-
-							<div className="ml-4">
-								<div className="d-flex align-items-center justify-content-between mb-1">
-									<h6 className="mb-0">First1 Last1</h6><small className="small font-weight-bold">25 Feb</small>
-								</div>
-								<p className="font-italic mb-0 text-small">
-									Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-									eiusmod tempor incididunt ut labore.
-								</p>
-							</div>
-						</div>
-					</a>
-				</li>
+			
+				<FriendsContainer 
+					friends={this.state.friends} 
+					filterTextData={this.state.filterText}
+					startChatWithFriend={this.startChatWithFriend}
+					></FriendsContainer>
+			
 
 			</ul>
 
@@ -248,103 +170,210 @@ export default class Messages extends Component {
 
 	<div className="container">
 
-		<div className="row align-items-end chat-content justify-content-start">
-			<div className="col-sm-7">
+	{this.state.friend && 
 
-				<div className="chat-message-container d-flex flex-column overflow-auto">
+		<MessagesBox 
+			messages={this.state.friend.messages}
+			sendMessage={this.sendMessage}
+			friendName={this.state.friend.name} 
+			friendImg={this.state.friend.img}
+			></MessagesBox>
+	}
 
-					<div className="my-2 align-self-start">
-						<div className="rounded d-flex mb-1">
+	</div>
 
-							<div className="me-2">
-								<img src="https://img.icons8.com/pastel-glyph/2x/person-male--v2.png"
-								width="50" height="50" className="rounded me-2" alt="user picture"/>
-							</div>
+</div>
+		)
+	}
+}
 
-							<div className="bg-light">
-								<div className="d-flex justify-content-end">
-									<small className="text-muted me-2 edit-msg">Edit</small>
-									<button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-								</div>
 
-								<div className="p-2">
-									<p className="text-small mb-0 text-muted">
-										Message one Lorem, ipsum dolor sit amet
-									</p>
-								</div>
-							</div>
 
-						</div>
-						<p className="small text-muted">12:00 PM | Apr. 13</p>
-					</div>
+class FriendsContainer extends Component{
+	constructor(props) {
+		super(props)
+	
+		// this.state = {
+			 
+		// }
 
-					<div className="my-2 align-self-start">
-						<div className="rounded d-flex mb-1">
+		this.startChatWithFriend = this.startChatWithFriend.bind(this);
+	}
 
-							<div className="me-2">
-								<img src="https://img.icons8.com/pastel-glyph/2x/person-male--v2.png"
-								width="50" height="50" className="rounded me-2" alt="user picture"/>
-							</div>
+	startChatWithFriend(friend){
+		this.props.startChatWithFriend(friend);
+	}
+	
+render(){
+	
+	let friends = this.props.friends;
+	let filterText = this.props.filterTextData;
+	const friendItems = [];
 
-							<div className="bg-light">
-								<div className="d-flex justify-content-end">
-									<small className="text-muted me-2 edit-msg">Edit</small>
-									<button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-								</div>
+	//todo: add more options for filtering
 
-								<div className="p-2">
-									<p className="text-small mb-0 text-muted">
-										Message one Lorem, ipsum dolor sit amet
-									</p>
-								</div>
-							</div>
+	Array.from(friends).forEach(friend=>{
+		if(
+			String(friend.name)
+			.toUpperCase()
+			.indexOf(filterText.toUpperCase())!==-1 || 
+			String(friend.message)
+			.toUpperCase()
+			.indexOf(filterText.toUpperCase())!==-1 
+		)
+		{
+			friendItems.push(
+				<Friend key={friend.id} friend={friend} startChatWithFriend={this.startChatWithFriend} ></Friend>
+			);
+		}
 
-						</div>
-						<p className="small text-muted">12:00 PM | Apr. 13</p>
-					</div>
+	});
 
-					<div className="my-2 align-self-end">
-						<div className="rounded d-flex mb-1">
-							<div className="bg-light">
-								<div className="d-flex justify-content-end">
-									<small className="text-muted me-2 edit-msg">Edit</small>
-									<button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-								</div>
+	return(
+		<>
+			{friendItems}
+		</>
+	);
+}
 
-								<div className="p-2">
-									<p className="text-small mb-0 text-white bg-primary p-2 rounded">
-										Message one Lorem, ipsum dolor sit amet
-									</p>
-								</div>
-							</div>
+}
 
-						</div>
-						<p className="small text-muted">5:00 PM | Apr. 23</p>
+class Friend extends Component{
+	constructor(props) {
+		super(props)
+	
+		this.startChatWithFriend = this.startChatWithFriend.bind(this);
+	}
+	
+	startChatWithFriend(friend){
+		this.props.startChatWithFriend(friend);
+	}
+render(){
+
+	let date = '';
+	let message = '';
+	let msgArr = this.props.friend.messages;
+
+	if( msgArr && msgArr.length>0){
+
+		date = Array.from(msgArr)[msgArr.length-1].date;
+		date = new Date(date);
+		date = date.toLocaleDateString();
+		message = Array.from(msgArr)[msgArr.length-1].data;
+	}	
+	
+	return(
+	<li onClick={()=>this.startChatWithFriend(this.props.friend)}>
+		<a className="list-group-item list-group-item-action rounded-0  ">
+			<div className="d-flex">
+
+				<div className="col-sm-2 ">
+					<img className="img-fluid m-2 rounded-circle"
+					style={{height:'60px'}}
+					src={this.props.friend.img}
+					alt={this.props.friend.name} width="50" height="65"/>
+					<div 
+						className={this.props.friend.isOnline?
+						'bg-success rounded-circle':
+						'bg-dark rounded-circle'}
+							style={{height:'20px',width:'20px'}}>
 					</div>
 				</div>
 
+				<div className="col-sm-9">
+					<div className="d-flex align-items-center justify-content-between mb-1">
+						<h6 className="mb-0">{this.props.friend.name}</h6>
+						<small className="small font-weight-bold">{date}</small>
+					</div>
+					<p className="font-italic mb-0 text-small">
+						{message}
+					</p>
+				</div>
+			</div>
+		</a>
+	</li>
+
+	);
+
+}
+
+}
+
+
+
+
+class MessagesBox extends Component {
+	constructor(props) {
+		super(props)
+
+		this.state={
+			msgText:''
+		}
+	
+		this.handleInputMsgChange = this.handleInputMsgChange.bind(this);
+
+		this.sendMessage = this.sendMessage.bind(this);
+	}
+	
+	handleInputMsgChange(event){
+		this.setState({
+			msgText:event.target.value
+		})
+	}
+
+	sendMessage(){
+		if(this.state.msgText!==''){
+			this.props.sendMessage(this.state.msgText);
+		}
+
+		this.setState({
+			msgText:''
+		});
+		
+	}
+
+	render() {
+		return (
+
+			<div className="row align-items-end chat-content justify-content-start">
+				<div className="col-sm-7">
+
+					<div className="chat-message-container d-flex flex-column overflow-auto">
+
+						{this.props.messages.map((msg,index)=>
+							<MessageData
+								key={msg.id+index} 
+								message={msg} 
+								friendName={this.props.friendName} 
+								friendImg={this.props.friendImg}
+								></MessageData>
+						)}
+
+					</div>
+				
+			
 				<div className="p-1 m-2">
 					<div className="row justify-content-start">
 						<div className="col-md-9 col-sm-12">
 
-							{/* <!-- <input id="message-data"
+							<input
+								onChange={this.handleInputMsgChange}
+								value={this.state.msgText} 
+								id="message-data"
 								type="text"
 								className="form-control border-2 pl-2"
-								placeholder="Write your message..."> --> */}
-
-								<span
-									id="message-data"
-									className="input-span form-control border-2 pl-2"
-									role="textbox"
-									contentEditable>
-								</span>
+								placeholder="Write your message..."/>
 
 						</div>
+
 						<div className="col-md-2 col-sm-2">
-							<button id="send-message-btn" type="submit" className="btn btn-primary">
+							<button
+								onClick={this.sendMessage} 
+								id="send-message-btn" type="submit" className="btn btn-primary">
 								<span className="material-icons">send</span>
 							</button>
 						</div>
+
 					</div>
 				</div>
 
@@ -353,9 +382,48 @@ export default class Messages extends Component {
 
 		</div>
 
-	</div>
-
-</div>
 		)
 	}
+}
+
+
+function MessageData(props){
+
+	let date = new Date(props.message.date);
+	date = date.toLocaleDateString();
+	return(
+		<div className={props.message.id===MyId?'my-2 align-self-end':'my-2 align-self-end'}>
+
+		<div className="rounded d-flex mb-1">
+
+			{props.message.id!==MyId && 
+
+				<div className="me-2">
+					<img src={props.friendImg}
+					width="50" height="50" className="rounded me-2" alt="user picture"/>
+					<p>{props.friendName}</p>
+				</div>
+			}
+			
+
+			<div className="bg-light">
+				<div className="d-flex justify-content-end">
+					<small className="text-muted me-2 edit-msg">Edit</small>
+					<button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+				</div>
+
+				<div className="p-2">
+					<p className={props.message.id===MyId?'text-small mb-0 text-white bg-primary p-2 rounded':'text-small mb-0 text-muted'} >
+						{props.message.data}
+					</p>
+				</div>
+			</div>
+
+		</div>
+
+		<p className="small text-muted">{date}</p>
+	</div>
+
+	)
+	
 }

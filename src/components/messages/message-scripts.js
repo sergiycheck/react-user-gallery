@@ -2,7 +2,7 @@
 export default function activateMessageHandlers(){
 
 	clickSideBarToggler();
-	addMessage();
+	//addMessage();
 }
 
 function clickSideBarToggler(){

@@ -21,19 +21,25 @@ $grid-breakpoints: (
 
 // $primary: #654da7;
 // $white: #ffff;
-$sidebarWidth:450px;
+$sidebarWidth:500px;
 $sideBarAHover:rgba(28, 140, 252, 0.79);
 $white:#fff;
 $black:#000;
 $primary:#0d6efd;
 
 .sidebar {
+	
   min-width: $sidebarWidth;
   max-width: $sidebarWidth;
   // background: rgb(133, 196, 206);
   color:$white;
   transition: all 0.1s;
   position: relative;
+
+	.components{
+		max-height: 800px;
+		overflow-y: scroll;
+	}
   .h6{
   	color: $black;
   }
