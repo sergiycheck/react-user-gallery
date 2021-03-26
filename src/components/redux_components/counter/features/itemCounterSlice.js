@@ -1,10 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-export const messageCounterSlice = createSlice({
-  name: 'messageCounter',
+export const itemCounterSlice = createSlice({
+  
+  name: 'itemCounter',
+
   initialState: {
     value: 0,
   },
+
   reducers: {
     increment: state => {
       state.value += 1;
@@ -21,9 +24,9 @@ export const messageCounterSlice = createSlice({
 export const {
 	 increment, 
 	 decrement, 
-	 incrementByAmount } = messageCounterSlice.actions;
+	 incrementByAmount } = itemCounterSlice.actions;
 
 //selector
-export const selectCount = state => state.messageCounter.value;
+export const selectItemCount = state => state.itemCounter.value;
 
-export default messageCounterSlice.reducer;
+export default itemCounterSlice.reducer;

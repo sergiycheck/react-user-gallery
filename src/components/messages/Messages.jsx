@@ -4,6 +4,10 @@ import React, { Component } from 'react';
 
 import activateMessageHandlers from './message-scripts.js';
 
+import ItemCounter from '../redux_components/counter/ItemCounter'
+
+
+
 let FRIENDS = [
 	{id:'1',name:'Stephanie',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/5.jpg",
 	
@@ -80,7 +84,8 @@ export default class Messages extends Component {
 		this.state = {
 			friends:FRIENDS,
 			friend:null,
-			filterText:''
+			filterText:'',
+			totalMessageCount:0
 	 };
 
 
@@ -99,8 +104,25 @@ export default class Messages extends Component {
 
 
 	componentDidMount(){
+		
+		console.log('componentDidMount')
 		activateMessageHandlers();
+
+		this.updateMessageCount();
 	}
+
+	updateMessageCount(){
+		let allMsgCount = 0;
+		Array.from(this.state.friends).forEach(f=>{
+			if(f.messages && f.messages.length>0){
+				allMsgCount +=f.messages.length;
+			}
+		});
+		this.setState({
+			totalMessageCount:allMsgCount
+		})
+	}
+
 	startChatWithFriend(friend){
 
 		this.setState({
@@ -110,6 +132,7 @@ export default class Messages extends Component {
 	}
 
 	sendMessage(msg){
+
 		let message = {
 			id:MyId,
 			data:msg,
@@ -120,6 +143,8 @@ export default class Messages extends Component {
 		this.setState({
 			friend:friend
 		})
+
+		this.updateMessageCount();
 	}
 
 	render() {
@@ -269,7 +294,7 @@ render(){
 
 				<div className="col-sm-2 ">
 					<img className="img-fluid m-2 rounded-circle"
-					style={{height:'60px'}}
+					style={{height:'50px'}}
 					src={this.props.friend.img}
 					alt={this.props.friend.name} width="50" height="65"/>
 					<div 
@@ -303,6 +328,7 @@ render(){
 
 
 class MessagesBox extends Component {
+
 	constructor(props) {
 		super(props)
 
@@ -311,7 +337,6 @@ class MessagesBox extends Component {
 		}
 	
 		this.handleInputMsgChange = this.handleInputMsgChange.bind(this);
-
 		this.sendMessage = this.sendMessage.bind(this);
 	}
 	
@@ -321,7 +346,8 @@ class MessagesBox extends Component {
 		})
 	}
 
-	sendMessage(){
+	sendMessage(event){
+
 		if(this.state.msgText!==''){
 			this.props.sendMessage(this.state.msgText);
 		}
@@ -333,6 +359,7 @@ class MessagesBox extends Component {
 	}
 
 	render() {
+
 		return (
 
 			<div className="row align-items-end chat-content justify-content-start">
@@ -352,37 +379,39 @@ class MessagesBox extends Component {
 					</div>
 				
 			
-				<div className="p-1 m-2">
-					<div className="row justify-content-start">
-						<div className="col-md-9 col-sm-12">
+					<div className="p-1 m-2">
+						<div className="row justify-content-start">
+							<div className="col-md-9 col-sm-12">
 
-							<input
-								onChange={this.handleInputMsgChange}
-								value={this.state.msgText} 
-								id="message-data"
-								type="text"
-								className="form-control border-2 pl-2"
-								placeholder="Write your message..."/>
+								<input
+									onChange={this.handleInputMsgChange}
+									value={this.state.msgText} 
+									id="message-data"
+									type="text"
+									className="form-control border-2 pl-2"
+									placeholder="Write your message..."/>
+
+							</div>
+
+							<div className="col-md-2 col-sm-2">
+								<button
+									onClick={this.sendMessage} 
+									id="send-message-btn" type="submit" className="btn btn-primary">
+									<span className="material-icons">send</span>
+								</button>
+								<ItemCounter>
+								</ItemCounter>
+							</div>
+							
 
 						</div>
-
-						<div className="col-md-2 col-sm-2">
-							<button
-								onClick={this.sendMessage} 
-								id="send-message-btn" type="submit" className="btn btn-primary">
-								<span className="material-icons">send</span>
-							</button>
-						</div>
-
 					</div>
-				</div>
 
+				</div>
 			</div>
 
-
-		</div>
-
 		)
+
 	}
 }
 

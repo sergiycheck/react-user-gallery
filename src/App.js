@@ -13,6 +13,16 @@ import Explore from './components/explore/Explore.jsx';
 import Messages from './components/messages/Messages.jsx';
 import Profile from './components/profile/Profile.jsx';
 
+import SvgIcon from '@material-ui/core/SvgIcon';
+
+function HomeIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+    </SvgIcon>
+  );
+}
+
 class App extends React.Component {
 
   constructor(props){
@@ -32,7 +42,10 @@ class App extends React.Component {
               role="navigation">
 
             <div className="container  text-dark">
-              <Link className="navbar-brand" to="/">Home</Link>
+              <Link className="navbar-brand" to="/">
+              <HomeIcon color="action" />
+              <span>Home</span>
+              </Link>
               
               <button className="navbar-toggler" type="button"
                 data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
