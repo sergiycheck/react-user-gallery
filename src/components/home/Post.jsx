@@ -58,12 +58,19 @@ class Post extends React.Component{
 			return;
 		}
 
+		let avatar = '';
+		if(this.state.comments && this.state.comments.length>0){
+			avatar = this.state.comments
+			.find(c=>c.commentatorAvatar!=null).commentatorAvatar;
+		}else if(this.state.post.authorAvatar){
+			avatar = this.state.post.authorAvatar;
+		}
+
 		const newComment = {
 			postId:this.state.post.postId,
 			commentId:Date.now(),
 			commentText:this.state.newCommentData,
-			commentatorAvatar:this.state.comments
-				.find(c=>c.commentatorAvatar!=null).commentatorAvatar
+			commentatorAvatar:avatar
 		};
 		this.concatComments(newComment);
 
