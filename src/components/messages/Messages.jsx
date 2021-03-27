@@ -1,12 +1,20 @@
 import './Messages.scss';
 
-import React, { Component } from 'react';
+import React, { Component,useState } from 'react';
 
 import activateMessageHandlers from './message-scripts.js';
 
 import ItemCounter from '../redux_components/counter/ItemCounter'
 
+import { useSelector, useDispatch } from 'react-redux';
 
+import { 
+	increment,
+	decrement,
+	incrementByAmount,
+	selectItemCount,
+}
+from '../redux_components/counter/features/itemCounterSlice';
 
 let FRIENDS = [
 	{id:'1',name:'Stephanie',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/5.jpg",
@@ -149,6 +157,7 @@ export default class Messages extends Component {
 
 	render() {
 
+	
 		return (
 <div className="user-wrapper d-flex align-items-stretch mt-5">
 
@@ -164,6 +173,8 @@ export default class Messages extends Component {
 
 		<div className="p-4 pt-5">
 
+			
+
 			<div className="mb-5">
 				<h3 className="h6">Search user names</h3>
 				<form action="#" className="colorlib-subscribe-form">
@@ -176,6 +187,7 @@ export default class Messages extends Component {
 					</div>
 				</form>
 			</div>
+
 
 			<ul className="list-unstyled components mb-5">
 
@@ -193,8 +205,17 @@ export default class Messages extends Component {
 
 	</nav>
 
-	<div className="container">
-
+	<div className="container pt-5">
+		
+		<div className="row">
+			<div className="offset-3 col-sm-4 d-flex justify-content-between align-items-center">
+				<h2>Messages send</h2>
+				<ItemCounter></ItemCounter>
+			</div>
+			
+		</div>
+		
+	
 	{this.state.friend && 
 
 		<MessagesBox 
@@ -327,38 +348,30 @@ render(){
 
 
 
-class MessagesBox extends Component {
+function MessagesBox(props)  {
 
-	constructor(props) {
-		super(props)
+	const[msgText,setMsgText] = useState('');
 
-		this.state={
-			msgText:''
-		}
-	
-		this.handleInputMsgChange = this.handleInputMsgChange.bind(this);
-		this.sendMessage = this.sendMessage.bind(this);
-	}
-	
-	handleInputMsgChange(event){
-		this.setState({
-			msgText:event.target.value
-		})
+	const dispatch = useDispatch();
+	const itemCounter = useSelector(selectItemCount);
+
+	const handleInputMsgChange = function(event){
+
+		setMsgText(event.target.value);
+
 	}
 
-	sendMessage(event){
+	const sendMessage = function(event){
 
-		if(this.state.msgText!==''){
-			this.props.sendMessage(this.state.msgText);
+		if(msgText!==''){
+			props.sendMessage(msgText);
 		}
 
-		this.setState({
-			msgText:''
-		});
-		
+		setMsgText('');
+		dispatch(increment());		
 	}
 
-	render() {
+	//render() {
 
 		return (
 
@@ -367,12 +380,12 @@ class MessagesBox extends Component {
 
 					<div className="chat-message-container d-flex flex-column overflow-auto">
 
-						{this.props.messages.map((msg,index)=>
+						{props.messages.map((msg,index)=>
 							<MessageData
 								key={msg.id+index} 
 								message={msg} 
-								friendName={this.props.friendName} 
-								friendImg={this.props.friendImg}
+								friendName={props.friendName} 
+								friendImg={props.friendImg}
 								></MessageData>
 						)}
 
@@ -384,8 +397,9 @@ class MessagesBox extends Component {
 							<div className="col-md-9 col-sm-12">
 
 								<input
-									onChange={this.handleInputMsgChange}
-									value={this.state.msgText} 
+									onChange={handleInputMsgChange}
+									//value={this.state.msgText} 
+									value={msgText} 
 									id="message-data"
 									type="text"
 									className="form-control border-2 pl-2"
@@ -395,14 +409,19 @@ class MessagesBox extends Component {
 
 							<div className="col-md-2 col-sm-2">
 								<button
-									onClick={this.sendMessage} 
-									id="send-message-btn" type="submit" className="btn btn-primary">
+									onClick={sendMessage} 
+									id="send-message-btn" type="submit" 
+									className="btn btn-primary">
 									<span className="material-icons">send</span>
 								</button>
-								<ItemCounter>
-								</ItemCounter>
+								
 							</div>
-							
+
+							<div>
+								<span className="">
+										messages send: {itemCounter}
+								</span>
+							</div>
 
 						</div>
 					</div>
@@ -412,7 +431,7 @@ class MessagesBox extends Component {
 
 		)
 
-	}
+	//}
 }
 
 
@@ -421,7 +440,8 @@ function MessageData(props){
 	let date = new Date(props.message.date);
 	date = date.toLocaleDateString();
 	return(
-		<div className={props.message.id===MyId?'my-2 align-self-end':'my-2 align-self-end'}>
+		<div className={
+			props.message.id===MyId?'my-2 align-self-end':'my-2 align-self-end'}>
 
 		<div className="rounded d-flex mb-1">
 

@@ -15,7 +15,6 @@ from './features/itemCounterSlice';
 
 
 
-
 export default function ItemCounter(props){
 
 	//console.log('MessageCounter',props.msgCount);
@@ -36,21 +35,25 @@ export default function ItemCounter(props){
 	return(
 		<div className="d-flex">
 
-			<Button
+			{/* <Button
 			variant="contained"
 			color="primary"
 			onClick={()=>dispatch(increment())}
 			className="m-2">
 			+
-			</Button>
+			</Button> */}
 			
-			<span className="fs-2">{itemCounter}</span>
-			<Button 
+			<div>
+				<span className="fs-2">{itemCounter}</span>
+			</div>
+			
+
+			{/* <Button 
 			onClick={()=>dispatch(decrement())}
 			variant="contained"
 			className="btn bg-warning m-2">
 				-
-			</Button>
+			</Button> */}
 
 			{/* <input
 				value={incrementItemsAmount}
