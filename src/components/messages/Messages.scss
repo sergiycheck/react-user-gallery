@@ -1,0 +1,164 @@
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+);
+
+
+@mixin media-breakpoint-down($var){
+  @media (max-width:$var){
+    @content
+  }
+}
+
+@mixin transition($var){
+  transition: $var all ease;
+}
+
+// $primary: #654da7;
+// $white: #ffff;
+$sidebarWidth:500px;
+$sideBarAHover:rgba(28, 140, 252, 0.79);
+$white:#fff;
+$black:#000;
+$primary:#0d6efd;
+
+.sidebar {
+	
+  min-width: $sidebarWidth;
+  max-width: $sidebarWidth;
+  // background: rgb(133, 196, 206);
+  color:$white;
+  transition: all 0.1s;
+  position: relative;
+
+	.components{
+		max-height: 800px;
+		overflow-y: scroll;
+	}
+  .h6{
+  	color: $black;
+  }
+  &.active{
+  	margin-left: -$sidebarWidth;
+  	.custom-menu{
+			margin-right: -50px;
+	  }
+  }
+  h1{
+  	margin-bottom: 20px;
+  	font-weight: 700;
+  	.logo{
+  		color: $black;
+  	}
+  }
+  ul.components{
+  	padding: 0;
+  }
+  ul{
+    li{
+    	font-size: 16px;
+    	>ul{
+    		margin-left: 10px;
+    		li{
+    			font-size: 14px;
+    		}
+    	}
+    	a{
+    		padding: 10px 5px;
+		    display: block;
+		    color: rgba(27, 22, 22, 0.8);
+		    border-bottom: 1px solid rgba(255,255,255,.1);
+		    &:hover{
+		    	color: $white;
+					background: $sideBarAHover;
+					cursor: pointer;
+		    }
+    	}
+    	&.active{
+    		> a{
+    			background: transparent;
+    			color: $black;
+    		}
+    	}
+    }
+  }
+
+  @include media-breakpoint-down(
+    map-get($map: $grid-breakpoints, $key: lg )){
+    margin-left: -$sidebarWidth;
+    &.active {
+      margin-left: 0;
+    }
+    .custom-menu{
+    	margin-right: -50px !important;
+    	top: 10px !important;
+    }
+  }
+
+	a {
+		transition: .1s all ease;
+		// color: $primary;
+		text-decoration: none !important;
+		&:hover, &:focus {
+			text-decoration: none !important;
+			outline: none !important;
+			box-shadow: none;
+		}
+	}
+	button {
+		transition: .1s all ease;
+		&:hover, &:focus {
+			text-decoration: none !important;
+			outline: none !important;
+			box-shadow: none !important;
+		}
+	}
+
+  .custom-menu{
+		display: inline-block;
+		position: absolute;
+		top: 50px;
+		right: 0;
+		margin-right: -20px;
+		@include transition(.2s);
+		.btn{
+			width: 40px;
+			height: 40px;
+			border-radius: 50%;
+			&.btn-primary{
+				background: darken($primary,10%);
+				border-color: darken($primary,10%);
+				&:hover, &:focus{
+					background: darken($primary,10%) !important;
+					border-color: darken($primary,10%) !important;
+				}
+			}
+		}
+  }
+}
+
+
+.chat-content{
+	min-height: 85%;
+	width: auto;
+}
+.chat-message-container{
+	max-height: 80vh;
+	.edit-msg:hover{
+		cursor: pointer;
+		color: rgb(0, 0, 0);
+	}
+}
+
+//.textarea,
+.input-span{
+  border: 1px solid #ccc;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 1px 6px;
+}

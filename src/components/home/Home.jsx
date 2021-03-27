@@ -5,6 +5,9 @@ import Post from './Post.jsx';
 import HomeOverlay from './HomeOverlay.jsx'
 
 
+//todo: add unsplash api requests 
+//https://unsplash.com/documentation
+
 
 
 class Home extends React.Component{
