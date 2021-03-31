@@ -8,7 +8,7 @@ class HomeOverlay extends React.Component{
 	render(){
 		return(
 
-			<div className="overlay">
+		<div className="overlay">
 			<div className="overlay-content container">
 
 				<div className="row justify-content-center post-big-view">
