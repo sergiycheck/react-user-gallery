@@ -14,7 +14,7 @@ import {
 	incrementByAmount,
 	selectItemCount,
 }
-from '../redux_components/counter/features/itemCounterSlice';
+from '../redux_components/counter/itemCounterSlice';
 
 let FRIENDS = [
 	{id:'1',name:'Stephanie',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/5.jpg",

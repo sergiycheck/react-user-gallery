@@ -9,18 +9,42 @@ import 'bootstrap/dist/js/bootstrap.js';
 
 import { Provider } from 'react-redux';
 
-import store from './components/redux_components/counter/features/store'
+import store from './components/redux_components/store';
+
+import makeServer from './api/server';
+
+import { BrowserRouter, Route } from "react-router-dom";
+
+import { QueryParamProvider } from "use-query-params";
+
+if(process.env.NODE_ENV==='development' 
+  && typeof makeServer ==='function'){
+    makeServer();
+  }
+
 
 ReactDOM.render(
-  <React.StrictMode>
 
-    <Provider store={store}>
+<React.StrictMode>
 
-      <App />
+    <BrowserRouter>
+      <QueryParamProvider ReactRouterRoute={Route}>
 
-    </Provider>
+      <Provider store={store}>
 
-  </React.StrictMode>,
+        <App />
+
+      </Provider>
+
+
+      </QueryParamProvider>
+
+    </BrowserRouter>
+
+
+  </React.StrictMode>
+  
+  ,
   document.getElementById('root')
 );
 

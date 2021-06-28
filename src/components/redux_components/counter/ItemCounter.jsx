@@ -11,7 +11,7 @@ import {
 	incrementByAmount,
 	selectItemCount,
 }
-from './features/itemCounterSlice';
+from './itemCounterSlice';
 
 
 
@@ -33,38 +33,10 @@ export default function ItemCounter(props){
 	//  },[props.msgCount]);
 
 	return(
-		<div className="d-flex">
-
-			{/* <Button
-			variant="contained"
-			color="primary"
-			onClick={()=>dispatch(increment())}
-			className="m-2">
-			+
-			</Button> */}
-			
+		<div className="d-flex">			
 			<div>
 				<span className="fs-2">{itemCounter}</span>
 			</div>
-			
-
-			{/* <Button 
-			onClick={()=>dispatch(decrement())}
-			variant="contained"
-			className="btn bg-warning m-2">
-				-
-			</Button> */}
-
-			{/* <input
-				value={incrementItemsAmount}
-				onChange={e=>setIncrementAmount(e.target.value)} 
-				className="form-control" type="number"/>
-			<Button 
-				onClick={()=>
-					dispatch(incrementByAmount(Number(incrementItemsAmount) || 0))}
-				className="btn bg-success">
-				add amount
-			</Button> */}
 			
 		</div>
 	)

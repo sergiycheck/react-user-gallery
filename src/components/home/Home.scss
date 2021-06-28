@@ -4,6 +4,7 @@ $user-max-z-index:1030;/* next max z-index*/
 /* The Overlay (background) */
 .overlay {
   /* Height & width depends on how you want to reveal the overlay (see JS below) */
+  display: none;
   height: 0vh;
   width: 100%;
   position: fixed; /* Stay in place */
