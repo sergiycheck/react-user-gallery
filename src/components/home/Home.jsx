@@ -50,8 +50,8 @@ export const Home=()=>{
 	},[videosStatus,dispatch])
 
 	useEffect(()=>{
-		if(videosStatus == StatusData.succeeded 
-			&& postsStatus == StatusData.succeeded
+		if(videosStatus === StatusData.succeeded 
+			&& postsStatus === StatusData.succeeded
 			){
 
 			if(!areHomeHandlersActivated){
@@ -127,7 +127,6 @@ const PostsList = () => {
 
 	const [from,setFromPaginationProp] = useState(0);
 	const [to,setToPaginationProp] = useState(increment);
-
 	
 
 	useEffect(()=>{

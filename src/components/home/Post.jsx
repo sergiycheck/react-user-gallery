@@ -45,9 +45,14 @@ import {
 
 	useEffect(()=>{
 		dispatch(fetchPostComments({postId, from, to}));
+		setPaginationProperties(from,to);
 	},[postId,dispatch])
 
-
+	const setPaginationProperties = (from,to)=>{
+		setPaginationFromProp(from);
+		setPaginationToProp(to);
+		console.log('pagination properties set', ' from ',from, ' to ', to);
+	}
 
 	const user = useSelector(state => selectUserById(state,userId));
 	

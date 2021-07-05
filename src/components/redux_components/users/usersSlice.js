@@ -30,7 +30,9 @@ const initialState = usersAdapter.getInitialState({
 
 export const fetchSingleUser = createAsyncThunk(`${usersName}/fetchUser`,
 async(userId)=>{
+
 	const url = singleUserPageRoute.replace(':userId',userId);
+	console.log('fetching user', url);
 	const client = new ClientBuilder(url);
 	const response = await client.fetchWithConfig();
 	console.log('got response', response);
