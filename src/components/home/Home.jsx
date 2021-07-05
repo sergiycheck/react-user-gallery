@@ -70,19 +70,19 @@ export const Home=()=>{
 
 
 
-	let contentVideos = [];
+
+	const contentVideos = videosIds.map(videoId=>
+		<VideoElement key={videoId} videoId={videoId}></VideoElement>
+	)
 	
+	let loadingVideosMessage = 'loading videos';
+
 	if(videosStatus===StatusData.loading ){
-		
 		console.log('contentVideos ',contentVideos);
+		loadingVideosMessage = 'loading videos';
 	}else if (videosStatus === StatusData.succeeded ){
 		console.log(' StatusData.succeeded videosIds');
-
-		let videoList = videosIds.map(videoId=>
-			<VideoElement key={videoId} videoId={videoId}></VideoElement>
-		)
-		
-		contentVideos = [...contentVideos, ...videoList];
+		loadingVideosMessage = '';
 	}
 
 			
@@ -98,6 +98,7 @@ export const Home=()=>{
 
 				<div id="hm-heading" className="text-center p-3">
 
+				{loadingVideosMessage}
 				<Carousel contentVideos={contentVideos} ></Carousel>
 
 

@@ -46,7 +46,7 @@ describe('Home',()=>{
 		const textVid = screen.getByText(/loading videos/i);
 		expect(textVid).toBeInTheDocument();
 
-		const textPost = screen.getByText(/loading posts/i);
+		const textPost = screen.getByAltText(/loader image/i);
 		expect(textPost).toBeInTheDocument();
 	})
 
@@ -81,8 +81,8 @@ describe('Home',()=>{
 		expect.assertions(1);
 		const client = new ClientBuilder(postsRoute)
 		const response = await client.fetchWithConfig();
-		const posts = response.posts
-		expect(posts.every(p=>p.user)).toBeTruthy();
+		const posts = response;
+		expect(posts.every(p=>p.userId!==null)).toBeTruthy();
 	})
 
 	test('load posts with comments', async()=>{
@@ -90,8 +90,8 @@ describe('Home',()=>{
 		expect.assertions(1);
 		const client = new ClientBuilder(postsRoute)
 		const response = await client.fetchWithConfig();
-		const posts = response.posts
-		expect(posts.every(p=>p.comments.length>0)).toBeTruthy()
+		const posts = response;
+		expect(posts.every(p=>p.commentIds.length>0)).toBeTruthy()
 	})
 
 	test('fetch single post with user and commetns', async()=>{
@@ -99,7 +99,7 @@ describe('Home',()=>{
 		expect.assertions(1);
 		const client = new ClientBuilder(postsRoute)
 		let response = await client.fetchWithConfig();
-		const posts = response.posts;
+		const posts = response;
 		const postId = posts[0].id;
 
 		response = await client.fetchWithConfig(`fakeApi/posts/${postId}`);
@@ -115,7 +115,7 @@ describe('Home',()=>{
 		expect.assertions(2);
 		const client = new ClientBuilder(postsRoute)
 		let response = await client.fetchWithConfig();
-		const posts = response.posts;
+		const posts = response;
 		const postId = posts[0].id;
 
 		response = await client.fetchWithConfig(`fakeApi/posts/${postId}/comments`);
