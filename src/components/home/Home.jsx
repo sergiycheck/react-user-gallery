@@ -7,11 +7,14 @@ import activateHomeHandlers from './home-scripts.js';
 import Post from './Post.jsx';
 import HomeOverlay from './HomeOverlay.jsx'
 
+// import '../../assets/img/loader.gif'
+
 import { 
 	fetchPosts,
 	selectAllPosts,
 	selectPostById,
-	selectPostIds 
+	selectPostIds,
+	changePostStatusToStartFetching
 } from '../redux_components/posts/postSlice';
 
 import { 
@@ -35,71 +38,54 @@ import {
 export const Home=()=>{
 
 	const dispatch = useDispatch();
-
-	const orderedPostIds = useSelector(state=>selectPostIds(state));
-	const postsStatus = useSelector(state=>state.posts.status);
-	// const videosArr = useSelector(state=>selectAllVideos(state));
-
-
 	const videosStatus = useSelector(state=>state.videos.status);
-	// const postsArr = useSelector(state=>selectAllPosts(state));
 	const videosIds = useSelector(state=>selectVideosIds(state));
-	
-	
-	useEffect(()=>{
-		if(postsStatus == StatusData.idle){
-			dispatch(fetchPosts());
-		}
-	},[postsStatus])
+	const [areHomeHandlersActivated,setHomeHandlers] = useState(false);
+	const postsStatus = useSelector(state=>state.posts.status);
 
 	useEffect(()=>{
 		if(videosStatus == StatusData.idle){
 			dispatch(fetchVideos());
 		}
-	},[postsStatus])
+	},[videosStatus,dispatch])
 
 	useEffect(()=>{
-		if(videosStatus == StatusData.succeeded &&
-			postsStatus == StatusData.succeeded){
+		if(videosStatus == StatusData.succeeded 
+			&& postsStatus == StatusData.succeeded
+			){
+
+			if(!areHomeHandlersActivated){
+				console.log('activating home handlers');
+
 				activateHomeHandlers();
+				setHomeHandlers(true);
 			}
-	},[videosStatus,postsStatus]);
+					
+		}
+			
+	},[
+		videosStatus,
+		postsStatus
+	]);
 
 
 
-	let contentPosts;
-	if(postsStatus===StatusData.loading){
-		contentPosts = 'loading posts';
-		console.log(' contentPosts ',contentPosts);
-	}else if (postsStatus === StatusData.succeeded ){
-		console.log(' StatusData.succeeded orderedPostIds',orderedPostIds);
-		
-	}
-
-	let contentVideos;
+	let contentVideos = [];
+	
 	if(videosStatus===StatusData.loading ){
-		contentVideos = 'loading videos';
+		
 		console.log('contentVideos ',contentVideos);
 	}else if (videosStatus === StatusData.succeeded ){
-		console.log(' StatusData.succeeded videosIds',videosIds);
+		console.log(' StatusData.succeeded videosIds');
 
-		
-	}
-
-	if(videosStatus === StatusData.succeeded  && postsStatus === StatusData.succeeded){
-		let postList = orderedPostIds.map(postId=>{
-			return <Post key={postId} postId={postId} ></Post>
-		})
-		contentPosts = postList;
-		
 		let videoList = videosIds.map(videoId=>
 			<VideoElement key={videoId} videoId={videoId}></VideoElement>
 		)
-		contentVideos = videoList;
+		
+		contentVideos = [...contentVideos, ...videoList];
 	}
 
-	
-		
+			
 	return(
 
 		<div className="home-content">
@@ -118,13 +104,9 @@ export const Home=()=>{
 				</div>
 
 
-				<div className="row" >
+				<PostsList></PostsList>
 
-					{/* <HomeOverlay></HomeOverlay> */}
 
-					{contentPosts}
-					
-				</div>
 
 			</div>
 
@@ -132,6 +114,146 @@ export const Home=()=>{
 
 	);
 }
+
+
+const PostsList = () => {
+
+	const dispatch = useDispatch();
+	const increment = 5;
+
+	const orderedPostIds = useSelector(state=>selectPostIds(state));
+	const postsStatus = useSelector(state=>state.posts.status);
+	// const postsArr = useSelector(state=>selectAllPosts(state));
+
+	const [from,setFromPaginationProp] = useState(0);
+	const [to,setToPaginationProp] = useState(increment);
+
+	
+
+	useEffect(()=>{
+
+		if(postsStatus === StatusData.idle){
+			console.log('fetching posts');
+			dispatch(fetchPosts({from,to}));
+			
+			setPaginationProperties(from+increment,to+increment);
+
+			// return () =>{
+			// 	setPaginationProperties(0,increment);
+			// }
+		}
+
+	},[postsStatus,dispatch])
+
+
+	const setPaginationProperties = (from,to)=>{
+		setFromPaginationProp(from);
+		setToPaginationProp(to);
+		console.log('pagination properties set', ' from ',from, ' to ', to);
+	}
+
+	
+
+	useEffect(  ()=>{
+
+		window.addEventListener("scroll", scrollListener, false);
+
+		return ()=>{
+			window.removeEventListener('scroll',scrollListener, false);
+			console.log('scroll event listener was removed')
+		}
+
+	},[]);
+
+
+	const scrollListener = function() {
+
+		const heightAndOffset = Math.ceil(window.innerHeight + window.pageYOffset);
+		const bodyOffsetHeight = Math.floor(document.body.offsetHeight);
+
+		logToElementAboutPosition(heightAndOffset,bodyOffsetHeight);
+
+		if (heightAndOffset >= bodyOffsetHeight-5) {
+			console.log("At the bottom!");
+			console.log('postsStatus ', postsStatus);
+
+			//not tracking postsStatus when its actually loading in postsSlice
+			if (postsStatus === StatusData.loading) {
+				console.log("processing current request");
+				return;
+			}
+			
+			dispatch(changePostStatusToStartFetching({newStatus:StatusData.idle}))
+		}
+
+	}
+	const logToElementAboutPosition = (heightAndOffset,bodyOffsetHeight) =>{
+		const positionAlertMessage = `setting event listener <br> heightAndOffset ${heightAndOffset} bodyOffsetHeight ${bodyOffsetHeight}`;
+		const positionElement = document.querySelector('#PositionAlertMessage');
+		if(positionElement){
+			positionElement.innerHTML = positionAlertMessage;
+		}
+		// console.log('setting event listener');
+		// console.log(` heightAndOffset ${heightAndOffset} bodyOffsetHeight ${bodyOffsetHeight}`);
+
+	}
+
+
+
+	const [prevOrderedPostIdsLength, setPostsIdLength] = useState(0);
+	useEffect(()=>{
+		setPostsIdLength(orderedPostIds.length);
+		console.log('prevOrderedPostIdsLength ', prevOrderedPostIdsLength);
+	},[postsStatus])
+
+	const contentPosts = orderedPostIds.map(postId=>{
+			
+		return <Post key={postId} postId={postId} ></Post>
+	})
+
+	let statusPostLoadingData = '';
+	if(postsStatus===StatusData.loading){
+		console.log('postsStatus===StatusData.loading ');
+		statusPostLoadingData = <Loader></Loader>
+
+	}else if (postsStatus === StatusData.succeeded ){
+		console.log(' postsStatus === StatusData.succeeded ', orderedPostIds);
+		statusPostLoadingData = '';
+	}
+
+
+
+
+	return (
+
+		<div className="row display-container" >
+
+			{/* <HomeOverlay></HomeOverlay> */}
+
+			{contentPosts}
+
+			{statusPostLoadingData}
+		
+		</div>
+
+
+	)
+
+}
+
+export const  Loader =  (props)=> {
+	return(
+		<div className="loader">
+			<div className="d-flex align-items-center">
+				<img  className="img img-fluid" 
+					src="./assets/img/loader.gif" alt="loader image" />
+			</div>
+		</div>
+	)
+}
+
+
+
 
 	function VideoElement(props){
 

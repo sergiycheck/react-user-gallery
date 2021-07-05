@@ -2,8 +2,10 @@
 export default function activateHomeHandlers(){
 
 	skipVideoOnEnd();
+
+
 	commentReadMoreWithClassName();
-	showBigPostWithClassName();
+	// showBigPostWithClassName();
 
 
 }
@@ -78,13 +80,17 @@ function AddClickListenerForCarouselNextBtn(){
   function setListenersForNextPrevButtons(buttonClasses){
     Array.from(buttonClasses).forEach(btnClass=>{
       const btnNexVideo = document.querySelector(btnClass);
+      
+      if(btnNexVideo) {
+        btnNexVideo.addEventListener('click',()=>{
+          findVideoAndPauseOrPlay(pauseActiveVideo);
+          setTimeout(()=>{
+            findVideoAndPauseOrPlay(playNextVideo,videoEndedHandler);
+          },650);
+        });
+      }
 
-      btnNexVideo.addEventListener('click',()=>{
-        findVideoAndPauseOrPlay(pauseActiveVideo);
-        setTimeout(()=>{
-          findVideoAndPauseOrPlay(playNextVideo,videoEndedHandler);
-        },650);
-      });
+
     });
 
   }
@@ -199,11 +205,14 @@ export function commentReadMoreWithClassName(){
   //setTimeout(()=>{
 
     let posts = document.querySelectorAll(".readmore");
-    posts.forEach(p=>{
-      p.addEventListener('click',(event)=>{
-        commentReadMoreWithClass(event.target.parentElement);
-      })
-    });
+    if(posts){
+      posts.forEach(p=>{
+        p.addEventListener('click',(event)=>{
+          commentReadMoreWithClass(event.target.parentElement);
+        })
+      });
+    }
+
 
   //},10)
 

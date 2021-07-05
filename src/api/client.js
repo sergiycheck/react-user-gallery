@@ -33,8 +33,10 @@ ClientBuilder.prototype.setBodyAndHeaders = function({body,customHeaders}={}){
 
 ClientBuilder.prototype.fetchWithConfig = async function(endpoint, {body,customHeaders}={}){
 
-	this.setEndPoint(endpoint);
-	this.setBodyAndHeaders({body,customHeaders})
+	if(endpoint)
+		this.setEndPoint(endpoint);
+	if(body || customHeaders)
+		this.setBodyAndHeaders({body,customHeaders})
 
 	let fetchedData;
 	try {

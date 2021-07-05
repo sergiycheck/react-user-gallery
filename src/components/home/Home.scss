@@ -108,7 +108,7 @@ $user-max-z-index:1030;/* next max z-index*/
 	box-shadow: none!important;
 }
 .more{
-	display: none;
+	// display: none;
 	transition: height 0.4s opacity 0.2s ease-out;
 }
 .readmore{
@@ -163,8 +163,26 @@ $user-max-z-index:1030;/* next max z-index*/
 	}
 
 }
+.likeHeart {
+  position: absolute;
+  animation: heartJumping 2s infinite;
+  right: 10px;
+}
+@keyframes heartJumping {
+  0% {bottom: 0px;}
+  50% {bottom: 10px}
+  100% {bottom: 0px}
+}
+
+.likeHeart:hover {
+  cursor: pointer;
+}
 
 
+.comments-container{
+  max-height: 250px;
+  overflow-y: scroll;
+}
 
 
 

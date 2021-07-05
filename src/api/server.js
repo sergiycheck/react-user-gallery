@@ -7,7 +7,7 @@ import {
   hasMany,
   association,
   RestSerializer,
-	JSONAPISerializer
+	JSONAPISerializer,
 } from 'miragejs'
 
 import { nanoid } from '@reduxjs/toolkit'
@@ -16,6 +16,7 @@ import faker from 'faker'
 import { sentence, paragraph, article, setRandom } from 'txtgen'
 import { parseISO } from 'date-fns'
 import seedrandom from 'seedrandom'
+import { randomInt } from 'crypto'
 
 
 
@@ -27,18 +28,15 @@ export default function makeServer(environment="development"){
 
 		routes(){
 
+			// this.timing = 2000;
+
 			this.namespace = 'fakeApi';
 			const server = this;
 			
 			this.resource('users')
-			this.resource('posts')
+			// this.resource('posts')
 			this.resource('comments')
 			this.resource('videos')
-
-
-			// this.get('/posts',(schema,req)=>{
-			// 	return schema.posts.all();
-			// })
 
 			// this.get('/users',(schema,req)=>{
 			// 	return schema.users.all();
@@ -47,15 +45,42 @@ export default function makeServer(environment="development"){
 			// 	return schema.videos.all();
 			// })
 
-			
+			this.get('/posts',(schema,req)=>{
 
+				const {from,to} = req.requestHeaders;
+				console.log(`server got from ${from}, and to ${to}`);
+				const allPosts = schema.posts.all();
+				console.log('allPosts length ', allPosts.models.length);
+				const resultPosts =  allPosts.models.slice(from,to);
+				console.log(resultPosts);
+				return resultPosts;
+				
+
+			})
+			
 			this.get('/posts/:postId/comments', (schema, req) => {
 				console.log(`Server /posts/:postId/comments `);
-
 				const postId = req.params['postId'];
 				console.log('server got postId ', postId);
 				const post = schema.posts.find(postId);
-				return post.comments;
+				const comments = post.comments;
+
+				const {from, to} = req.requestHeaders;
+				console.log(`server got from ${from}, and to ${to}`);
+				let commentsSliced = comments.slice(from,to);
+				commentsSliced = commentsSliced.sort((a,b)=>{
+					const aDate = new Date(a.date);
+					const bDate = new Date(b.date);
+					
+					// console.log('aDate.toLocaleString() ', aDate.toLocaleString());
+					// console.log('bDate.toLocaleString() ',bDate.toLocaleString());
+					// const res = aDate.toLocaleString().localeCompare(bDate.toLocaleString());
+					// console.log('res', res);
+					
+					return aDate.toLocaleString().localeCompare(bDate.toLocaleString())
+				});
+				console.log('sorted comments ', commentsSliced);
+				return commentsSliced;
 			})
 
 			this.get('/users/:userId/posts',(schema,req)=>{
@@ -72,19 +97,57 @@ export default function makeServer(environment="development"){
 				return post;
 			})
 
+			this.post('/posts/addLikeToPost', function(schema, req){
+				// const postId = req.params['postId'];
+				// console.log('request \n',req);
+				// const postId = this.normalizedRequestAttrs()//addLikeToPost model does not exist
+				const {postId} = JSON.parse(req.requestBody);
+				console.log('postId ', postId);
+
+				if(!postId){
+					console.log(' no postId provided ');
+					return {};
+				}
+				const result = schema.posts.find(postId);
+				let {likeCount} = result;
+				let newLikes = ++likeCount;
+				if(result){
+					result.update('likeCount',newLikes)
+				}
+				
+				return {result};
+			})
+
+			this.get('/users/:userId',(schema,req)=>{
+				const userId = req.params['userId'];
+				console.log('server got userId ', userId);
+				const user = schema.users.find(userId);
+				return user;
+			})
+
+			this.get('/comments/:commentId', (schema, req) => {
+				const commentId = req.params['commentId'];
+				console.log('server got comment id ', commentId);
+				const comment = schema.comments.find(commentId);
+				return comment;
+			})
+
 		},
 
 
 		models: {
 			user: Model.extend({
 				posts: hasMany(),
+				// comments: hasMany()
 			}),
 			post: Model.extend({
 				user: belongsTo(),
 				comments: hasMany(),
 			}),
 			comment: Model.extend({
-	
+				// commentable: belongsTo({ polymorphic: true }),
+
+				// user: belongsTo(),
 				post: belongsTo(),
 			}),
 			notification: Model.extend({}),
@@ -98,14 +161,16 @@ export default function makeServer(environment="development"){
 
 			user: Factory.extend({
 				id () { return nanoid() },
-				firstName(){ return faker.name.firstName() },
-				lastName (){ return faker.name.lastName() },
+				allData() {return faker.name},
+				firstName(){ return this.allData.firstName() },
+				lastName (){ return this.allData.lastName() },
 				userName () { 
 					return faker.internet.userName(
 						this.firstName, this.lastName )},
 
-				gender (){ return faker.name.gender() },
+				gender (){ return  this.allData.gender() },
 				phoneNumber () { return faker.phone.phoneNumber() },
+				image(){ return faker.image.avatar()},
 
 				afterCreate(user,server){
 					server.createList('post', 3 ,{user})
@@ -118,9 +183,10 @@ export default function makeServer(environment="development"){
 				title(){ return sentence() },
 				image(){ return faker.random.image() },
 				content(){ return article(1) },
+				likeCount() { return getRandomInt(3,17) },
 
 				afterCreate(post, server) {
-					server.createList('comment', 3, { post })
+					server.createList('comment', 9, { post })
 				},
 	
 				user: association(),
@@ -129,11 +195,21 @@ export default function makeServer(environment="development"){
 				id(){ return nanoid() },
 				date(){ return faker.date.recent(2) },
 				content(){ return paragraph() },
-
+				commentatorAvatar() { return faker.image.avatar() },
 				//to much recursion
 				// user:association(),
 				post:association(),
+				
+				// ofPost:trait({
+					// post:association(),
+				// })
+				
 			}),
+
+			video: Factory.extend({
+				id(){return nanoid()},
+				user:association(),
+			})
 
 			//no user, post, comment properties in ressponse 
 			// without that serializers
@@ -150,33 +226,20 @@ export default function makeServer(environment="development"){
 
 		
 		seeds(server){
-			server.createList('user', 3);
-
-			server.create('user',{img:usersData[0].img})
-			server.create('user',{img:usersData[1].img})
-			server.create('user',{img:usersData[2].img})
-			server.create('user',{img:usersData[3].img})
-			server.create('user',{img:usersData[4].img})
-			server.create('user',{img:usersData[5].img})
-
+			server.createList('user', 6);
+			let userForVideos = server.create('user');
 			server.create('video',{
-				id:nanoid(),
-				name:"FMJ Widebody 370z [4K].mp4",
-				link:"https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4"
-			});
-
+				name: videoDataStoredArr[0].name,
+				link: videoDataStoredArr[0].link,
+				user: userForVideos})
 			server.create('video',{
-				id:nanoid(),
-				name:"PDX Evo X _ Rowena Point [4K].mp4",
-				link:"http://vjs.zencdn.net/v/oceans.mp4"
-			});
-
+				name: videoDataStoredArr[1].name,
+				link: videoDataStoredArr[1].link,
+				user: userForVideos})
 			server.create('video',{
-				id:nanoid(),
-				name:"Super Trofeo [4K].mp4",
-				link:"http://vjs.zencdn.net/v/oceans.mp4"
-			});
-
+				name: videoDataStoredArr[2].name,
+				link: videoDataStoredArr[2].link,
+				user: userForVideos})
 		}
 
 	})
@@ -193,6 +256,25 @@ function getRandomInt(min,max){
 	max = Math.floor(max);
 	return Math.floor(Math.random()*(max-min+1))+min;
 }
+
+const getRandomArrIndex = (arr)=>{
+	return getRandomInt(0,arr.length-1);
+}
+
+let videoDataStoredArr = [
+	{
+		name:"FMJ Widebody 370z [4K].mp4",
+		link:"https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4"
+	},
+	{
+		name:"PDX Evo X _ Rowena Point [4K].mp4",
+		link:"http://vjs.zencdn.net/v/oceans.mp4"
+	},
+	{
+		name:"Super Trofeo [4K].mp4",
+		link:"http://vjs.zencdn.net/v/oceans.mp4"
+	}
+]
 
 
 let usersData = [
