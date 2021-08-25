@@ -2,8 +2,10 @@
 export default function activateHomeHandlers(){
 
 	skipVideoOnEnd();
+
+
 	commentReadMoreWithClassName();
-	showBigPostWithClassName();
+	// showBigPostWithClassName();
 
 
 }
@@ -17,7 +19,7 @@ function skipVideoOnEnd(){
 
     const carouselInner = document.querySelector(".carousel-inner");
     if(carouselInner){
-      carouselInner.querySelector(".carousel-item").classList.add("active");
+      carouselInner.querySelector(".carousel-item")?.classList.add("active");
     }
 
     AddClickListenerForCarouselNextBtn();
@@ -26,19 +28,28 @@ function skipVideoOnEnd(){
 
       const videos = document.querySelectorAll(".carousel-video-element");
       videos.forEach(vid=>{
-        vid.pause();
+
+        if(
+          // Object.keys(HTMLMediaElement.prototype).find(e=>e==='pause')
+          vid instanceof HTMLMediaElement
+          ){
+          HTMLMediaElement.prototype.pause.call(vid);
+        }
+          
         vid.muted = true;
         let targetElement = vid.parentNode;
         do{
           if(targetElement.classList &&
               targetElement.classList.contains("active")){
-            vid.play();
+            //vid.play();
             videoEndedHandler(vid);
             return;
           }
           targetElement = targetElement.parentNode;
         }while(targetElement)
+
         clearTimeout(loadVideosTimerId);
+
       });
 
     },100);//animation time?
@@ -69,13 +80,17 @@ function AddClickListenerForCarouselNextBtn(){
   function setListenersForNextPrevButtons(buttonClasses){
     Array.from(buttonClasses).forEach(btnClass=>{
       const btnNexVideo = document.querySelector(btnClass);
+      
+      if(btnNexVideo) {
+        btnNexVideo.addEventListener('click',()=>{
+          findVideoAndPauseOrPlay(pauseActiveVideo);
+          setTimeout(()=>{
+            findVideoAndPauseOrPlay(playNextVideo,videoEndedHandler);
+          },650);
+        });
+      }
 
-      btnNexVideo.addEventListener('click',()=>{
-        findVideoAndPauseOrPlay(pauseActiveVideo);
-        setTimeout(()=>{
-          findVideoAndPauseOrPlay(playNextVideo,videoEndedHandler);
-        },650);
-      });
+
     });
 
   }
@@ -105,7 +120,11 @@ function pauseActiveVideo(vid){
 
 function playNextVideo(vid){
 	if (vid && vid.paused) {
-		vid.play();
+
+    if(vid instanceof HTMLMediaElement){
+      vid.play();
+    }
+		
 	}
 }
 
@@ -130,7 +149,15 @@ function showBigPostWithClassName(){
 
 function showBigPostViewFromClass(postSourceElement){
 	let postSourceUrl = Object.values(postSourceElement.attributes).find(a=>a.name==="src").value;
-	document.querySelector(".overlay").style.height = "100%";
+	document.querySelector(".overlay").style.display = "block";
+
+  let timeOutId = setTimeout(()=>{
+    
+    document.querySelector(".overlay").style.height = "100%";
+    clearTimeout(timeOutId)
+  },250)
+
+	
 	setTimeout(()=>{
 		closeBigPostView();
 		setPostSource(postSourceUrl);
@@ -157,6 +184,12 @@ function closeBigPostView(){
 
     // This is a click outside.
     document.querySelector(".overlay").style.height = "0%";
+    
+    let timeOutId = setTimeout(()=>{
+      document.querySelector(".overlay").style.display = "none";
+      clearTimeout(timeOutId)
+    },250)
+    
 
 		//document.querySelector(".overlay").style.display = "none";
 });
@@ -172,11 +205,14 @@ export function commentReadMoreWithClassName(){
   //setTimeout(()=>{
 
     let posts = document.querySelectorAll(".readmore");
-    posts.forEach(p=>{
-      p.addEventListener('click',(event)=>{
-        commentReadMoreWithClass(event.target.parentElement);
-      })
-    });
+    if(posts){
+      posts.forEach(p=>{
+        p.addEventListener('click',(event)=>{
+          commentReadMoreWithClass(event.target.parentElement);
+        })
+      });
+    }
+
 
   //},10)
 

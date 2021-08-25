@@ -17,7 +17,7 @@ $grid-breakpoints: (
 .wrapper {
 	position: relative;
 	top: 0;
-	height: 100vh;
+	height: 100%;
 }
 .mainContent{
   min-height: 100%;
@@ -30,7 +30,7 @@ $grid-breakpoints: (
   }
 }
 
-$svg-search-icon:url("./assets/img/search.svg");
+$svg-search-icon:url("./helpers/search.svg");
 #search{
 	background:$svg-search-icon scroll 85% 50%;
 	padding-left: 10%;
@@ -50,4 +50,6 @@ $svg-search-icon:url("./assets/img/search.svg");
   }
 
 }
+
+
 

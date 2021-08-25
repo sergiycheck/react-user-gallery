@@ -4,6 +4,7 @@ $user-max-z-index:1030;/* next max z-index*/
 /* The Overlay (background) */
 .overlay {
   /* Height & width depends on how you want to reveal the overlay (see JS below) */
+  display: none;
   height: 0vh;
   width: 100%;
   position: fixed; /* Stay in place */
@@ -107,7 +108,7 @@ $user-max-z-index:1030;/* next max z-index*/
 	box-shadow: none!important;
 }
 .more{
-	display: none;
+	// display: none;
 	transition: height 0.4s opacity 0.2s ease-out;
 }
 .readmore{
@@ -162,8 +163,26 @@ $user-max-z-index:1030;/* next max z-index*/
 	}
 
 }
+.likeHeart {
+  position: absolute;
+  animation: heartJumping 2s infinite;
+  right: 10px;
+}
+@keyframes heartJumping {
+  0% {bottom: 0px;}
+  50% {bottom: 10px}
+  100% {bottom: 0px}
+}
+
+.likeHeart:hover {
+  cursor: pointer;
+}
 
 
+.comments-container{
+  max-height: 250px;
+  overflow-y: scroll;
+}
 
 
 
