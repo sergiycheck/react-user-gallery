@@ -6,7 +6,7 @@ import './Home.scss';
 import { CommentsList } from './CommentsList.jsx'
 
 import {TimeAgo} from './TimeAgo';
-
+import { unwrapResult } from '@reduxjs/toolkit';
 
 import { 
 	fetchPosts,
@@ -43,8 +43,10 @@ import {
 	const [from,setPaginationFromProp] = useState(0)
 	const [to,setPaginationToProp] = useState(increment)
 
-	useEffect(()=>{
-		dispatch(fetchPostComments({postId, from, to}));
+	useEffect(async ()=>{
+		const resultFetchedComments = await dispatch(fetchPostComments({postId, from, to}));
+		unwrapResult(resultFetchedComments);
+
 		setPaginationProperties(from,to);
 	},[postId,dispatch])
 
@@ -69,7 +71,12 @@ import {
 
 
 							<img className="click-big-post img-fluid  user-img"
-								src={post.image} alt="user post"/>
+								// src={post.image} 
+
+								src="./assets/img/placeholder.svg"
+								data-src={post.image}
+
+								alt="user post"/>
 							
 						</div>
 					</div>
@@ -82,7 +89,12 @@ import {
 
 									<img className="img-fluid mx-auto rounded"
 									// style={{height: "30px"}}
-									src={user?.image}
+									
+									// src={user?.image}
+
+									src="./assets/img/placeholder.svg"
+									data-src={user?.image}
+
 									alt="user profile"/>
 
 								</div>

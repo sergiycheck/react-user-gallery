@@ -29,6 +29,8 @@ import {
 	StatusData,
 } from '../../api/ApiRoutes'
 
+import {showVisible} from './helperScripts/imgLazyLoading';
+
 
 //todo: add unsplash api requests 
 //https://unsplash.com/documentation
@@ -187,17 +189,17 @@ const PostsList = () => {
 		}
 
 	}
+
 	const logToElementAboutPosition = (heightAndOffset,bodyOffsetHeight) =>{
-		const positionAlertMessage = `setting event listener <br> heightAndOffset ${heightAndOffset} bodyOffsetHeight ${bodyOffsetHeight}`;
-		const positionElement = document.querySelector('#PositionAlertMessage');
-		if(positionElement){
-			positionElement.innerHTML = positionAlertMessage;
-		}
+		// const positionAlertMessage = `setting event listener <br> heightAndOffset ${heightAndOffset} bodyOffsetHeight ${bodyOffsetHeight}`;
+		// const positionElement = document.querySelector('#PositionAlertMessage');
+		// if(positionElement){
+		// 	positionElement.innerHTML = positionAlertMessage;
+		// }
 		// console.log('setting event listener');
 		// console.log(` heightAndOffset ${heightAndOffset} bodyOffsetHeight ${bodyOffsetHeight}`);
 
 	}
-
 
 
 	const [prevOrderedPostIdsLength, setPostsIdLength] = useState(0);
@@ -216,9 +218,15 @@ const PostsList = () => {
 		console.log('postsStatus===StatusData.loading ');
 		statusPostLoadingData = <Loader></Loader>
 
+		window.removeEventListener("scroll", showVisible);
+
 	}else if (postsStatus === StatusData.succeeded ){
 		console.log(' postsStatus === StatusData.succeeded ', orderedPostIds);
 		statusPostLoadingData = '';
+
+		window.addEventListener("scroll", showVisible);
+		showVisible();
+
 	}
 
 

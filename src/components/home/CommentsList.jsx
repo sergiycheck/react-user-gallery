@@ -74,7 +74,12 @@ export const CommentExcerpt = (props) => {
 			<div className="col-sm-3 mb-2">
 				<img className="img-fluid mx-auto"
 				style={{height: "30px"}}
-				src={comment.commentatorAvatar}
+
+				// src={comment.commentatorAvatar}
+
+				src="./assets/img/placeholder.svg"
+				data-src={comment.commentatorAvatar}
+
 				alt="comment user profile"/>
 			</div>
 

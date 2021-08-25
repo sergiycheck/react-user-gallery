@@ -246,6 +246,7 @@ export default function makeServer(environment="development"){
 
 
 }
+// to understand mirage better go -> node_modules -> miragejs -> lib -> orm model.js 
 
 const IdSerializer = RestSerializer.extend({
 	serializeIds:'always'

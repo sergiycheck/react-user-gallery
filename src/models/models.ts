@@ -17,8 +17,9 @@ export interface Post extends Base{
 	title:string,
 	image:string,
 	content:string,
-	user:string,
+	user:string, //userId
 	likeCount:number,
+	commentIds:[]
 	
 }
 
