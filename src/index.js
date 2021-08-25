@@ -9,18 +9,47 @@ import 'bootstrap/dist/js/bootstrap.js';
 
 import { Provider } from 'react-redux';
 
-import store from './components/redux_components/counter/features/store'
+import store from './components/redux_components/store';
+
+import makeServer from './api/server';
+
+import { BrowserRouter, Route } from "react-router-dom";
+
+import { QueryParamProvider } from "use-query-params";
+
+// import {fetchUsers } from './components/redux_components/users/usersSlice'
+
+if(process.env.NODE_ENV==='development' 
+  && typeof makeServer ==='function'){
+    makeServer();
+  }
+
+  // store.dispatch(fetchUsers())
+
+
 
 ReactDOM.render(
-  <React.StrictMode>
 
-    <Provider store={store}>
+<React.StrictMode>
 
-      <App />
+    <BrowserRouter>
+      <QueryParamProvider ReactRouterRoute={Route}>
 
-    </Provider>
+      <Provider store={store}>
 
-  </React.StrictMode>,
+        <App />
+
+      </Provider>
+
+
+      </QueryParamProvider>
+
+    </BrowserRouter>
+
+
+  </React.StrictMode>
+  
+  ,
   document.getElementById('root')
 );
 
@@ -28,5 +57,19 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+
+// const alertMessage = document.createElement('div');
+// alertMessage.id ='PositionAlertMessage';
+// alertMessage.style.position = 'fixed';
+// alertMessage.style.zIndex = 999999;
+// alertMessage.style.width = '500px';
+// alertMessage.style.height = '200px';
+// alertMessage.style.top = '60px';
+// alertMessage.style.left = '0';
+// alertMessage.style.backgroundColor = 'purple';
+// alertMessage.style.color = 'white';
+// document.body.append(alertMessage);
+
 
 

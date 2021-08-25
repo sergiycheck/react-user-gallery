@@ -1,286 +1,154 @@
-import React from 'react';
+import React ,{useState, useEffect} from 'react';
+import {useSelector, useDispatch } from 'react-redux';
+
+
+import {
+	selectPostIds,
+	selectPostById,
+	fetchPosts
+}from '../redux_components/posts/postSlice'
+
+import { 
+	fetchSingleUser, 
+	selectUserById
+} from '../redux_components/users/usersSlice';
+
+import classnames from 'classnames';
 
 import './Explore.scss';
 
-class Explore extends React.Component{
+export const Explore = () => {
 
-	render(){
-		return(
+	const dispatch = useDispatch();
+	const orderedPostIds = useSelector(state=>selectPostIds(state));
 
-<div className="site-wrap">
+	const increment = 5;
+	const [from,setFromPaginationProp] = useState(0);
+	const [to,setToPaginationProp] = useState(increment);
+
+	useEffect(()=>{
+		if(orderedPostIds.length==0){
+			dispatch(fetchPosts({from,to}));
+			setPaginationProperties(from+increment,to+increment);
+		}
+	},[orderedPostIds, dispatch])
+
+	const setPaginationProperties = (from,to)=>{
+		setFromPaginationProp(from);
+		setToPaginationProp(to);
+		console.log('pagination properties set', ' from ',from, ' to ', to);
+	}
+
+	let previousNum;
+	const postsContent = orderedPostIds.map((postId, index)=>{
+		
+		let randomNum = getRandomInt(4,7);
+		console.log(`randomNum ${randomNum} index ${index}`);
+
+		if(index>0 && index%2!==0){
+			console.log('index>0 && index%2!==0 ', index);
+			randomNum = 12 - previousNum;
+			console.log('new randomNum ', randomNum);
+		}
+		previousNum = randomNum;
+
+		const randomClassLg = `col-lg-${randomNum}`;
+		const postExploreClassName = classnames(
+			`col-6 col-md-6 aos-init aos-animate p-1 ${randomClassLg}`)
+
+		return <ExplorePostExcerpt 
+			key={postId}
+			postExploreClassName = {postExploreClassName} 
+			postId={postId} ></ExplorePostExcerpt>
+	})
+
+	return(
+
+		<div className="site-wrap">
+			<ExploreAsideBar></ExploreAsideBar>
+			<div className="main-content">
+				<div className="container-fluid photos">
+					<div className="row align-items-stretch my-4 p-2">
+						{postsContent}
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+	
+}
+
+export const ExploreAsideBar = (props) => {
+
+	return(
+
+		<header
+			className="header-bar d-flex d-lg-block
+			align-items-center
+			aos-init aos-animate"
+			data-aos="fade-left">
+
+			<div className="main-menu">
+				<ul className="">
+					<li className="active"><a href="/explore">all posts</a></li>
+					<li><a href="/explore">photos</a></li>
+					<li><a href="/explore">videos</a></li>
+					<li><a href="/explore">people</a></li>
+					<li><a href="/explore">groups</a></li>
+					<li><a href="/explore">channels</a></li>
+					<li><a href="/explore">live</a></li>
+					</ul>
+			</div>
+
+		</header>
+
+	)
 
 
-<header
-	className="header-bar d-flex d-lg-block
-		align-items-center
-		aos-init aos-animate"
-		data-aos="fade-left">
-
-	<div className="main-menu">
-		<ul className="">
-			<li className="active"><a href="/explore">all posts</a></li>
-			<li><a href="/explore">photos</a></li>
-			<li><a href="/explore">videos</a></li>
-			<li><a href="/explore">people</a></li>
-			<li><a href="/explore">groups</a></li>
-			<li><a href="/explore">channels</a></li>
-			<li><a href="/explore">live</a></li>
-			</ul>
-	</div>
-
-</header>
+}
 
 
-<div className="main-content">
+export const ExplorePostExcerpt = (props) => {
 
-	<div className="container-fluid photos">
+	const dispatch = useDispatch();
+	const { postId, postExploreClassName } = props;
+	const post = useSelector(state=>selectPostById(state,postId));
+	const { userId } = post;
+	// console.log('userId from post', userId);
 
-		<div className="row align-items-stretch my-4 p-2">
+	useEffect(()=>{
+		// console.log('userId in useEffect  ', userId);
+		dispatch(fetchSingleUser(userId))
 
-			<div className="col-6 col-md-6 col-lg-8  aos-init aos-animate p-1" data-aos="fade-up">
-				<a href="/explore" className="d-block photo-item">
-				<img src="./assets/img/explore_imgs/img_4.jpg" alt="Post" className="img-fluid"/>
+	},[userId,dispatch])
+
+	const user = useSelector(state=>selectUserById(state, userId));
+
+	return (
+
+		<div className={postExploreClassName} data-aos="fade-up">
+
+			<a href="/explore" className="d-block photo-item">
+				<img src={post.image} 
+				alt="Post" className="img-fluid"/>
 
 				<div className="photo-text-more">
 					<div className="photo-text-more">
-						<h3 className="heading">Photos Title Here</h3>
-						<span className="meta">42 Photos</span>
+						<h3 className="heading">{user?.userName}</h3>
+						<span className="meta">{post.title}</span>
 					</div>
 				</div>
-				</a>
-
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-4  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="100">
-				<a href="/explore" className="d-block photo-item">
-				<img src="./assets/img/explore_imgs/img_5.jpg" alt="Post" className="img-fluid"/>
-
-					<div className="photo-text-more">
-						<div className="photo-text-more">
-							<h3 className="heading">Photos Title Here</h3>
-							<span className="meta">42 Photos</span>
-						</div>
-					</div>
-				</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-3  aos-init aos-animate p-1" data-aos="fade-up">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_1.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
 			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-6  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="200">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_2.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-3  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="300">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_3.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-6  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_6.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-6  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="100">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_7.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-4  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_8.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-4  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="100">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_9.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-4  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="200">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_10.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-3  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_1.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-6  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="100">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_2.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-3  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="200">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_3.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-8  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_4.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-4  aos-init aos-animate p-1" data-aos="fade-up" data-aos-delay="100">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_5.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-6 aos-init  p-1" data-aos="fade-up" data-aos-delay="">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_6.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-6 aos-init  p-1" data-aos="fade-up" data-aos-delay="100">
-			<a href="/explore" className="d-block photo-item">
-			<img src="./assets/img/explore_imgs/img_7.jpg" alt="Post" className="img-fluid"/>
-			<div className="photo-text-more">
-			<div className="photo-text-more">
-			<h3 className="heading">Photos Title Here</h3>
-			<span className="meta">42 Photos</span>
-			</div>
-			</div>
-			</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-4 aos-init  p-1" data-aos="fade-up" data-aos-delay="">
-				<a href="/explore" className="d-block photo-item">
-				<img src="./assets/img/explore_imgs/img_8.jpg" alt="Post" className="img-fluid"/>
-				<div className="photo-text-more">
-				<div className="photo-text-more">
-				<h3 className="heading">Photos Title Here</h3>
-				<span className="meta">42 Photos</span>
-				</div>
-				</div>
-				</a>
-			</div>
-
-			<div className="col-6 col-md-6 col-lg-8 aos-init  p-1" data-aos="fade-up" data-aos-delay="100">
-				<a href="/explore" className="d-block photo-item">
-				<img src="./assets/img/explore_imgs/img_9.jpg" alt="Post" className="img-fluid"/>
-				<div className="photo-text-more">
-				<div className="photo-text-more">
-				<h3 className="heading">Photos Title Here</h3>
-				<span className="meta">42 Photos</span>
-				</div>
-				</div>
-				</a>
-			</div>
 
 		</div>
 
-	</div>
+	);
+}
 
-</div>
-
-
-</div>
-
-
-
-
-
-		);
-	}
+function getRandomInt(min,max){
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random()*(max-min+1))+min;
 }
 
 export default Explore;

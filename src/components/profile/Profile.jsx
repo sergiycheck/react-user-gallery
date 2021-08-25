@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 
-import {MapContainer} from '../utils/MapWrapper'
 
 import Button from '@material-ui/core/Button';
 
@@ -71,12 +70,6 @@ export default class Profile extends Component {
 
 					<div className="py-5 bg-light">
 						<div className="container">
-
-						{this.state.showMap&&
-
-								<MapContainer></MapContainer>
-							
-						}
 
 
 
