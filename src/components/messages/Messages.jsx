@@ -1,4 +1,4 @@
-import "./Messages.css";
+import "./Messages.scss";
 
 import React, { Component, useState } from "react";
 

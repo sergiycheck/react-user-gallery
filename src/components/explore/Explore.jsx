@@ -14,7 +14,7 @@ import {
 
 import classnames from "classnames";
 
-import "./Explore.css";
+import "./Explore.scss";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
 

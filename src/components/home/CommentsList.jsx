@@ -5,7 +5,7 @@ import {
   selectCommentsByPostId,
 } from "../redux_components/comments/commentSlice";
 
-import "./Home.css";
+import "./Home.scss";
 
 import { StatusData } from "../../api/ApiRoutes";
 

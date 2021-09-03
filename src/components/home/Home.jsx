@@ -2,7 +2,7 @@ import React,{useEffect,useState} from 'react';
 
 import {useSelector,useDispatch} from 'react-redux';
 
-import './Home.css';
+import './Home.scss';
 
 import activateHomeHandlers from './home-scripts.js';
 import Post from './Post.js';

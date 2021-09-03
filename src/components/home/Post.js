@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import "./Home.css";
+import "./Home.scss";
 import { CommentsList } from "./CommentsList.jsx";
 
 import { TimeAgo } from "./TimeAgo";
