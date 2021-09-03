@@ -3,11 +3,10 @@ import React,{useEffect,useState} from 'react';
 import {useSelector,useDispatch} from 'react-redux';
 
 import './Home.scss';
-import activateHomeHandlers from './home-scripts.js';
-import Post from './Post.jsx';
-import HomeOverlay from './HomeOverlay.jsx'
 
-// import '../../assets/img/loader.gif'
+import activateHomeHandlers from './home-scripts.js';
+import Post from './Post.js';
+import HomeOverlay from './HomeOverlay.jsx'
 
 import { 
 	fetchPosts,
@@ -29,8 +28,6 @@ import {
 	StatusData,
 } from '../../api/ApiRoutes'
 
-import {showVisible} from './helperScripts/imgLazyLoading';
-
 
 //todo: add unsplash api requests 
 //https://unsplash.com/documentation
@@ -46,7 +43,7 @@ export const Home=()=>{
 	const postsStatus = useSelector(state=>state.posts.status);
 
 	useEffect(()=>{
-		if(videosStatus == StatusData.idle){
+		if(videosStatus === StatusData.idle){
 			dispatch(fetchVideos());
 		}
 	},[videosStatus,dispatch])
@@ -77,31 +74,35 @@ export const Home=()=>{
 		<VideoElement key={videoId} videoId={videoId}></VideoElement>
 	)
 	
-	let loadingVideosMessage = 'loading videos';
+	let loadVideoData;
 
 	if(videosStatus===StatusData.loading ){
 		console.log('contentVideos ',contentVideos);
-		loadingVideosMessage = 'loading videos';
+		loadVideoData = <Loader></Loader>;
 	}else if (videosStatus === StatusData.succeeded ){
 		console.log(' StatusData.succeeded videosIds');
-		loadingVideosMessage = '';
+		loadVideoData = '';
 	}
 
-			
+	
 	return(
 
 		<div className="home-content">
 
-
 			<AsideBar></AsideBar>
-
 
 			<div className="bd-container container-xxl">
 
 				<div id="hm-heading" className="text-center p-3">
 
-				{loadingVideosMessage}
-				<Carousel contentVideos={contentVideos} ></Carousel>
+				{videosStatus===StatusData.loading &&
+					loadVideoData
+				}
+				{videosStatus===StatusData.succeeded &&
+					<Carousel contentVideos={contentVideos} ></Carousel>
+				}
+				
+				
 
 
 				</div>
@@ -218,14 +219,9 @@ const PostsList = () => {
 		console.log('postsStatus===StatusData.loading ');
 		statusPostLoadingData = <Loader></Loader>
 
-		window.removeEventListener("scroll", showVisible);
-
 	}else if (postsStatus === StatusData.succeeded ){
 		console.log(' postsStatus === StatusData.succeeded ', orderedPostIds);
 		statusPostLoadingData = '';
-
-		window.addEventListener("scroll", showVisible);
-		showVisible();
 
 	}
 
@@ -252,14 +248,17 @@ const PostsList = () => {
 export const  Loader =  (props)=> {
 	return(
 		<div className="loader">
-			<div className="d-flex align-items-center">
-				<img  className="img img-fluid" 
+			<div className="d-flex justify-content-center">
+				<img  className="img img-fluid"
+					style={{
+						width:`150px`,
+						height:`150px`
+					}} 
 					src="./assets/img/loader.gif" alt="loader image" />
 			</div>
 		</div>
 	)
 }
-
 
 
 
@@ -350,7 +349,7 @@ export const  Loader =  (props)=> {
 
 		return (
 
-			<aside className=" bd-aside sticky-xl-top text-muted align-self-start mb-3 mb-xl-5 px-2 bg-light">
+			<aside className=" bd-aside text-muted align-self-start mb-3 mb-xl-5 px-2 bg-light">
 				<h2 className="h6 pt-4 pb-3 mb-4 border-bottom">right aside bar</h2>
 				<nav className="small" id="toc">
 					<ul className="list-unstyled fs-4 fw-bold">
