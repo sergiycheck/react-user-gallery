@@ -1,0 +1,37 @@
+.wrapper {
+  position: relative;
+  top: 0;
+  height: 100%;
+}
+
+.mainContent {
+  min-height: 100%;
+  position: relative;
+}
+
+.mainContent .user-wrapper {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+
+#search {
+  background: url("../helpers/search.svg") scroll 85% 50%;
+  padding-left: 10%;
+  background-repeat: no-repeat;
+  margin-right: .5rem;
+}
+
+#search:focus {
+  background-image: none;
+  -webkit-box-flex: 3;
+      -ms-flex-positive: 3;
+          flex-grow: 3;
+}
+
+@media (min-width: 768px) {
+  #search.focus {
+    width: 135%;
+  }
+}
+/*# sourceMappingURL=App.css.map */

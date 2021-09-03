@@ -28,7 +28,7 @@ export default function makeServer(environment="development"){
 
 		routes(){
 
-			// this.timing = 2000;
+			// this.timing = 2000000000;
 
 			this.namespace = 'fakeApi';
 			const server = this;

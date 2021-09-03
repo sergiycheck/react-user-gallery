@@ -1,0 +1,225 @@
+/* Base */
+.site-wrap {
+  margin-top: 3rem;
+  position: absolute;
+  line-height: 1.7;
+  color: gray;
+  font-weight: 400;
+  font-size: 1rem;
+  background: white;
+}
+
+.site-wrap .main-content {
+  background: white;
+}
+
+a {
+  -webkit-transition: .3s all ease;
+  transition: .3s all ease;
+  text-decoration: none;
+  color: #000000;
+}
+
+h1, h2, h3, h4, h5,
+.h1, .h2, .h3, .h4, .h5 {
+  font-family: "Quicksand", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* Blocks */
+.header-bar {
+  margin-top: 4rem;
+  float: right;
+  width: 250px;
+  height: 100vh;
+  overflow: auto;
+  background: white;
+  padding: 30px;
+  text-align: right;
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+
+@media (max-width: 991.98px) {
+  .header-bar {
+    width: 100%;
+    position: relative;
+    float: none;
+    height: auto;
+    margin-top: 2em;
+    padding-top: 0;
+    padding-bottom: 0;
+    height: -webkit-fit-content;
+    height: -moz-fit-content;
+    height: fit-content;
+  }
+}
+
+.header-bar .site-logo {
+  margin-bottom: 30px;
+}
+
+@media (max-width: 991.98px) {
+  .header-bar .site-logo {
+    margin-right: auto;
+    margin-bottom: 0;
+  }
+}
+
+.header-bar .main-menu {
+  margin-left: auto;
+}
+
+@media (max-width: 991.98px) {
+  .header-bar .main-menu {
+    margin: 0 auto;
+  }
+}
+
+.header-bar ul {
+  text-align: right;
+  padding: 0;
+  margin: 0 0 30px 0;
+}
+
+@media (max-width: 991.98px) {
+  .header-bar ul {
+    display: inline-block;
+    margin-bottom: 0;
+  }
+}
+
+.header-bar ul li {
+  list-style: none;
+  margin-bottom: 5px;
+}
+
+@media (max-width: 991.98px) {
+  .header-bar ul li {
+    display: inline-block;
+  }
+}
+
+.header-bar ul li a {
+  display: block;
+  padding: 4px 0;
+  font-weight: 500;
+  color: #000000;
+  text-transform: uppercase;
+  font-size: .8rem;
+}
+
+@media (max-width: 991.98px) {
+  .header-bar ul li a {
+    padding: 4px 10px;
+  }
+}
+
+.header-bar ul li.active a {
+  color: #ef6c57;
+}
+
+.main-content {
+  float: left;
+  width: calc(100% - 250px);
+  padding-left: 15px;
+}
+
+@media (max-width: 991.98px) {
+  .main-content {
+    width: 100%;
+    position: relative;
+    float: none;
+  }
+}
+
+.main-content .container-fluid {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@media (max-width: 991.98px) {
+  .main-content .container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+.main-content .photos .photo-item {
+  position: relative;
+}
+
+.main-content .photos .photo-item:after {
+  position: absolute;
+  content: "";
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1;
+  -webkit-transition: .3s all ease;
+  transition: .3s all ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.main-content .photos .photo-item .photo-text-more {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  margin-top: 30px;
+  -webkit-transition: .3s all ease;
+  transition: .3s all ease;
+  opacity: 0;
+  visibility: hidden;
+  text-align: center;
+}
+
+.main-content .photos .photo-item .photo-text-more .icon {
+  color: #fff;
+  font-size: 20px;
+}
+
+.main-content .photos .photo-item .photo-text-more .heading {
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 0;
+}
+
+.main-content .photos .photo-item .photo-text-more .meta {
+  color: #cccccc;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.main-content .photos .photo-item img {
+  width: 100%;
+  -o-object-fit: cover;
+  object-fit: cover;
+  height: 300px;
+}
+
+@media (max-width: 575.98px) {
+  .main-content .photos .photo-item img {
+    height: 200px;
+  }
+}
+
+.main-content .photos .photo-item:hover:after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.main-content .photos .photo-item:hover .photo-text-more {
+  margin-top: 0;
+  opacity: 1;
+  visibility: visible;
+}
+/*# sourceMappingURL=Explore.css.map */
