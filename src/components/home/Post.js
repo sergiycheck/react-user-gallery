@@ -116,24 +116,25 @@ export let Post = (props) => {
           ></CommentsList>
 
           <div className="row mb-3">
-            <div className="col-sm-8">
-              {/* <input
+
+            {/* <div className="col-sm-8">
+               <input
 								
 								onChange={this.handleNewCommentInputChange}
 								value={this.state.newCommentData}
 								type="text" className="inpt-comment form-control"
-								placeholder={this.state.inputPlaceHolder} /> */}
-            </div>
+								placeholder={this.state.inputPlaceHolder} /> 
+            </div> */}
 
-            <div className="col-sm-2 d-flex justify-content-start">
-              {/* <button 
+            {/* <div className="col-sm-2 d-flex justify-content-start">
+               <button 
 								onClick={this.addComment}  
-								className="btn btn-outline-secondary" >Post</button> */}
-            </div>
+								className="btn btn-outline-secondary" >Post</button> 
+            </div> */}
 
-            <div className="col-sm-2">
-              <div className="d-flex justify-content-between ">
-                <div className="d-flex justify-content-between ">
+            <div className="col-sm-4 offset-sm-8">
+              <div className="d-flex justify-content-end align-items-center">
+                <div className="d-flex justify-content-end ">
                   
                   {/* <svg
                     className="bi bi-heart me-3 likeHeart"
@@ -167,6 +168,7 @@ c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"
                     <TimeAgo timeStamp={post.date}></TimeAgo>
                   </small>
                 </div>
+
               </div>
             </div>
           </div>

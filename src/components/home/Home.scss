@@ -128,8 +128,7 @@ $user-max-z-index:1030;/* next max z-index*/
 
 @media (min-width: 1200px){
 	.bd-aside {
-    background-color: aqua;
-
+    // background-color: aqua;
 		grid-area:1/6;
 		scroll-margin-top: 4rem;
 	}
