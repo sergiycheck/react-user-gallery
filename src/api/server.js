@@ -48,25 +48,30 @@ export default function makeServer(environment="development"){
 			this.get('/posts',(schema,req)=>{
 
 				const {from,to} = req.requestHeaders;
-				console.log(`server got from ${from}, and to ${to}`);
+				// console.log(`server got from ${from}, and to ${to}`);
 				const allPosts = schema.posts.all();
-				console.log('allPosts length ', allPosts.models.length);
+				
+				// console.log('allPosts length ', allPosts.models.length);
 				const resultPosts =  allPosts.models.slice(from,to);
-				console.log(resultPosts);
-				return resultPosts;
+				// console.log(resultPosts);
+				// return resultPosts;
+				return {
+					posts:resultPosts,
+					allPostsLength:allPosts.length
+				};
 				
 
 			})
 			
 			this.get('/posts/:postId/comments', (schema, req) => {
-				console.log(`Server /posts/:postId/comments `);
+				// console.log(`Server /posts/:postId/comments `);
 				const postId = req.params['postId'];
-				console.log('server got postId ', postId);
+				// console.log('server got postId ', postId);
 				const post = schema.posts.find(postId);
 				const comments = post.comments;
 
 				const {from, to} = req.requestHeaders;
-				console.log(`server got from ${from}, and to ${to}`);
+				// console.log(`server got from ${from}, and to ${to}`);
 				let commentsSliced = comments.slice(from,to);
 				commentsSliced = commentsSliced.sort((a,b)=>{
 					const aDate = new Date(a.date);
@@ -79,20 +84,20 @@ export default function makeServer(environment="development"){
 					
 					return aDate.toLocaleString().localeCompare(bDate.toLocaleString())
 				});
-				console.log('sorted comments ', commentsSliced);
+				// console.log('sorted comments ', commentsSliced);
 				return commentsSliced;
 			})
 
 			this.get('/users/:userId/posts',(schema,req)=>{
 				const userId = req.params['userId'];
-				console.log('server got userId ', userId);
+				// console.log('server got userId ', userId);
 				const user = schema.users.find(userId);
 				return user.posts;
 			})
 
 			this.get('/posts/:postId',(schema,req)=>{
 				const postId = req.params['postId'];
-				console.log('server got postId ', postId);
+				// console.log('server got postId ', postId);
 				const post = schema.posts.find(postId);
 				return post;
 			})
@@ -102,7 +107,7 @@ export default function makeServer(environment="development"){
 				// console.log('request \n',req);
 				// const postId = this.normalizedRequestAttrs()//addLikeToPost model does not exist
 				const {postId} = JSON.parse(req.requestBody);
-				console.log('postId ', postId);
+				// console.log('postId ', postId);
 
 				if(!postId){
 					console.log(' no postId provided ');
@@ -120,14 +125,14 @@ export default function makeServer(environment="development"){
 
 			this.get('/users/:userId',(schema,req)=>{
 				const userId = req.params['userId'];
-				console.log('server got userId ', userId);
+				// console.log('server got userId ', userId);
 				const user = schema.users.find(userId);
 				return user;
 			})
 
 			this.get('/comments/:commentId', (schema, req) => {
 				const commentId = req.params['commentId'];
-				console.log('server got comment id ', commentId);
+				// console.log('server got comment id ', commentId);
 				const comment = schema.comments.find(commentId);
 				return comment;
 			})

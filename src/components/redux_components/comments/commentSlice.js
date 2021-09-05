@@ -28,7 +28,7 @@ const initialState = commentsAdapter.getInitialState({
 export const fetchPostComments = createAsyncThunk(
 	'FETCH_POST_COMMENTS',
 	async( {postId, from, to} )=>{
-		console.log('fetchPostComments postId, {from to}', postId, {from, to});
+		// console.log('fetchPostComments postId, {from to}', postId, {from, to});
 		const client = new ClientBuilder(`${postsRoute}/${postId}/comments`);
 		const response = await client
 			.fetchWithConfig(null,{
@@ -39,7 +39,7 @@ export const fetchPostComments = createAsyncThunk(
 				}
 			});
 
-		console.log('got response',response);
+		// console.log('got response',response);
 		return response.comments;
 	}
 )
@@ -56,7 +56,7 @@ const commentsSlice = createSlice({
 		[fetchPostComments.fulfilled] : (state, action) =>{
 			state.status = StatusData.succeeded;
 
-			console.log('got comments', action.payload);
+			// console.log('got comments', action.payload);
 			commentsAdapter.upsertMany(state, action.payload);
 		}
 	}

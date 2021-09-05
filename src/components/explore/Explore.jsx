@@ -27,7 +27,7 @@ export const Explore = () => {
   const [to, setToPaginationProp] = useState(increment);
 
   useEffect(() => {
-    if (orderedPostIds.length == 0) {
+    if (orderedPostIds.length === 0) {
       dispatch(fetchPosts({ from, to }));
       setPaginationProperties(from + increment, to + increment);
     }
@@ -36,18 +36,18 @@ export const Explore = () => {
   const setPaginationProperties = (from, to) => {
     setFromPaginationProp(from);
     setToPaginationProp(to);
-    console.log("pagination properties set", " from ", from, " to ", to);
+    // console.log("pagination properties set", " from ", from, " to ", to);
   };
 
   let previousNum;
   const postsContent = orderedPostIds.map((postId, index) => {
     let randomNum = getRandomInt(4, 7);
-    console.log(`randomNum ${randomNum} index ${index}`);
+    // console.log(`randomNum ${randomNum} index ${index}`);
 
     if (index > 0 && index % 2 !== 0) {
-      console.log("index>0 && index%2!==0 ", index);
+      // console.log("index>0 && index%2!==0 ", index);
       randomNum = 12 - previousNum;
-      console.log("new randomNum ", randomNum);
+      // console.log("new randomNum ", randomNum);
     }
     previousNum = randomNum;
 
@@ -138,7 +138,7 @@ export const ExplorePostExcerpt = (props) => {
 
   return (
     <div className={postExploreClassName} data-aos="fade-up">
-      <a href="/explore" className="d-block photo-item">
+      <a href="/explore" target='_blank' className="d-block photo-item">
         <img
           src="./assets/img/placeholder.svg"
           data-src={post.image}

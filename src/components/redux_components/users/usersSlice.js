@@ -32,10 +32,10 @@ export const fetchSingleUser = createAsyncThunk(`${usersName}/fetchUser`,
 async(userId)=>{
 
 	const url = singleUserPageRoute.replace(':userId',userId);
-	console.log('fetching user', url);
+	// console.log('fetching user', url);
 	const client = new ClientBuilder(url);
 	const response = await client.fetchWithConfig();
-	console.log('got response', response);
+	// console.log('got response', response);
 	return response.user;
 })
 
@@ -43,7 +43,7 @@ export const fetchUsers =
 	createAsyncThunk(`${usersName}/fetchUsers`,async()=>{
 		const client = new ClientBuilder(usersRoute)
 		const response = await client.fetchWithConfig();
-		console.log('got response',response);
+		// console.log('got response',response);
 		return response.users;
 })
 
@@ -57,13 +57,13 @@ const usersSlice = createSlice({
 		[fetchUsers.fulfilled]: (state,action)=>{
 			state.status = StatusData.succeeded;
 			//state.userItems = state.userItems.concat(action.payload);
-			console.log('got users',action)
+			// console.log('got users',action)
 			usersAdapter.upsertMany(state,action.payload)
 		},
 		[fetchSingleUser.fulfilled] : (state, action) => {
 			state.status = StatusData.succeeded;
 
-			console.log('got single user', action.payload);
+			// console.log('got single user', action.payload);
 			usersAdapter.upsertOne(state, action.payload);
 		}
 	}

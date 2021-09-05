@@ -131,7 +131,7 @@ export default class Messages extends Component {
   }
 
   componentDidMount() {
-    console.log("componentDidMount");
+    // console.log("componentDidMount");
     activateMessageHandlers();
 
     this.updateMessageCount();
