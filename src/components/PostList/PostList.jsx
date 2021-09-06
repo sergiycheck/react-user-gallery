@@ -14,6 +14,9 @@ import {
   setLoadMorePostsScrollListener,
 } from "../redux_components/posts/postSlice";
 
+import { selectUsersIds } from "../redux_components/users/usersSlice";
+import { selectCommentsIds } from "../redux_components/comments/commentSlice";
+
 import { StatusData } from "../../api/ApiRoutes";
 
 import { Loader } from "../helperComponents/Loader.jsx";
@@ -48,7 +51,9 @@ const PostsList = () => {
   const increment = 5;
 
   const orderedPostIds = useSelector((state) => selectPostIds(state));
+
   const postsStatus = useSelector((state) => state.posts.status);
+
   const allFetchedPostsLength = useSelector(selectFetchedAllPostsLength);
 
   const scrollMoreStatus = useSelector(selectLoadMorePostsScrollListener);
@@ -76,7 +81,7 @@ const PostsList = () => {
       scrollMoreStatus === loadMorePostsScrollListenerEnum.set &&
       allFetchedPostsLength > 0
     ) {
-      console.log("all posts have been fetched");
+      // console.log("all posts have been fetched");
 
       window.removeEventListener(
         "scroll",
@@ -119,10 +124,10 @@ const PostsList = () => {
   };
 
   useEffect(() => {
-    console.log("scrollMoreStatus ", scrollMoreStatus);
+    // console.log("scrollMoreStatus ", scrollMoreStatus);
 
     if (scrollMoreStatus === loadMorePostsScrollListenerEnum.initial) {
-      console.log("setting load more scroll event listener");
+      // console.log("setting load more scroll event listener");
 
       window.addEventListener(
         "scroll",
@@ -170,6 +175,7 @@ const PostsList = () => {
   return (
     <div className="row display-container">
       {/* <HomeOverlay></HomeOverlay> */}
+      <div className="loading-display-container"></div>
 
       {contentPosts}
 

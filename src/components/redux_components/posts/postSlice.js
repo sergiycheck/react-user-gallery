@@ -1,37 +1,37 @@
-
 import {
   createSlice,
   createAsyncThunk,
   createEntityAdapter,
 } from "@reduxjs/toolkit";
 
-import { StatusData, postsRoute } from "../../../api/ApiRoutes";
+import {
+  StatusData,
+  postsRoute,
+  usersName,
+  usersRoute,
+} from "../../../api/ApiRoutes";
 
 import { ClientBuilder } from "../../../api/client";
 
 export const loadMorePostsScrollListenerEnum = {
-	initial:'initial',
-	set:'set',
-	removed:'removed'
-}
+  initial: "initial",
+  set: "set",
+  removed: "removed",
+};
 
 const postsAdapter = createEntityAdapter({
   // sortComparer:(postA, postB)=>
   // 	postB.date.localeCompare(postA.date)
 });
 
-
 const initialState = postsAdapter.getInitialState({
-
-	loadMorePostsScrollListener:loadMorePostsScrollListenerEnum.initial,
+  loadMorePostsScrollListener: loadMorePostsScrollListenerEnum.initial,
   fetchedAllEntitiesLength: 0,
   status: StatusData.idle,
   error: null,
 });
 
-export const addLikeToPost = createAsyncThunk(
-  "POST_LIKE",
-  async ({ postId }) => {
+export const addLikeToPost = createAsyncThunk("POST_LIKE", async ({ postId }) => {
     const client = new ClientBuilder(`fakeApi/posts/addLikeToPost`, {
       body: {
         postId: postId,
@@ -45,9 +45,7 @@ export const addLikeToPost = createAsyncThunk(
   }
 );
 
-export const fetchPosts = createAsyncThunk(
-  "FETCH_POSTS",
-  async ({ from, to }, { getState }) => {
+export const fetchPosts = createAsyncThunk("FETCH_POSTS", async ({ from, to }, { getState }) => {
     // console.log('getState passed as obj', getState);
     // const allPosts = selectAllPosts(getState());
     // console.log('all posts before fetch', allPosts);
@@ -62,13 +60,28 @@ export const fetchPosts = createAsyncThunk(
       },
     });
     const { posts, allPostsLength } = response;
-    console.log("all posts length", allPostsLength);
+    // console.log("all posts length", allPostsLength);
 
     // console.log('response  from server', response);
     // console.log('every post has user',posts.every(p=>p.userId))
     return { posts, allPostsLength };
   }
 );
+
+export const searchUsersPostsByUserName = createAsyncThunk(`${usersName}/searchForUsersPosts`, async ({ searchUserName }) => {
+    const client = new ClientBuilder(`${usersRoute}/searchForUsersPosts`, {
+      body: {
+        searchUserName,
+      },
+    });
+    const response = await client.fetchWithConfig();
+    
+    const models = response.posts.map(coll=>coll.models).flat();
+    // console.log('models ', models);
+    return models;
+  }
+);
+
 const postsSlice = createSlice({
   name: "posts",
   initialState,
@@ -87,16 +100,15 @@ const postsSlice = createSlice({
 
       postsAdapter.addOne(state, action.payload);
     },
-		setLoadMorePostsScrollListener(state, action){
-			const {scrollMoreStatus} = action.payload;
-			state.loadMorePostsScrollListener = scrollMoreStatus;
-		}
+    setLoadMorePostsScrollListener(state, action) {
+      const { scrollMoreStatus } = action.payload;
+      state.loadMorePostsScrollListener = scrollMoreStatus;
+    },
   },
   extraReducers: {
     [fetchPosts.pending]: (state, action) => {
       state.status = StatusData.loading;
     },
-
     [fetchPosts.fulfilled]: (state, action) => {
       state.status = StatusData.succeeded;
       const { posts, allPostsLength } = action.payload;
@@ -104,6 +116,27 @@ const postsSlice = createSlice({
       state.fetchedAllEntitiesLength = allPostsLength;
 
       postsAdapter.upsertMany(state, posts);
+    },
+    [searchUsersPostsByUserName.pending]:(state,action)=>{
+      state.status = StatusData.loading;
+    },
+    [searchUsersPostsByUserName.rejected]:(state,action)=>{
+      state.status = StatusData.succeeded;
+    },
+    [searchUsersPostsByUserName.fulfilled]: (state, action) => {
+      state.status = StatusData.succeeded;
+
+      const posts = action.payload;
+      const postsLength =  Array.from(posts).length;
+      if(postsLength === 0 ){
+        return;
+      }
+
+      postsAdapter.removeAll(state);
+      state.loadMorePostsScrollListener = loadMorePostsScrollListenerEnum.removed;
+      state.fetchedAllEntitiesLength = postsLength;
+      postsAdapter.upsertMany(state, posts);
+      
     },
     [addLikeToPost.fulfilled]: (state, action) => {
       state.status = StatusData.succeeded;
@@ -126,11 +159,11 @@ const postsSlice = createSlice({
 
 export default postsSlice.reducer;
 
-export const { 
-	changePostStatusToStartFetching, 
-	postAdded,
-	setLoadMorePostsScrollListener 
-} =postsSlice.actions;
+export const {
+  changePostStatusToStartFetching,
+  postAdded,
+  setLoadMorePostsScrollListener,
+} = postsSlice.actions;
 
 export const {
   selectAll: selectAllPosts,

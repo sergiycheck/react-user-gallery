@@ -184,6 +184,14 @@ $user-max-z-index:1030;/* next max z-index*/
   max-height: 250px;
   overflow-y: scroll;
 }
+.display-container{
+  position: relative;
+}
+.loading-display-container{
+  background-color: rgba(0,0,0,0.5);
+  position:absolute;
+  z-index:$user-max-z-index - 1;
+}
 
 
 

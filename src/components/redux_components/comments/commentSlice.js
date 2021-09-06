@@ -53,6 +53,9 @@ const commentsSlice = createSlice({
 
 	},
 	extraReducers:{
+		[fetchPostComments.pending] : (state, action) =>{
+			state.status = StatusData.loading;
+		},
 		[fetchPostComments.fulfilled] : (state, action) =>{
 			state.status = StatusData.succeeded;
 
