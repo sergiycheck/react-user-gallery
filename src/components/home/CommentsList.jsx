@@ -14,16 +14,12 @@ import { TimeAgo } from "../home/TimeAgo";
 export const CommentsList = (props) => {
   const { postId } = props;
 
-  const commentsStatus = useSelector((state) => state.comments.status);
+  // const commentsStatus = useSelector((state) => state.comments.status);
 
   const comments = useSelector((state) =>
     selectCommentsByPostId(state, postId)
   );
 
-  if (commentsStatus === StatusData.succeeded) {
-    console.log("commentsStatus === StatusData.succeeded");
-    // commentReadMoreWithClassName();
-  }
 
   const contentComments = comments.map((comment) => {
     return (

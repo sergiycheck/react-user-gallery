@@ -2,17 +2,13 @@ import React, { useEffect, useState } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import "./Home.scss";
-import { CommentsList } from "./CommentsList.jsx";
+import { CommentsList } from "../home/CommentsList.jsx";
 
-import { TimeAgo } from "./TimeAgo";
+import { TimeAgo } from "../home/TimeAgo";
 import { unwrapResult } from "@reduxjs/toolkit";
 
 import {
-  fetchPosts,
-  selectAllPosts,
   selectPostById,
-  selectPostIds,
   addLikeToPost,
 } from "../redux_components/posts/postSlice";
 import {
@@ -24,7 +20,8 @@ import { fetchPostComments } from "../redux_components/comments/commentSlice";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
 
-export let Post = (props) => {
+
+const Post = (props) => {
   const dispatch = useDispatch();
   const { postId } = props;
 
@@ -39,19 +36,26 @@ export let Post = (props) => {
   const [from, setPaginationFromProp] = useState(0);
   const [to, setPaginationToProp] = useState(increment);
 
-  useEffect(async () => {
-    const resultFetchedComments = await dispatch(
-      fetchPostComments({ postId, from, to })
-    );
-    unwrapResult(resultFetchedComments);
+  useEffect( () => {
 
-    setPaginationProperties(from, to);
-  }, [postId, dispatch]);
+    async function fetchComments(){
+
+      const resultFetchedComments = await dispatch(
+        fetchPostComments({ postId, from, to })
+      );
+      unwrapResult(resultFetchedComments);
+
+      setPaginationProperties(from, to);
+
+    }
+    fetchComments();
+
+  }, [dispatch, postId]);
 
   const setPaginationProperties = (from, to) => {
     setPaginationFromProp(from);
     setPaginationToProp(to);
-    console.log("pagination properties set", " from ", from, " to ", to);
+    // console.log("pagination properties set", " from ", from, " to ", to);
   };
 
   const user = useSelector((state) => selectUserById(state, userId));

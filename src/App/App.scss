@@ -32,7 +32,7 @@ $grid-breakpoints: (
 
 $svg-search-icon:url("../helpers/search.svg");
 #search{
-	background:$svg-search-icon scroll 85% 50%;
+	background:$svg-search-icon scroll 95% 50%;
 	padding-left: 10%;
 	background-repeat: no-repeat;
 	margin-right: .5rem;
@@ -41,6 +41,9 @@ $svg-search-icon:url("../helpers/search.svg");
 		background-image: none;
 		flex-grow: 3;
 	}
+  &:active{
+    background-image: none;
+  }
 
   @include media-breakpoint-up(
     map-get($map: $grid-breakpoints, $key: md )){
@@ -49,6 +52,12 @@ $svg-search-icon:url("../helpers/search.svg");
     }
   }
 
+}
+
+@media screen and (min-width:768px) {
+  .width-100-media{
+    width: 100% !important;
+  }
 }
 
 
