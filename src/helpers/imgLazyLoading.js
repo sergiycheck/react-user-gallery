@@ -1,4 +1,5 @@
 function isVisible(elem) {
+
   const imgRect = elem.getBoundingClientRect();
   // console.log(`imgRect `, imgRect);
 
@@ -31,12 +32,13 @@ function isVisible(elem) {
 }
 
 export function showVisible() {
+  
+
   for (let img of document.querySelectorAll("img")) {
     let realSrc = img.dataset.src;
     if (!realSrc) continue;
 
     if (isVisible(img)) {
-      // console.log(`img is visible `, img);
 
       img.src = realSrc;
 

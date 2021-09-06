@@ -19,7 +19,7 @@ function skipVideoOnEnd(){
 
     const carouselInner = document.querySelector(".carousel-inner");
     if(carouselInner){
-      carouselInner.querySelector(".carousel-item")?.classList.add("active");
+      carouselInner.querySelector(".carousel-item").classList.add("active");
     }
 
     AddClickListenerForCarouselNextBtn();
@@ -101,9 +101,9 @@ function AddClickListenerForCarouselNextBtn(){
       if(item && item.classList.contains("active")){
         let vid = item.querySelector(".carousel-video-element");
 
-        if(typeof pauseOrPlayVideo == 'function')
+        if(typeof pauseOrPlayVideo === 'function')
           pauseOrPlayVideo(vid);
-        if(typeof videoHandler == 'function')
+        if(typeof videoHandler === 'function')
           videoHandler(vid);
         return;
       }

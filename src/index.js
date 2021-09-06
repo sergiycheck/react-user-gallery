@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import './index.scss';
+import App from './App/App.jsx';
 import reportWebVitals from './reportWebVitals';
 
 import 'bootstrap/dist/css/bootstrap.css';
@@ -17,15 +17,15 @@ import { BrowserRouter, Route } from "react-router-dom";
 
 import { QueryParamProvider } from "use-query-params";
 
-// import {fetchUsers } from './components/redux_components/users/usersSlice'
 
-if(process.env.NODE_ENV==='development' 
-  && typeof makeServer ==='function'){
-    makeServer();
-  }
+// if(process.env.NODE_ENV==='development' 
+//   && typeof makeServer ==='function'){
+//     makeServer();
+//   }
 
-  // store.dispatch(fetchUsers())
-
+if(typeof makeServer ==='function'){
+  makeServer();
+}
 
 
 ReactDOM.render(
