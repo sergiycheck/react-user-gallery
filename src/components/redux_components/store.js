@@ -1,4 +1,4 @@
-import {configureStore, getDefaultMiddleware} from '@reduxjs/toolkit';
+import {configureStore} from '@reduxjs/toolkit';
 import  itemCounterReducer  from "./counter/itemCounterSlice";
 import postsReducer from './posts/postSlice';
 import videosReducer from './videos/videosSlice';
