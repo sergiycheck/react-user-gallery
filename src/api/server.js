@@ -18,7 +18,7 @@ import { parseISO } from "date-fns";
 import seedrandom from "seedrandom";
 import { randomInt } from "crypto";
 
-
+import _ from "lodash";
 
 // to understand mirage better go -> node_modules -> miragejs -> lib -> orm model.js
 
@@ -132,24 +132,80 @@ export default function makeServer(environment = "development") {
         // console.log(`searchUserName)`, searchUserName);
 
         const allUsers = schema.users.all().models;
-				// console.log(`allUsers`, allUsers);
+        // console.log(`allUsers`, allUsers);
 
-				const filteredUsers = allUsers.filter((user) => {
-					const normalizedUserName = user.userName.toLocaleLowerCase();
-					const normalizedSearchName = searchUserName.toLocaleLowerCase();
-					return normalizedUserName.includes(normalizedSearchName);
-				});
-				// console.log("filteredUsers ", filteredUsers);
-		
-				const reducedPosts = filteredUsers.reduce(
-					(previousArr, currentUser) => {
-						return previousArr.concat(currentUser.posts);
-					},
-					[]
-				);
-				// console.log("reducedPosts.models ", reducedPosts);
-				
+        const filteredUsers = allUsers.filter((user) => {
+          const normalizedUserName = user.userName.toLocaleLowerCase();
+          const normalizedSearchName = searchUserName.toLocaleLowerCase();
+          return normalizedUserName.includes(normalizedSearchName);
+        });
+        // console.log("filteredUsers ", filteredUsers);
+
+        const reducedPosts = filteredUsers.reduce(
+          (previousArr, currentUser) => {
+            return previousArr.concat(currentUser.posts);
+          },
+          []
+        );
+        // console.log("reducedPosts.models ", reducedPosts);
+
         return { posts: reducedPosts };
+      });
+      this.get("/users/searchForNames/:query", (schema, req) => {
+        const query = req.params["query"];
+
+        console.log("query", query);
+
+        const allUsers = schema.users.all().models;
+
+        const normQuery = query.toLocaleLowerCase();
+
+        const queryChars = normQuery.split("");
+
+        const resultArr = allUsers
+          .reduce((previousArr, currentName) => {
+            // console.log("currentName", currentName);
+
+            const charsName = currentName.userName
+              .toLocaleLowerCase()
+              .split("");
+
+            const intersectedArr = _.intersectionWith(
+              charsName,
+              queryChars,
+              _.isEqual
+            );
+
+            if (intersectedArr.length > 0) {
+              return previousArr.concat({
+                userName: currentName.userName,
+                id: currentName.id,
+              });
+            }
+            return previousArr;
+          }, [])
+          .sort((first, second) => {
+            return (
+              _.intersectionWith(
+                second.userName.split(""),
+                queryChars,
+                _.isEqual
+              ).length -
+              _.intersectionWith(
+                first.userName.split(""),
+                queryChars,
+                _.isEqual
+              ).length
+            );
+          })
+          .sort((first, second) => {
+            return (
+              second.userName.indexOf(query) - first.userName.indexOf(query)
+            );
+          })
+          .slice(0, 5);
+
+        return { userNamesArr: resultArr };
       });
 
       this.get("/comments/:commentId", (schema, req) => {
@@ -302,7 +358,6 @@ export default function makeServer(environment = "development") {
     },
   });
 }
-
 
 const IdSerializer = RestSerializer.extend({
   serializeIds: "always",

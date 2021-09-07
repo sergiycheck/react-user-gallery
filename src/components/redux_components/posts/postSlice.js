@@ -25,6 +25,7 @@ const postsAdapter = createEntityAdapter({
 });
 
 const initialState = postsAdapter.getInitialState({
+  searchedNamesAndIds: [],
   loadMorePostsScrollListener: loadMorePostsScrollListenerEnum.initial,
   fetchedAllEntitiesLength: 0,
   status: StatusData.idle,
@@ -82,6 +83,15 @@ export const searchUsersPostsByUserName = createAsyncThunk(`${usersName}/searchF
   }
 );
 
+export const searchForUsersNames = createAsyncThunk(`${usersName}/searchForUsersNames`, async ({ query }) => {
+  const client = new ClientBuilder(`${usersRoute}/searchForNames/${query}`);
+  const response = await client.fetchWithConfig();
+  // console.log('response', response);
+  if(response)
+    return response.userNamesArr;
+  return [];
+})
+
 const postsSlice = createSlice({
   name: "posts",
   initialState,
@@ -138,6 +148,10 @@ const postsSlice = createSlice({
       postsAdapter.upsertMany(state, posts);
       
     },
+    [searchForUsersNames.fulfilled]: (state, action) => {
+      const namesAndIdsArr = action.payload;
+      state.searchedNamesAndIds = namesAndIdsArr;
+    },
     [addLikeToPost.fulfilled]: (state, action) => {
       state.status = StatusData.succeeded;
 
@@ -176,3 +190,5 @@ export const selectFetchedAllPostsLength = (state) =>
 
 export const selectLoadMorePostsScrollListener = (state) =>
   state.posts.loadMorePostsScrollListener;
+
+export const selectSearchedNamesAndIds = state => state.posts.searchedNamesAndIds;

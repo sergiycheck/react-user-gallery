@@ -1,10 +1,20 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import SvgIcon from "@material-ui/core/SvgIcon";
-import {searchUsersPostsByUserName} from '../redux_components/posts/postSlice';
-import {StatusData} from '../../api/ApiRoutes'
+import {
+  searchUsersPostsByUserName,
+  searchForUsersNames,
+  selectSearchedNamesAndIds
+} from "../redux_components/posts/postSlice";
+import { StatusData } from "../../api/ApiRoutes";
+import navbarStyles from "./NavBar.module.scss";
+import classNames from "classnames";
+
+import { unwrapResult } from "@reduxjs/toolkit";
+import {throttle} from './throttle';
+
 const NavBar = (props) => {
   return (
     <nav
@@ -100,56 +110,117 @@ const NavBar = (props) => {
   );
 };
 
-const SearchForm = (props) => {
 
+async function dispatchSearchRequest(trimmedText, dispatch){
+  try {
+
+    const arrNamesResult = await dispatch(searchForUsersNames({query:trimmedText}));
+    // console.log(`arrNamesResult`, arrNamesResult);
+    const unwrappedResult = unwrapResult(arrNamesResult);
+    console.log(`unwrappedResult`, unwrappedResult);
+    // setSearchedArrName(unwrappedResult.slice());
+    return unwrappedResult;
+
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+const TIME_AFTER_WHICH_TO_DISPATCH  = 500;
+const throttledRequest = throttle(dispatchSearchRequest, TIME_AFTER_WHICH_TO_DISPATCH);
+
+const SearchForm = (props) => {
   const dispatch = useDispatch();
 
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
   const [loadingStatus, setLoadingStatus] = useState(StatusData.idle);
+
+  const searchInput = useRef(null);
+  const [isListHidden, setListHidden] = useState(true);
+
+  const handleListItemClick = (e) => {
+    setText(e.target.innerText.trim());
+    searchInput.current.focus();
+  }
+
+  // const [searchedArrNames, setSearchedArrName] = useState([]);
+  const searchedArrNames = useSelector(selectSearchedNamesAndIds);
+
+  const renderedArrNames = searchedArrNames.map(name => (
+    <li key={name.id} onClick={handleListItemClick} className="list-group-item">{name.userName}</li>
+  ))
+  
+  const requestForUserNames = (value) =>{
+
+    const unwrappedResultPromise = throttledRequest(value.trim(), dispatch);
+    
+    if(unwrappedResultPromise){
+      console.log('setting promise result')
+      unwrappedResultPromise.then(result=>{
+        console.log('result of resolved promise', result);
+        // setSearchedArrName(result.slice());
+      })
+    }
+
+    
+  }
+   
 
   const handleInputChange = (e) => {
     setText(e.target.value);
 
-    if(e.target.value){
-
-      e.target.style.background = 'none';
-    }else{
-
-      e.target.style = '';
+    if (e.target.value) {
+      e.target.style.background = "none";
+    } else {
+      e.target.style = "";
     }
-  
-  }
+    requestForUserNames(e.target.value);
 
-  const handleKeyDown = async (e) =>{
+  };
 
-    const trimmedText = text.trim();  
-    if(e.key === 'Enter' && trimmedText){
+  const handleKeyDown = async (e) => {
+    const trimmedText = text.trim();
 
+    if (e.key === "Enter" && trimmedText) {
       setLoadingStatus(StatusData.loading);
+      setListHidden(true);
 
-      console.log('searching...');
+      console.log("searching...");
 
-      await dispatch(searchUsersPostsByUserName({searchUserName:trimmedText}));
+      await dispatch(
+        searchUsersPostsByUserName({ searchUserName: trimmedText })
+      );
 
       setLoadingStatus(StatusData.idle);
-
     }
-  }
+  };
   let isLoading = loadingStatus === StatusData.loading;
+
+  const searchInputClasses = classNames(
+    `list-group`,
+    navbarStyles.searchClasses
+  );
   return (
     <div className="mt-2">
-
+      <div className={navbarStyles.inputWrapper}>
         <input
+          ref={searchInput}
           id="search"
           className="form-control"
           type="search"
           placeholder="search for an author"
           value={text}
+          onClick={()=>{setListHidden(false)}}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           aria-label="Search"
           disabled={isLoading}
         />
+
+        <ul className={searchInputClasses} hidden={isListHidden}>
+
+          {renderedArrNames}
+        </ul>
+      </div>
     </div>
   );
 };
