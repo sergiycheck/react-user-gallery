@@ -5,12 +5,12 @@ import {
   selectPostIds,
   selectPostById,
   fetchPosts,
-} from "../redux_components/posts/postSlice";
+} from "../PostList/postSlice";
 
 import {
   fetchSingleUser,
   selectUserById,
-} from "../redux_components/users/usersSlice";
+} from "../profile/usersSlice";
 
 import classnames from "classnames";
 
@@ -140,10 +140,10 @@ export const ExplorePostExcerpt = (props) => {
     <div className={postExploreClassName} data-aos="fade-up">
       <a href="/explore" target='_blank' className="d-block photo-item">
         <img
-          src="./assets/img/placeholder.svg"
+          src="./assets/img/img-placeholder.gif"
           data-src={post.image}
           alt="Post"
-          className="img-fluid"
+          className="img-fluid rounded"
         />
 
         <div className="photo-text-more">

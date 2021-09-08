@@ -1,15 +1,11 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import {
-  selectCommentById,
-  selectCommentsByPostId,
-} from "../redux_components/comments/commentSlice";
+import { selectCommentById, selectCommentsByPostId } from "./commentSlice";
 
-import "./Home.scss";
+import { TimeAgo } from "../helperComponents/TimeAgo";
 
-import { StatusData } from "../../api/ApiRoutes";
+import {ReadMoreText} from '../helperComponents/ReadMoreText.jsx';
 
-import { TimeAgo } from "../home/TimeAgo";
 
 export const CommentsList = (props) => {
   const { postId } = props;
@@ -19,7 +15,6 @@ export const CommentsList = (props) => {
   const comments = useSelector((state) =>
     selectCommentsByPostId(state, postId)
   );
-
 
   const contentComments = comments.map((comment) => {
     return (
@@ -39,29 +34,16 @@ export const CommentExcerpt = (props) => {
   //for rerendering only current comment
   const comment = useSelector((state) => selectCommentById(state, commentId));
   const { content } = comment;
-  const textShortPart = content.substring(0, 120);
-  const textRemainingPart = content.substring(120, content.length);
-
-  const [readMoreSpan, setReadMoreState] = useState(false);
-  const [readMoreText, setReadMoreText] = useState("read more");
-  const setReadMoreParams = () => {
-    setReadMoreState(!readMoreSpan);
-    if (readMoreSpan) {
-      setReadMoreText(" read more");
-    } else {
-      setReadMoreText(" read less");
-    }
-  };
 
   return (
     <React.Fragment>
       <div className="col-sm-3 mb-2">
         <img
-          className="img-fluid mx-auto"
+          className="img-fluid mx-auto rounded"
           style={{ height: "30px" }}
           // src={comment.commentatorAvatar}
 
-          src="./assets/img/placeholder.svg"
+          src="./assets/img/img-placeholder.gif"
           data-src={comment.commentatorAvatar}
           alt="comment user profile"
         />
@@ -69,15 +51,7 @@ export const CommentExcerpt = (props) => {
 
       <div className="col-sm-6">
         <p className="comment-content">
-          {textShortPart}
-
-          {!readMoreSpan && <span className="dots">...</span>}
-
-          {readMoreSpan && <span className="more">{textRemainingPart}</span>}
-
-          <span onClick={setReadMoreParams} className="readmore">
-            {readMoreText}
-          </span>
+          <ReadMoreText content={content}></ReadMoreText>
         </p>
       </div>
       <div className="col-sm-2">

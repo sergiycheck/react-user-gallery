@@ -27,7 +27,7 @@ export default function makeServer(environment = "development") {
     environment: environment,
 
     routes() {
-      // this.timing = 3000;
+      // this.timing = 2000;
 
       this.namespace = "fakeApi";
       const server = this;
@@ -124,22 +124,73 @@ export default function makeServer(environment = "development") {
         // console.log('server got userId ', userId);
         const user = schema.users.find(userId);
         return user;
+        // return new Promise(resolve=>{
+        //   setTimeout(()=>{
+        //     resolve(user);
+        //   },30000)
+        // })
       });
 
       this.post("/users/searchForUsersPosts", (schema, req) => {
         const { searchUserName } = JSON.parse(req.requestBody);
 
-        // console.log(`searchUserName)`, searchUserName);
+        console.log(`searchUserName`, searchUserName);
 
         const allUsers = schema.users.all().models;
         // console.log(`allUsers`, allUsers);
 
-        const filteredUsers = allUsers.filter((user) => {
+        let filteredUsers = allUsers.filter((user) => {
           const normalizedUserName = user.userName.toLocaleLowerCase();
           const normalizedSearchName = searchUserName.toLocaleLowerCase();
           return normalizedUserName.includes(normalizedSearchName);
         });
-        // console.log("filteredUsers ", filteredUsers);
+
+        if (!filteredUsers || filteredUsers.length === 0) {
+          const normQuery = searchUserName.toLocaleLowerCase();
+          const queryChars = normQuery.split("");
+
+          filteredUsers = allUsers
+            .reduce((previousArr, currentUser) => {
+              // console.log("currentUser", currentUser.userName);
+
+              const charsName = currentUser.userName
+                .toLocaleLowerCase()
+                .split("");
+
+              const intersectedArr = _.intersectionWith(
+                charsName,
+                queryChars,
+                _.isEqual
+              );
+
+              if (intersectedArr.length > 0) {
+                return previousArr.concat(currentUser);
+              }
+              return previousArr;
+            }, [])
+            .sort((first, second) => {
+              return (
+                _.intersectionWith(
+                  second.userName.split(""),
+                  queryChars,
+                  _.isEqual
+                ).length -
+                _.intersectionWith(
+                  first.userName.split(""),
+                  queryChars,
+                  _.isEqual
+                ).length
+              );
+            })
+            .sort((first, second) => {
+              return (
+                second.userName.toLocaleLowerCase().indexOf(normQuery) -
+                first.userName.toLocaleLowerCase().indexOf(normQuery)
+              );
+            });
+        }
+
+        console.log("filteredUsers ", filteredUsers);
 
         const reducedPosts = filteredUsers.reduce(
           (previousArr, currentUser) => {
@@ -151,6 +202,7 @@ export default function makeServer(environment = "development") {
 
         return { posts: reducedPosts };
       });
+
       this.get("/users/searchForNames/:query", (schema, req) => {
         const query = req.params["query"];
 
@@ -200,7 +252,8 @@ export default function makeServer(environment = "development") {
           })
           .sort((first, second) => {
             return (
-              second.userName.indexOf(query) - first.userName.indexOf(query)
+              second.userName.toLocaleLowerCase().indexOf(normQuery) -
+              first.userName.toLocaleLowerCase().indexOf(normQuery)
             );
           })
           .slice(0, 5);

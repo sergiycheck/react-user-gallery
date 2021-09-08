@@ -9,9 +9,9 @@ import {
   postsRoute,
   usersName,
   usersRoute,
-} from "../../../api/ApiRoutes";
+} from "../../api/ApiRoutes";
 
-import { ClientBuilder } from "../../../api/client";
+import { ClientBuilder } from "../../api/client";
 
 export const loadMorePostsScrollListenerEnum = {
   initial: "initial",
@@ -138,14 +138,12 @@ const postsSlice = createSlice({
 
       const posts = action.payload;
       const postsLength =  Array.from(posts).length;
-      if(postsLength === 0 ){
-        return;
-      }
 
-      postsAdapter.removeAll(state);
       state.loadMorePostsScrollListener = loadMorePostsScrollListenerEnum.removed;
+      
       state.fetchedAllEntitiesLength = postsLength;
-      postsAdapter.upsertMany(state, posts);
+      
+      postsAdapter.setAll(state, posts);
       
     },
     [searchForUsersNames.fulfilled]: (state, action) => {

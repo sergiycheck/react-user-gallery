@@ -9,7 +9,7 @@ import 'bootstrap/dist/js/bootstrap.js';
 
 import { Provider } from 'react-redux';
 
-import store from './components/redux_components/store';
+import store from './App/store';
 
 import makeServer from './api/server';
 

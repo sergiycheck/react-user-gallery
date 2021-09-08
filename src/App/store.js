@@ -1,10 +1,10 @@
 import {configureStore} from '@reduxjs/toolkit';
-import  itemCounterReducer  from "./counter/itemCounterSlice";
-import postsReducer from './posts/postSlice';
-import videosReducer from './videos/videosSlice';
-import usersReducer from './users/usersSlice';
+import  itemCounterReducer  from "../components/messages/counter/itemCounterSlice";
+import postsReducer from '../components/PostList/postSlice';
+import videosReducer from '../components/home/VideoComponent/videosSlice';
+import usersReducer from '../components/profile/usersSlice';
 
-import commentsReducer from './comments/commentSlice';
+import commentsReducer from '../components/comments/commentSlice';
 
 
 const loggerMiddleware = storeAPI => next => action =>{

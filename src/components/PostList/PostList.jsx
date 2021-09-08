@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import Post from "./Post.js";
+import Post from "./Post.jsx";
 
 import {
   fetchPosts,
@@ -12,10 +12,8 @@ import {
   selectLoadMorePostsScrollListener,
   loadMorePostsScrollListenerEnum,
   setLoadMorePostsScrollListener,
-} from "../redux_components/posts/postSlice";
+} from "./postSlice";
 
-import { selectUsersIds } from "../redux_components/users/usersSlice";
-import { selectCommentsIds } from "../redux_components/comments/commentSlice";
 
 import { StatusData } from "../../api/ApiRoutes";
 
@@ -45,6 +43,17 @@ const getScrollListener = ({
 
   return scrollListener;
 };
+
+// const logToElementAboutPosition = (heightAndOffset,bodyOffsetHeight) =>{
+// 	const positionAlertMessage = `setting event listener <br> heightAndOffset ${heightAndOffset} bodyOffsetHeight ${bodyOffsetHeight}`;
+// 	const positionElement = document.querySelector('#PositionAlertMessage');
+// 	if(positionElement){
+// 		positionElement.innerHTML = positionAlertMessage;
+// 	}
+// 	console.log('setting event listener');
+// 	console.log(` heightAndOffset ${heightAndOffset} bodyOffsetHeight ${bodyOffsetHeight}`);
+
+// }
 
 const PostsList = () => {
   const dispatch = useDispatch();
@@ -148,16 +157,6 @@ const PostsList = () => {
     };
   });
 
-  // const logToElementAboutPosition = (heightAndOffset,bodyOffsetHeight) =>{
-  // 	const positionAlertMessage = `setting event listener <br> heightAndOffset ${heightAndOffset} bodyOffsetHeight ${bodyOffsetHeight}`;
-  // 	const positionElement = document.querySelector('#PositionAlertMessage');
-  // 	if(positionElement){
-  // 		positionElement.innerHTML = positionAlertMessage;
-  // 	}
-  // 	console.log('setting event listener');
-  // 	console.log(` heightAndOffset ${heightAndOffset} bodyOffsetHeight ${bodyOffsetHeight}`);
-
-  // }
 
   const contentPosts = orderedPostIds.map((postId) => {
     return <Post key={postId} postId={postId}></Post>;
@@ -173,9 +172,8 @@ const PostsList = () => {
   }
 
   return (
-    <div className="row display-container">
+    <div className="row display-container justify-content-center">
       {/* <HomeOverlay></HomeOverlay> */}
-      <div className="loading-display-container"></div>
 
       {contentPosts}
 

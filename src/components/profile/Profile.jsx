@@ -42,11 +42,11 @@ export default class Profile extends Component {
             <div className="row py-lg-5">
               <div className="col-lg-3 col-md-2">
                 <img
-                  className=" img-fluid "
-                  src="./assets/img/placeholder.svg"
+                  className=" img-fluid rounded"
+                  src="./assets/img/img-placeholder.gif"
                   data-src="http://simpleicon.com/wp-content/uploads/user1.png"
-                  alt="user photo"
                   height="300"
+                  alt="user profile"
                 />
               </div>
 
@@ -78,10 +78,11 @@ export default class Profile extends Component {
                 <div className="col-sm-4">
                   <div className="card shadow-sm">
                     <img
-                      className="img-fluid p-2"
-                      src="./assets/img/placeholder.svg"
+                      className="img-fluid p-2 rounded"
+                      src="./assets/img/img-placeholder.gif"
                       data-src="https://source.unsplash.com/user/solase/300x400"
                       height="400"
+                      alt="user profile"
                     />
 
                     <div className="card-body">
@@ -96,10 +97,11 @@ export default class Profile extends Component {
                 <div className="col-sm-4">
                   <div className="card shadow-sm p-2">
                     <img
-                      className="img-fluid"
-                      src="./assets/img/placeholder.svg"
+                      className="img-fluid rounded"
+                      src="./assets/img/img-placeholder.gif"
                       data-src="https://source.unsplash.com/user/tom/300x400"
                       height="400"
+                      alt="user profile"
                     />
 
                     <div className="card-body">
@@ -114,10 +116,11 @@ export default class Profile extends Component {
                 <div className="col-sm-4">
                   <div className="card shadow-sm p-2">
                     <img
-                      className="img-fluid"
-                      src="./assets/img/placeholder.svg"
+                      className="img-fluid rounded"
+                      src="./assets/img/img-placeholder.gif"
                       data-src="https://source.unsplash.com/user/mike/300x400"
                       height="400"
+                      alt="user profile"
                     />
 
                     <div className="card-body">
@@ -132,10 +135,11 @@ export default class Profile extends Component {
                 <div className="col-sm-4">
                   <div className="card shadow-sm p-2">
                     <img
-                      className="img-fluid"
-                      src="./assets/img/placeholder.svg"
+                      className="img-fluid rounded"
+                      src="./assets/img/img-placeholder.gif"
                       data-src="https://source.unsplash.com/user/anna/300x400"
                       height="400"
+                      alt="user profile"
                     />
 
                     <div className="card-body">

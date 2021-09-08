@@ -113,6 +113,9 @@ $user-max-z-index:1030;/* next max z-index*/
 	cursor: pointer;
 	text-decoration: underline;
 }
+.user-img{
+  max-height: 500px;
+}
 .user-img:hover{
 	cursor: pointer;
 }
@@ -187,11 +190,7 @@ $user-max-z-index:1030;/* next max z-index*/
 .display-container{
   position: relative;
 }
-.loading-display-container{
-  background-color: rgba(0,0,0,0.5);
-  position:absolute;
-  z-index:$user-max-z-index - 1;
-}
+
 
 
 

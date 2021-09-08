@@ -9,11 +9,11 @@ import {
 import {
 	StatusData,
 	postsRoute
-} from '../../../api/ApiRoutes';
+} from '../../api/ApiRoutes';
 
 import {
 	ClientBuilder
-} from '../../../api/client'
+} from '../../api/client'
 
 
 const commentsAdapter = createEntityAdapter({});

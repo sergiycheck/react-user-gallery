@@ -4,7 +4,7 @@ import React, { Component, useState } from "react";
 
 import activateMessageHandlers from "./message-scripts.js";
 
-import ItemCounter from "../redux_components/counter/ItemCounter";
+import ItemCounter from "./counter/ItemCounter";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -13,7 +13,7 @@ import {
   decrement,
   incrementByAmount,
   selectItemCount,
-} from "../redux_components/counter/itemCounterSlice";
+} from "./counter/itemCounterSlice";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
 
@@ -328,7 +328,7 @@ class Friend extends Component {
               <img
                 className="img-fluid m-2 rounded-circle"
                 style={{ height: "50px" }}
-                src="./assets/img/placeholder.svg"
+                src="./assets/img/img-placeholder.gif"
                 data-src={this.props.friend.img}
                 alt={this.props.friend.name}
                 width="50"
@@ -458,7 +458,7 @@ function MessageData(props) {
               width="50"
               height="50"
               className="rounded me-2"
-              alt="user picture"
+              alt="user profile"
             />
             <p>{props.friendName}</p>
           </div>

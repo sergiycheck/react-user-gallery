@@ -2,7 +2,7 @@ import React from 'react';
 import {render, screen,waitForElementToBeRemoved,fireEvent } from '@testing-library/react';
 import Home from '../components/home/Home';
 import {Provider} from 'react-redux';
-import store from '../components/redux_components/store';
+import store from '../App/store';
 import makeServer from '../api/server';
 import { nanoid } from '@reduxjs/toolkit';
 

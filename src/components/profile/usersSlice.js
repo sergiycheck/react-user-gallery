@@ -9,9 +9,9 @@ import {
   usersRoute,
   StatusData,
   singleUserPageRoute,
-} from "../../../api/ApiRoutes";
+} from "../../api/ApiRoutes";
 
-import { ClientBuilder } from "../../../api/client";
+import { ClientBuilder } from "../../api/client";
 
 const usersAdapter = createEntityAdapter();
 
