@@ -7,16 +7,14 @@ import {
   fetchPosts,
 } from "../PostList/postSlice";
 
-import {
-  fetchSingleUser,
-  selectUserById,
-} from "../profile/usersSlice";
+import { fetchSingleUser, selectUserById } from "../profile/usersSlice";
 
 import classnames from "classnames";
 
 import "./Explore.scss";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
+import { CardPlaceholder } from "../helperComponents/CardPlaceholder/CardPlaceholder.jsx";
 
 export const Explore = () => {
   const dispatch = useDispatch();
@@ -129,7 +127,17 @@ export const ExplorePostExcerpt = (props) => {
   const user = useSelector((state) => selectUserById(state, userId));
 
   if (!user || !post) {
-    return <div>Loading ...</div>;
+    return (
+      <div className={postExploreClassName} data-aos="fade-up">
+        <a href="/explore" className="d-block photo-item">
+          <img
+            src="./assets/img/img-placeholder.gif"
+            alt="Post"
+            className="img-fluid rounded"
+          />
+        </a>
+      </div>
+    );
   }
 
   if (user && post) {
@@ -138,7 +146,7 @@ export const ExplorePostExcerpt = (props) => {
 
   return (
     <div className={postExploreClassName} data-aos="fade-up">
-      <a href="/explore" target='_blank' className="d-block photo-item">
+      <a href="/explore" target="_blank" className="d-block photo-item">
         <img
           src="./assets/img/img-placeholder.gif"
           data-src={post.image}

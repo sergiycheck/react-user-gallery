@@ -14,7 +14,7 @@ import { fetchPostComments } from "../comments/commentSlice";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
 
-import { CardPlaceholder } from "./CardPlaceholder/CardPlaceholder.jsx";
+import { CardPlaceholder } from "../helperComponents/CardPlaceholder/CardPlaceholder.jsx";
 
 import {ReadMoreText} from '../helperComponents/ReadMoreText.jsx';
  
@@ -58,7 +58,11 @@ const Post = (props) => {
   };
 
   if (!user || !post) {
-    return <CardPlaceholder></CardPlaceholder>;
+    return (
+      <section className="col-sm-8 d-flex justify-content-center">
+        <CardPlaceholder showAvatarContent={true} ></CardPlaceholder>
+      </section>
+    )
   }
   if (user && post) {
     showVisible("POST");
