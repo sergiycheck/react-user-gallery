@@ -14,7 +14,7 @@ import classnames from "classnames";
 import "./Explore.scss";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
-import { CardPlaceholder } from "../helperComponents/CardPlaceholder/CardPlaceholder.jsx";
+
 
 export const Explore = () => {
   const dispatch = useDispatch();
@@ -131,7 +131,7 @@ export const ExplorePostExcerpt = (props) => {
       <div className={postExploreClassName} data-aos="fade-up">
         <a href="/explore" className="d-block photo-item">
           <img
-            src="./assets/img/img-placeholder.gif"
+            src="/assets/img/img-placeholder.gif"
             alt="Post"
             className="img-fluid rounded"
           />
@@ -148,7 +148,7 @@ export const ExplorePostExcerpt = (props) => {
     <div className={postExploreClassName} data-aos="fade-up">
       <a href="/explore" target="_blank" className="d-block photo-item">
         <img
-          src="./assets/img/img-placeholder.gif"
+          src="/assets/img/img-placeholder.gif"
           data-src={post.image}
           alt="Post"
           className="img-fluid rounded"

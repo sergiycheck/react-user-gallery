@@ -1,0 +1,29 @@
+
+.postAvatarImg{
+	max-height: 70px;
+	min-height: 60px;
+	border-radius: 50%;
+}
+
+.avatarAndNick {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	margin: 4px 0 4px 0;
+}
+
+.bd-placeholder-img{
+	flex: 1 1 auto;
+	display: flex;
+	justify-content: center;
+}
+
+
+.user-img{
+  max-height: 500px;
+}
+
+.user-img:hover{
+	cursor: pointer;
+}
+

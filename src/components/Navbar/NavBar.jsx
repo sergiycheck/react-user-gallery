@@ -3,17 +3,20 @@ import React, { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import SvgIcon from "@material-ui/core/SvgIcon";
+
+import { searchUsersPostsByUserName } from "../PostList/postSlice";
+
 import {
-  searchUsersPostsByUserName,
   searchForUsersNames,
-  selectSearchedNamesAndIds
-} from "../PostList/postSlice";
+  selectSearchedNamesAndIds,
+} from "../profile/usersSlice.js";
+
 import { StatusData } from "../../api/ApiRoutes";
 import navbarStyles from "./NavBar.module.scss";
 import classNames from "classnames";
 
 import { unwrapResult } from "@reduxjs/toolkit";
-import {throttle} from './throttle';
+import { throttle } from "./throttle";
 
 const NavBar = (props) => {
   return (
@@ -110,23 +113,25 @@ const NavBar = (props) => {
   );
 };
 
-
-async function dispatchSearchRequest(trimmedText, dispatch){
+async function dispatchSearchRequest(trimmedText, dispatch) {
   try {
-
-    const arrNamesResult = await dispatch(searchForUsersNames({query:trimmedText}));
+    const arrNamesResult = await dispatch(
+      searchForUsersNames({ query: trimmedText })
+    );
     // console.log(`arrNamesResult`, arrNamesResult);
     const unwrappedResult = unwrapResult(arrNamesResult);
     console.log(`unwrappedResult`, unwrappedResult);
     // setSearchedArrName(unwrappedResult.slice());
     return unwrappedResult;
-
   } catch (error) {
     console.log(error.message);
   }
 }
-const TIME_AFTER_WHICH_TO_DISPATCH  = 500;
-const throttledRequest = throttle(dispatchSearchRequest, TIME_AFTER_WHICH_TO_DISPATCH);
+const TIME_AFTER_WHICH_TO_DISPATCH = 500;
+const throttledRequest = throttle(
+  dispatchSearchRequest,
+  TIME_AFTER_WHICH_TO_DISPATCH
+);
 
 const SearchForm = (props) => {
   const dispatch = useDispatch();
@@ -140,34 +145,36 @@ const SearchForm = (props) => {
   const handleListItemClick = (e) => {
     setText(e.target.innerText.trim());
     searchInput.current.focus();
-  }
+  };
 
   // const [searchedArrNames, setSearchedArrName] = useState([]);
   const searchedArrNames = useSelector(selectSearchedNamesAndIds);
 
-  let renderedArrNames = searchedArrNames.map(name => (
-    <li key={name.id} onClick={handleListItemClick} className="list-group-item">{name.userName}</li>
-  ))
-  if(Array.from(searchedArrNames).length === 0 && text.trim()){
-    renderedArrNames = <li key='no-items-found' className="list-group-item">No items fount</li>;
+  let renderedArrNames = searchedArrNames.map((name) => (
+    <li key={name.id} onClick={handleListItemClick} className="list-group-item">
+      {name.userName}
+    </li>
+  ));
+
+  if (Array.from(searchedArrNames).length === 0 && text.trim()) {
+    renderedArrNames = (
+      <li key="no-items-found" className="list-group-item">
+        No items fount
+      </li>
+    );
   }
 
-  
-  const requestForUserNames = (value) =>{
-
+  const requestForUserNames = (value) => {
     const unwrappedResultPromise = throttledRequest(value.trim(), dispatch);
-    
-    if(unwrappedResultPromise){
-      console.log('setting promise result')
-      unwrappedResultPromise.then(result=>{
-        console.log('result of resolved promise', result);
-        // setSearchedArrName(result.slice());
-      })
-    }
 
-    
-  }
-   
+    if (unwrappedResultPromise) {
+      console.log("setting promise result");
+      unwrappedResultPromise.then((result) => {
+        console.log("result of resolved promise", result);
+        // setSearchedArrName(result.slice());
+      });
+    }
+  };
 
   const handleInputChange = (e) => {
     setText(e.target.value);
@@ -179,7 +186,6 @@ const SearchForm = (props) => {
       e.target.style = "";
     }
     requestForUserNames(e.target.value);
-
   };
 
   const handleKeyDown = async (e) => {
@@ -189,7 +195,7 @@ const SearchForm = (props) => {
       setLoadingStatus(StatusData.loading);
       setListHidden(true);
 
-      console.log("searching...");
+      // console.log(`searching for posts with query ${trimmedText}...`);
 
       await dispatch(
         searchUsersPostsByUserName({ searchUserName: trimmedText })
@@ -205,7 +211,6 @@ const SearchForm = (props) => {
     navbarStyles.searchClasses
   );
 
-
   return (
     <div className="mt-2">
       <div className={navbarStyles.inputWrapper}>
@@ -216,7 +221,9 @@ const SearchForm = (props) => {
           type="search"
           placeholder="search for an author"
           value={text}
-          onClick={()=>{setListHidden(false)}}
+          onClick={() => {
+            setListHidden(false);
+          }}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           aria-label="Search"
@@ -225,9 +232,7 @@ const SearchForm = (props) => {
         />
 
         <ul className={searchInputClasses} hidden={isListHidden}>
-
           {renderedArrNames}
-
         </ul>
       </div>
     </div>

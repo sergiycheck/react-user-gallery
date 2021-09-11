@@ -1,0 +1,10 @@
+.comment-content{
+	position:relative;
+
+	.comment-post-time{
+		position:absolute;
+		bottom:0;
+		right:0;
+		width: max-content;
+	}
+}

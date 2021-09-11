@@ -11,7 +11,7 @@ export const VideoComponent = (props) => {
     <div className="carousel-item">
       <div className="d-flex justify-content-center">
         <div className="video-container">
-          <video className="carousel-video-element rounded" muted controls>
+          <video className="carousel-video-element rounded" muted controls preload="none">
             <source
               data-testid="video-source-element"
               src={video.link}

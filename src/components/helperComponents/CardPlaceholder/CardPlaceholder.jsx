@@ -10,7 +10,9 @@ export const CardPlaceholder = ({ showAvatarContent }) => {
   return (
   
     <div className={cardModule["cards-container"]}>
-      <div className={cardModule["card"]}>
+      <div
+        data-testid="post-card-placeholder" 
+        className={cardModule["card"]}>
         <div className={cardModule["card-image"]}>
           <div className={cardModule["load-wrapper"]}>
             <div className={cardModule["activity"]}></div>

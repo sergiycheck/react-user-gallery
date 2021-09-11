@@ -5,19 +5,30 @@ import { useSelector, useDispatch } from "react-redux";
 import { CommentsList } from "../comments/CommentsList.jsx";
 
 import { TimeAgo } from "../helperComponents/TimeAgo";
-import { unwrapResult } from "@reduxjs/toolkit";
+// import { unwrapResult } from "@reduxjs/toolkit";
 
-import { selectPostById, addLikeToPost } from "./postSlice";
+import { selectPostById } from "./postSlice";
+
 import { fetchSingleUser, selectUserById } from "../profile/usersSlice";
 
-import { fetchPostComments } from "../comments/commentSlice";
+// import { fetchPostComments } from "../comments/commentSlice";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
 
 import { CardPlaceholder } from "../helperComponents/CardPlaceholder/CardPlaceholder.jsx";
 
-import {ReadMoreText} from '../helperComponents/ReadMoreText.jsx';
- 
+import { ReadMoreText } from "../helperComponents/ReadMoreText.jsx";
+
+import postS from "./Post.module.scss";
+import classNames from "classnames";
+
+import { AddNewCommentComp } from "../comments/AddNewCommentComp.jsx";
+
+import {Link} from 'react-router-dom';
+
+import {PostReactions} from './PostReactioins.jsx';
+
+
 const Post = (props) => {
   const dispatch = useDispatch();
   const { postId } = props;
@@ -25,57 +36,53 @@ const Post = (props) => {
   const post = useSelector((state) => selectPostById(state, postId));
   const { userId, content } = post;
 
-  useEffect(() => {
-    dispatch(fetchSingleUser(userId));
-  }, [userId, dispatch]);
-
-  const increment = 5;
-  const [from, setPaginationFromProp] = useState(0);
-  const [to, setPaginationToProp] = useState(increment);
-
-  useEffect(() => {
-    async function fetchComments() {
-      const resultFetchedComments = await dispatch(
-        fetchPostComments({ postId, from, to })
-      );
-      unwrapResult(resultFetchedComments);
-
-      setPaginationProperties(from, to);
-    }
-    fetchComments();
-  }, [dispatch, postId]);
-
-  const setPaginationProperties = (from, to) => {
-    setPaginationFromProp(from);
-    setPaginationToProp(to);
-    // console.log("pagination properties set", " from ", from, " to ", to);
-  };
-
   const user = useSelector((state) => selectUserById(state, userId));
 
-  const addLikeToPostHandler = () => {
-    dispatch(addLikeToPost({ postId }));
-  };
+  useEffect(() => {
+    if(!user){
+      dispatch(fetchSingleUser(userId));
+    }
+    
+  }, [userId, dispatch, user]);
+
 
   if (!user || !post) {
     return (
       <section className="col-sm-8 d-flex justify-content-center">
-        <CardPlaceholder showAvatarContent={true} ></CardPlaceholder>
+        <CardPlaceholder showAvatarContent={true}></CardPlaceholder>
       </section>
-    )
+    );
   }
+  
   if (user && post) {
     showVisible("POST");
   }
 
   return (
     <section className="col-sm-8">
-      <div className="card p-2 mt-2">
-        <div className="bd-placeholder-img d-flex justify-content-center">
+      <div className="card mt-2">
+        <div className="row">
+          <div className={postS.avatarAndNick}>
+            <div>
+              <img
+                className={classNames("img-fluid mx-auto", postS.postAvatarImg)}
+                src="/assets/img/img-placeholder.gif"
+                data-src={user.image}
+                alt="user profile"
+              />
+            </div>
+
+            <div className="mx-2">
+              <b>{user.userName}</b>
+            </div>
+          </div>
+        </div>
+
+        <div className={postS["bd-placeholder-img"]}>
           <div className="d-inline-flex">
             <img
-              className="click-big-post img-fluid  user-img rounded"
-              src="./assets/img/img-placeholder.gif"
+              className={classNames(postS["user-img"], "img-fluid rounded")}
+              src="/assets/img/img-placeholder.gif"
               data-src={post.image}
               alt="user post"
             />
@@ -84,91 +91,53 @@ const Post = (props) => {
 
         <div className="card-body">
           <div className="row">
-            <div className="col-sm-1 mb-2">
-              <img
-                className="img-fluid mx-auto rounded"
-                // style={{height: "30px"}}
-
-                // src={user?.image}
-
-                src="./assets/img/img-placeholder.gif"
-                data-src={user.image}
-                alt="user profile"
-              />
+            <div className="row mb-1">
+              <PostReactions
+                postId={postId}
+                isLiked={post.postLiked}
+                likeCount={post.likeCount}
+              ></PostReactions>
             </div>
 
-            <div className="col-sm-2">
-              <span>{user.userName}</span>
-            </div>
+            <div className="row align-items-start">
+              <div className="col">
+                <div>
+                  <b>{user.userName}</b>
+                </div>
+              </div>
 
-            <div className="col-sm-8">
-              <p className="card-text mb-1">
-                <ReadMoreText content={content}></ReadMoreText>
-              </p>
+              <div className=" col-sm-10 col-md-10 ">
+                <p className="card-text mb-1">
+                  <ReadMoreText content={content}></ReadMoreText>
+                </p>
+              </div>
             </div>
           </div>
 
           <hr />
 
-          {/* loop for post comments */}
-
-          {/* ref={this.commentElement} for adding comments ? */}
           <CommentsList
             postId={postId}
-            commentIds={post.commentIds}
           ></CommentsList>
 
-          <div className="row mb-3">
-            {/* <div className="col-sm-8">
-               <input
-								
-								onChange={this.handleNewCommentInputChange}
-								value={this.state.newCommentData}
-								type="text" className="inpt-comment form-control"
-								placeholder={this.state.inputPlaceHolder} /> 
-            </div> */}
-
-            {/* <div className="col-sm-2 d-flex justify-content-start">
-               <button 
-								onClick={this.addComment}  
-								className="btn btn-outline-secondary" >Post</button> 
-            </div> */}
-
-            <div className="col-sm-4 offset-sm-8">
-              <div className="d-flex justify-content-end align-items-center">
-                <div className="d-flex justify-content-end ">
-                  {/* <svg
-                    className="bi bi-heart me-3 likeHeart"
-                    onClick={addLikeToPostHandler}
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="25"
-                    height="25"
-                    fill="red"
-                    viewBox="0 0 16 16"
-                  >
-                  </svg> */}
-                  {/* <path d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z" /> */}
-
-                  <svg
-                    className="heart"
-                    viewBox="0 0 32 29.6"
-                    onClick={addLikeToPostHandler}
-                  >
-                    <path
-                      d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
-c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"
-                    />
-                  </svg>
-
-                  <span className="mx-2">{post.likeCount}</span>
-                </div>
-
-                <div>
-                  <small className=" text-muted">
-                    <TimeAgo timeStamp={post.date}></TimeAgo>
-                  </small>
-                </div>
+          <div className="row">
+            <div className="row">
+              <Link
+                to={`/posts/${post.id}`}
+              >
+                view post
+              </Link>
+            </div>
+            <div className="row">
+              <div>
+                <small className=" text-muted">
+                  <TimeAgo timeStamp={post.date}></TimeAgo>
+                </small>
               </div>
+            </div>
+
+            <div className="row">
+              <AddNewCommentComp postId={postId}></AddNewCommentComp>
             </div>
           </div>
         </div>
@@ -177,4 +146,5 @@ c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"
   );
 };
 // Post = React.memo(Post);
+
 export default Post;

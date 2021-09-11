@@ -1,5 +1,5 @@
 import {
-  createServer,
+  // createServer,
   Server,
   Model,
   Factory,
@@ -7,16 +7,21 @@ import {
   hasMany,
   association,
   RestSerializer,
-  JSONAPISerializer,
+  // JSONAPISerializer,
 } from "miragejs";
 
 import { nanoid } from "@reduxjs/toolkit";
 
 import faker from "faker";
-import { sentence, paragraph, article, setRandom } from "txtgen";
-import { parseISO } from "date-fns";
-import seedrandom from "seedrandom";
-import { randomInt } from "crypto";
+import {
+  sentence,
+  paragraph,
+  article,
+  // setRandom
+} from "txtgen";
+// import { parseISO } from "date-fns";
+// import seedrandom from "seedrandom";
+// import { randomInt } from "crypto";
 
 import _ from "lodash";
 
@@ -29,7 +34,7 @@ export default function makeServer(environment = "development") {
     routes() {
       // this.timing = 2000;
 
-      this.namespace = "fakeApi";
+      this.namespace = "/fakeApi";
       const server = this;
 
       this.resource("users");
@@ -68,8 +73,7 @@ export default function makeServer(environment = "development") {
 
         const { from, to } = req.requestHeaders;
         // console.log(`server got from ${from}, and to ${to}`);
-        let commentsSliced = comments.slice(from, to);
-        commentsSliced = commentsSliced.sort((a, b) => {
+        let commentsSliced = comments.slice(from, to).sort((a, b) => {
           const aDate = new Date(a.date);
           const bDate = new Date(b.date);
 
@@ -80,8 +84,11 @@ export default function makeServer(environment = "development") {
 
           return aDate.toLocaleString().localeCompare(bDate.toLocaleString());
         });
-        // console.log('sorted comments ', commentsSliced);
+
+        // console.log("sorted comments ", commentsSliced);
+
         return commentsSliced;
+
       });
 
       this.get("/users/:userId/posts", (schema, req) => {
@@ -110,10 +117,11 @@ export default function makeServer(environment = "development") {
           return {};
         }
         const result = schema.posts.find(postId);
-        let { likeCount } = result;
-        let newLikes = ++likeCount;
+        let { likeCount, postLiked } = result;
+        let newLikes = !postLiked ? ++likeCount : --likeCount;
         if (result) {
           result.update("likeCount", newLikes);
+          result.update("postLiked", !postLiked);
         }
 
         return { result };
@@ -267,6 +275,24 @@ export default function makeServer(environment = "development") {
         const comment = schema.comments.find(commentId);
         return comment;
       });
+
+      this.post("/comments/addNew", (schema, req) => {
+        const { postId, text } = JSON.parse(req.requestBody);
+
+        if (text === "error") {
+          throw new Error("Could not add new todo");
+        }
+
+        const post = schema.posts.find(postId);
+
+        const comment = { post: post, content: text };
+
+        console.log("comment ", comment);
+
+        const addedComment = server.create("comment", comment);
+
+        return { addedComment };
+      });
     },
 
     models: {
@@ -343,7 +369,9 @@ export default function makeServer(environment = "development") {
         likeCount() {
           return getRandomInt(3, 17);
         },
-
+        postLiked() {
+          return false;
+        },
         afterCreate(post, server) {
           server.createList("comment", 9, { post });
         },
@@ -360,9 +388,15 @@ export default function makeServer(environment = "development") {
         content() {
           return paragraph();
         },
+
         commentatorAvatar() {
           return faker.image.avatar();
         },
+
+        author() {
+          return faker.name.findName();
+        },
+
         //to much recursion
         // user:association(),
         post: association(),
@@ -412,9 +446,9 @@ export default function makeServer(environment = "development") {
   });
 }
 
-const IdSerializer = RestSerializer.extend({
-  serializeIds: "always",
-});
+// const IdSerializer = RestSerializer.extend({
+//   serializeIds: "always",
+// });
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
@@ -422,9 +456,9 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-const getRandomArrIndex = (arr) => {
-  return getRandomInt(0, arr.length - 1);
-};
+// const getRandomArrIndex = (arr) => {
+//   return getRandomInt(0, arr.length - 1);
+// };
 
 let videoDataStoredArr = [
   {
@@ -441,41 +475,41 @@ let videoDataStoredArr = [
   },
 ];
 
-let usersData = [
-  {
-    id: nanoid(),
-    name: "Stephanie",
-    isOnline: true,
-    img: "https://randomuser.me/api/portraits/med/women/5.jpg",
-  },
-  {
-    id: nanoid(),
-    name: "Julie",
-    isOnline: true,
-    img: "https://randomuser.me/api/portraits/med/women/6.jpg",
-  },
-  {
-    id: nanoid(),
-    name: "Terrence ",
-    isOnline: true,
-    img: "https://randomuser.me/api/portraits/med/women/7.jpg",
-  },
-  {
-    id: nanoid(),
-    name: "Bradley ",
-    isOnline: false,
-    img: "https://randomuser.me/api/portraits/med/men/5.jpg",
-  },
-  {
-    id: nanoid(),
-    name: "Regina ",
-    isOnline: true,
-    img: "https://randomuser.me/api/portraits/med/women/8.jpg",
-  },
-  {
-    id: nanoid(),
-    name: "Dana ",
-    isOnline: false,
-    img: "https://randomuser.me/api/portraits/med/women/9.jpg",
-  },
-];
+// let usersData = [
+//   {
+//     id: nanoid(),
+//     name: "Stephanie",
+//     isOnline: true,
+//     img: "https://randomuser.me/api/portraits/med/women/5.jpg",
+//   },
+//   {
+//     id: nanoid(),
+//     name: "Julie",
+//     isOnline: true,
+//     img: "https://randomuser.me/api/portraits/med/women/6.jpg",
+//   },
+//   {
+//     id: nanoid(),
+//     name: "Terrence ",
+//     isOnline: true,
+//     img: "https://randomuser.me/api/portraits/med/women/7.jpg",
+//   },
+//   {
+//     id: nanoid(),
+//     name: "Bradley ",
+//     isOnline: false,
+//     img: "https://randomuser.me/api/portraits/med/men/5.jpg",
+//   },
+//   {
+//     id: nanoid(),
+//     name: "Regina ",
+//     isOnline: true,
+//     img: "https://randomuser.me/api/portraits/med/women/8.jpg",
+//   },
+//   {
+//     id: nanoid(),
+//     name: "Dana ",
+//     isOnline: false,
+//     img: "https://randomuser.me/api/portraits/med/women/9.jpg",
+//   },
+// ];

@@ -1,32 +1,70 @@
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { unwrapResult } from "@reduxjs/toolkit";
+
 import { selectCommentById, selectCommentsByPostId } from "./commentSlice";
 
 import { TimeAgo } from "../helperComponents/TimeAgo";
 
-import {ReadMoreText} from '../helperComponents/ReadMoreText.jsx';
+import { ReadMoreText } from "../helperComponents/ReadMoreText.jsx";
+import { fetchPostComments } from "./commentSlice";
 
+import './commentList.scss';
+// import classNames from "classnames";
 
 export const CommentsList = (props) => {
+  const dispatch = useDispatch();
+
   const { postId } = props;
 
   // const commentsStatus = useSelector((state) => state.comments.status);
 
+  const increment = 2;
+  const [from, setPaginationFromProp] = useState(0);
+  const [to, setPaginationToProp] = useState(increment);
+  
   const comments = useSelector((state) =>
     selectCommentsByPostId(state, postId)
   );
 
+  useEffect(() => {
+    
+    async function fetchComments() {
+      const resultFetchedComments = await dispatch(
+        fetchPostComments({ postId, from, to })
+      );
+      unwrapResult(resultFetchedComments);
+
+      setPaginationProperties(from, to);
+    }
+    
+    //create all comments length for single post
+    if(comments.length === 0){
+  
+      fetchComments();
+    }
+      
+
+  }, [dispatch, postId, from, to, comments.length]);
+
+  const setPaginationProperties = (from, to) => {
+    setPaginationFromProp(from);
+    setPaginationToProp(to);
+    // console.log("pagination properties set", " from ", from, " to ", to);
+  };
+
+
   const contentComments = comments.map((comment) => {
     return (
-      <CommentExcerpt
-        key={comment.id}
-        commentId={comment.id}
-        className="row justify-content-between"
-      ></CommentExcerpt>
+      <CommentExcerpt key={comment.id} commentId={comment.id}></CommentExcerpt>
     );
   });
 
-  return <div className="row comments-container">{contentComments}</div>;
+  return (
+    <div className="row comments-container align-items-center">
+      {contentComments}
+    </div>
+  );
 };
 
 export const CommentExcerpt = (props) => {
@@ -37,25 +75,37 @@ export const CommentExcerpt = (props) => {
 
   return (
     <React.Fragment>
-      <div className="col-sm-3 mb-2">
-        <img
-          className="img-fluid mx-auto rounded"
-          style={{ height: "30px" }}
-          // src={comment.commentatorAvatar}
+      <div className="row">
 
-          src="./assets/img/img-placeholder.gif"
-          data-src={comment.commentatorAvatar}
-          alt="comment user profile"
-        />
-      </div>
+        {/*           <img
+            className="img-fluid mx-auto rounded"
+            style={{ height: "30px" }}
+            // src={comment.commentatorAvatar}
 
-      <div className="col-sm-6">
-        <p className="comment-content">
-          <ReadMoreText content={content}></ReadMoreText>
-        </p>
-      </div>
-      <div className="col-sm-2">
-        <TimeAgo timeStamp={comment.date}></TimeAgo>
+            src="/assets/img/img-placeholder.gif"
+            data-src={comment.commentatorAvatar}
+            alt="comment user profile"
+          /> */}
+        <div className="row comment-content">
+
+            {/* modules not working with scss inner classses  */}
+          <div className='col-sm-12'>
+
+            <span className='author'>
+              <b>{comment.author} </b>
+            </span>
+              
+            <span>
+              <ReadMoreText content={content}></ReadMoreText>
+            </span>
+          </div>
+
+          <div className="comment-post-time">
+            <TimeAgo timeStamp={comment.date}></TimeAgo>
+          </div>
+
+        </div>
+        
       </div>
     </React.Fragment>
   );

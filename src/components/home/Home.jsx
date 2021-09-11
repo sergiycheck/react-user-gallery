@@ -58,7 +58,7 @@ export const Home = () => {
     loadVideoData = (
       <img
         className="carousel-video-element rounded"
-        src="./assets/img/img-placeholder.gif"
+        src="/assets/img/img-placeholder.gif"
         alt="video placeholder"
       ></img>
     );

@@ -328,7 +328,7 @@ class Friend extends Component {
               <img
                 className="img-fluid m-2 rounded-circle"
                 style={{ height: "50px" }}
-                src="./assets/img/img-placeholder.gif"
+                src="/assets/img/img-placeholder.gif"
                 data-src={this.props.friend.img}
                 alt={this.props.friend.name}
                 width="50"

@@ -11,13 +11,8 @@ import {
   usersRoute,
 } from "../../api/ApiRoutes";
 
-import { ClientBuilder } from "../../api/client";
+import { client } from "../../api/client";
 
-export const loadMorePostsScrollListenerEnum = {
-  initial: "initial",
-  set: "set",
-  removed: "removed",
-};
 
 const postsAdapter = createEntityAdapter({
   // sortComparer:(postA, postB)=>
@@ -25,41 +20,35 @@ const postsAdapter = createEntityAdapter({
 });
 
 const initialState = postsAdapter.getInitialState({
-  searchedNamesAndIds: [],
-  loadMorePostsScrollListener: loadMorePostsScrollListenerEnum.initial,
+
   fetchedAllEntitiesLength: 0,
   status: StatusData.idle,
   error: null,
 });
 
-export const addLikeToPost = createAsyncThunk("POST_LIKE", async ({ postId }) => {
-    const client = new ClientBuilder(`fakeApi/posts/addLikeToPost`, {
-      body: {
-        postId: postId,
-      },
-      customHeaders: {},
-    });
-    const response = await client.fetchWithConfig();
+export const addLikeToPost = createAsyncThunk(
+  "posts/addLikeToPost",
+  async ({ postId }) => {
+    const response = await client.post(`${postsRoute}/addLikeToPost`, {postId: postId,});
+
     // console.log('response from server ', response);
     const post = response.result;
     return post;
   }
 );
 
-export const fetchPosts = createAsyncThunk("FETCH_POSTS", async ({ from, to }, { getState }) => {
+export const fetchPosts = createAsyncThunk(
+  "posts/fetchPosts",
+  async ({ from, to }, { getState }) => {
     // console.log('getState passed as obj', getState);
-    // const allPosts = selectAllPosts(getState());
-    // console.log('all posts before fetch', allPosts);
-
-    // console.log('posts fetch ', postsRoute);
-    const client = new ClientBuilder(postsRoute);
-    const response = await client.fetchWithConfig(null, {
-      body: null,
-      customHeaders: {
+      
+    const response = await client.get(postsRoute, {
+      headers: {
         from: from,
         to: to,
       },
     });
+
     const { posts, allPostsLength } = response;
     // console.log("all posts length", allPostsLength);
 
@@ -69,28 +58,18 @@ export const fetchPosts = createAsyncThunk("FETCH_POSTS", async ({ from, to }, {
   }
 );
 
-export const searchUsersPostsByUserName = createAsyncThunk(`${usersName}/searchForUsersPosts`, async ({ searchUserName }) => {
-    const client = new ClientBuilder(`${usersRoute}/searchForUsersPosts`, {
-      body: {
-        searchUserName,
-      },
-    });
-    const response = await client.fetchWithConfig();
-    
-    const models = response.posts.map(coll=>coll.models).flat();
+export const searchUsersPostsByUserName = createAsyncThunk(
+  `posts/${usersName}/searchForUsersPosts`,
+  async ({ searchUserName }) => {
+    // console.log(`fetch post  searchUsersPostsByUserName ${searchUserName}...`);
+
+    const response = await client.post(`${usersRoute}/searchForUsersPosts`, {searchUserName});
+
+    const models = response.posts.map((coll) => coll.models).flat();
     // console.log('models ', models);
     return models;
   }
 );
-
-export const searchForUsersNames = createAsyncThunk(`${usersName}/searchForUsersNames`, async ({ query }) => {
-  const client = new ClientBuilder(`${usersRoute}/searchForNames/${query}`);
-  const response = await client.fetchWithConfig();
-  // console.log('response', response);
-  if(response)
-    return response.userNamesArr;
-  return [];
-})
 
 const postsSlice = createSlice({
   name: "posts",
@@ -110,15 +89,12 @@ const postsSlice = createSlice({
 
       postsAdapter.addOne(state, action.payload);
     },
-    setLoadMorePostsScrollListener(state, action) {
-      const { scrollMoreStatus } = action.payload;
-      state.loadMorePostsScrollListener = scrollMoreStatus;
-    },
   },
   extraReducers: {
     [fetchPosts.pending]: (state, action) => {
       state.status = StatusData.loading;
     },
+
     [fetchPosts.fulfilled]: (state, action) => {
       state.status = StatusData.succeeded;
       const { posts, allPostsLength } = action.payload;
@@ -127,29 +103,26 @@ const postsSlice = createSlice({
 
       postsAdapter.upsertMany(state, posts);
     },
-    [searchUsersPostsByUserName.pending]:(state,action)=>{
+
+    [searchUsersPostsByUserName.pending]: (state, action) => {
       state.status = StatusData.loading;
     },
-    [searchUsersPostsByUserName.rejected]:(state,action)=>{
+
+    [searchUsersPostsByUserName.rejected]: (state, action) => {
       state.status = StatusData.succeeded;
     },
+
     [searchUsersPostsByUserName.fulfilled]: (state, action) => {
       state.status = StatusData.succeeded;
 
       const posts = action.payload;
-      const postsLength =  Array.from(posts).length;
+      const postsLength = Array.from(posts).length;
 
-      state.loadMorePostsScrollListener = loadMorePostsScrollListenerEnum.removed;
-      
       state.fetchedAllEntitiesLength = postsLength;
-      
+
       postsAdapter.setAll(state, posts);
-      
     },
-    [searchForUsersNames.fulfilled]: (state, action) => {
-      const namesAndIdsArr = action.payload;
-      state.searchedNamesAndIds = namesAndIdsArr;
-    },
+
     [addLikeToPost.fulfilled]: (state, action) => {
       state.status = StatusData.succeeded;
 
@@ -174,7 +147,6 @@ export default postsSlice.reducer;
 export const {
   changePostStatusToStartFetching,
   postAdded,
-  setLoadMorePostsScrollListener,
 } = postsSlice.actions;
 
 export const {
@@ -186,7 +158,4 @@ export const {
 export const selectFetchedAllPostsLength = (state) =>
   state.posts.fetchedAllEntitiesLength;
 
-export const selectLoadMorePostsScrollListener = (state) =>
-  state.posts.loadMorePostsScrollListener;
 
-export const selectSearchedNamesAndIds = state => state.posts.searchedNamesAndIds;
