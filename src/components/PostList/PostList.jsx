@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import { 
+  useEffect, 
+  useState, 
+  // useCallback 
+} from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -15,39 +19,51 @@ import { StatusData } from "../../api/ApiRoutes";
 
 import { Loader } from "../helperComponents/Loader.jsx";
 
+import {atTheBottom} from '../../helpers/atTheBottom';
+
+
 const PostsList = () => {
   const dispatch = useDispatch();
-  const increment = 5;
-
+  
   const orderedPostIds = useSelector((state) => selectPostIds(state));
-
   const postsStatus = useSelector((state) => state.posts.status);
-
   const allFetchedPostsLength = useSelector(selectFetchedAllPostsLength);
 
+  const increment = 5;
   const [from, setFromPaginationProp] = useState(0);
   const [to, setToPaginationProp] = useState(increment);
 
+  const handleScroll = 
+  // useCallback(
+    () => {
+    if (atTheBottom()) {
+      dispatch(changePostStatusToStartFetching({ newStatus: StatusData.idle }));
+    }
+  }
+  // ,[dispatch]);
+
   useEffect(() => {
-    if (postsStatus === StatusData.loading) {
-      // console.log("processing current request");
+
+    const requestProcessing = postsStatus === StatusData.loading;
+    if (requestProcessing) {
+      console.log("processing current request");
       return;
     }
 
-    if (
-      orderedPostIds.length >= allFetchedPostsLength &&
-      orderedPostIds.length > 0
-    ) {
-      // console.log(
-      //   "all posts have been fetched. Length: ",
-      //   orderedPostIds.length
-      // );
+    const allPostsFetched = orderedPostIds.length >= allFetchedPostsLength;
+    const somePostsFetched = orderedPostIds.length > 0;
+
+    if (allPostsFetched && somePostsFetched) {
+      console.log('allPostsFetched && somePostsFetched')
 
       window.removeEventListener("scroll", handleScroll);
       return;
     }
 
-    if (postsStatus === StatusData.idle) {
+    const statusChangedToFetchMorePosts = postsStatus === StatusData.idle;
+    if (statusChangedToFetchMorePosts) {
+      console.log('statusChangedToFetchMorePosts')
+
       fetchPostAndSetPagination();
     }
 
@@ -65,31 +81,25 @@ const PostsList = () => {
     // console.log("pagination properties set", " from ", from, " to ", to);
   };
 
-  const handleScroll = () => {
-    const heightAndOffset = Math.ceil(window.innerHeight + window.pageYOffset);
-
-    const bodyOffsetHeight = Math.floor(document.body.offsetHeight);
-
-    if (heightAndOffset >= bodyOffsetHeight - 5) {
-      // console.log("At the bottom!");
-
-      dispatch(changePostStatusToStartFetching({ newStatus: StatusData.idle }));
-    }
-  };
+  // const handleScroll = useCallBack(() => {
+  //   if (atTheBottom()) {
+  //     dispatch(changePostStatusToStartFetching({ newStatus: StatusData.idle }));
+  //   }
+  // }) 
 
   useEffect(() => {
+    
     if (
       orderedPostIds.length !== allFetchedPostsLength &&
       orderedPostIds.length > 0
     ) {
-      // console.log("setting load more scroll event listener");
+      console.log("setting load more scroll event listener");
 
       window.addEventListener("scroll", handleScroll);
-
     }
 
     return function removeScrollListener() {
-      // console.log("removing scroll down listener from post list");
+      console.log("removing scroll down listener from post list");
 
       window.removeEventListener("scroll", handleScroll);
     };

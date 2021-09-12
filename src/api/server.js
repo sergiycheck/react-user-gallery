@@ -49,20 +49,7 @@ export default function makeServer(environment = "development") {
       // 	return schema.videos.all();
       // })
 
-      this.get("/posts", (schema, req) => {
-        const { from, to } = req.requestHeaders;
-        // console.log(`server got from ${from}, and to ${to}`);
-        const allPosts = schema.posts.all();
 
-        // console.log('allPosts length ', allPosts.models.length);
-        const resultPosts = allPosts.models.slice(from, to);
-        // console.log(resultPosts);
-        // return resultPosts;
-        return {
-          posts: resultPosts,
-          allPostsLength: allPosts.length,
-        };
-      });
 
       this.get("/posts/:postId/comments", (schema, req) => {
         // console.log(`Server /posts/:postId/comments `);
@@ -101,8 +88,14 @@ export default function makeServer(environment = "development") {
       this.get("/posts/:postId", (schema, req) => {
         const postId = req.params["postId"];
         // console.log('server got postId ', postId);
+        const allPosts = schema.posts.all();
+
         const post = schema.posts.find(postId);
-        return post;
+        
+        return {
+          fetchedPost: post,
+          allPostsLength: allPosts.length
+        }
       });
 
       this.post("/posts/addLikeToPost", function (schema, req) {
@@ -139,7 +132,23 @@ export default function makeServer(environment = "development") {
         // })
       });
 
+      this.get("/posts", (schema, req) => {
+        const { from, to } = req.requestHeaders;
+        // console.log(`server got from ${from}, and to ${to}`);
+        const allPosts = schema.posts.all();
+
+        // console.log('allPosts length ', allPosts.models.length);
+        const resultPosts = allPosts.models.slice(from, to);
+        // console.log(resultPosts);
+        // return resultPosts;
+        return {
+          posts: resultPosts,
+          allPostsLength: allPosts.length,
+        };
+      });
+
       this.post("/users/searchForUsersPosts", (schema, req) => {
+
         const { searchUserName } = JSON.parse(req.requestBody);
 
         console.log(`searchUserName`, searchUserName);
@@ -425,7 +434,7 @@ export default function makeServer(environment = "development") {
     },
 
     seeds(server) {
-      server.createList("user", 6);
+      server.createList("user", 6);//6 //100
       let userForVideos = server.create("user");
       server.create("video", {
         name: videoDataStoredArr[0].name,

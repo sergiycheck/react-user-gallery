@@ -7,8 +7,8 @@ import {
 import {
   StatusData,
   postsRoute,
-  usersName,
-  usersRoute,
+  // usersName,
+  // usersRoute,
 } from "../../api/ApiRoutes";
 
 import { client } from "../../api/client";
@@ -58,18 +58,30 @@ export const fetchPosts = createAsyncThunk(
   }
 );
 
-export const searchUsersPostsByUserName = createAsyncThunk(
-  `posts/${usersName}/searchForUsersPosts`,
-  async ({ searchUserName }) => {
-    // console.log(`fetch post  searchUsersPostsByUserName ${searchUserName}...`);
+export const fetchSinglePost = createAsyncThunk(
+	`posts/fetchSinglePost`,
+	async ({postId}) => {
+		const response = await client.get(`${postsRoute}/${postId}`);
 
-    const response = await client.post(`${usersRoute}/searchForUsersPosts`, {searchUserName});
+    const { fetchedPost, allPostsLength } = response;
 
-    const models = response.posts.map((coll) => coll.models).flat();
-    // console.log('models ', models);
-    return models;
-  }
-);
+    return { fetchedPost, allPostsLength };
+	}
+)
+
+
+// export const searchUsersPostsByUserName = createAsyncThunk(
+//   `posts/${usersName}/searchForUsersPosts`,
+//   async ({ searchUserName }) => {
+//     // console.log(`fetch post  searchUsersPostsByUserName ${searchUserName}...`);
+
+//     const response = await client.post(`${usersRoute}/searchForUsersPosts`, {searchUserName});
+
+//     const models = response.posts.map((coll) => coll.models).flat();
+//     // console.log('models ', models);
+//     return models;
+//   }
+// );
 
 const postsSlice = createSlice({
   name: "posts",
@@ -104,27 +116,41 @@ const postsSlice = createSlice({
       postsAdapter.upsertMany(state, posts);
     },
 
-    [searchUsersPostsByUserName.pending]: (state, action) => {
-      state.status = StatusData.loading;
+    // [searchUsersPostsByUserName.pending]: (state, action) => {
+    //   state.status = StatusData.loading;
+    // },
+
+    // [searchUsersPostsByUserName.rejected]: (state, action) => {
+    //   state.status = StatusData.succeeded;
+    // },
+
+    // [searchUsersPostsByUserName.fulfilled]: (state, action) => {
+    //   state.status = StatusData.succeeded;
+
+    //   const posts = action.payload;
+    //   const postsLength = Array.from(posts).length;
+
+    //   state.fetchedAllEntitiesLength = postsLength;
+
+    //   postsAdapter.setAll(state, posts);
+    // },
+
+
+    [fetchSinglePost.rejected]: (state, action) =>{
+      state.status = StatusData.idle;
     },
+    [fetchSinglePost.fulfilled]: (state, action) =>{
 
-    [searchUsersPostsByUserName.rejected]: (state, action) => {
-      state.status = StatusData.succeeded;
-    },
+      const {fetchedPost, allPostsLength} = action.payload;
 
-    [searchUsersPostsByUserName.fulfilled]: (state, action) => {
-      state.status = StatusData.succeeded;
+      state.fetchedAllEntitiesLength = allPostsLength;
 
-      const posts = action.payload;
-      const postsLength = Array.from(posts).length;
-
-      state.fetchedAllEntitiesLength = postsLength;
-
-      postsAdapter.setAll(state, posts);
+      // const post = {...fetchedPost, userId:fetchedPost.user }
+      postsAdapter.upsertOne(state, fetchedPost);
     },
 
     [addLikeToPost.fulfilled]: (state, action) => {
-      state.status = StatusData.succeeded;
+      // state.status = StatusData.succeeded;
 
       // console.log('addLikeToPost.fulfilled action.payload.id', action.payload.id);
 

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import SvgIcon from "@material-ui/core/SvgIcon";
 
-import { searchUsersPostsByUserName } from "../PostList/postSlice";
+import { searchUsersPostsByUserName } from "../explore/exploreSlice";
 
 import {
   searchForUsersNames,
@@ -17,6 +17,9 @@ import classNames from "classnames";
 
 import { unwrapResult } from "@reduxjs/toolkit";
 import { throttle } from "./throttle";
+import { useHistory } from "react-router-dom";
+
+
 
 const NavBar = (props) => {
   return (
@@ -142,6 +145,8 @@ const SearchForm = (props) => {
   const searchInput = useRef(null);
   const [isListHidden, setListHidden] = useState(true);
 
+  const history = useHistory();
+
   const handleListItemClick = (e) => {
     setText(e.target.innerText.trim());
     searchInput.current.focus();
@@ -200,6 +205,8 @@ const SearchForm = (props) => {
       await dispatch(
         searchUsersPostsByUserName({ searchUserName: trimmedText })
       );
+
+      history.push("/explore");
 
       setLoadingStatus(StatusData.idle);
     }

@@ -21,14 +21,23 @@ import classNames from "classnames";
 import { AddNewCommentComp } from "../comments/AddNewCommentComp.jsx";
 
 import { PostReactions } from "./PostReactioins.jsx";
+import {fetchSinglePost} from './postSlice';
 
 export const SinglePost = ({ match }) => {
   // console.clear();
+  const dispatch = useDispatch();
+
   console.log("match.params ", match.params);
 
   const { postId } = match.params;
 
   const post = useSelector((state) => selectPostById(state, postId));
+
+  useEffect(()=>{
+    if(!post){
+      dispatch(fetchSinglePost({postId}))
+    }
+  })
 
   if (!post) {
     return <LoadingContentForPost></LoadingContentForPost>;

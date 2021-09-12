@@ -119,7 +119,7 @@ describe('Home',()=>{
 		});
 
 
-		const posts = response;
+		const {posts} = response;
 		const postId = posts[0].id;
 
 		response = await client.get(`/fakeApi/posts/${postId}`);
@@ -140,7 +140,7 @@ describe('Home',()=>{
 				to:5
 			}
 		});
-		const posts = response;
+		const {posts} = response;
 
 		const postId = posts[0].id;
 
