@@ -7,8 +7,8 @@ import {
 import {
   StatusData,
   postsRoute,
-  usersName,
-  usersRoute,
+  // usersName,
+  // usersRoute,
 } from "../../api/ApiRoutes";
 
 import { client } from "../../api/client";
@@ -21,17 +21,6 @@ const initialState = explorePostsAdapter.getInitialState({
   status: StatusData.idle,
   error: null,
 });
-
-// export const addLikeToExplorePost = createAsyncThunk(
-//   "explorePosts/addLikeToPost",
-//   async ({ postId }) => {
-//     const response = await client.post(`${postsRoute}/addLikeToPost`, {postId: postId,});
-
-//     // console.log('response from server ', response);
-//     const post = response.result;
-//     return {id: post.id, changes: {...post}};
-//   }
-// );
 
 export const fetchExplorePosts = createAsyncThunk(
   "explorePosts/fetchPosts",
@@ -50,18 +39,18 @@ export const fetchExplorePosts = createAsyncThunk(
 );
 
 
-export const searchUsersPostsByUserName = createAsyncThunk(
-  `posts/${usersName}/searchForUsersPosts`,
-  async ({ searchUserName }) => {
-    // console.log(`fetch post  searchUsersPostsByUserName ${searchUserName}...`);
+// export const searchUsersPostsByUserName = createAsyncThunk(
+//   `posts/${usersName}/searchForUsersPosts`,
+//   async ({ searchUserName }) => {
+//     // console.log(`fetch post  searchUsersPostsByUserName ${searchUserName}...`);
 
-    const response = await client.post(`${usersRoute}/searchForUsersPosts`, {searchUserName});
+//     const response = await client.post(`${usersRoute}/searchForUsersPosts`, {searchUserName});
 
-    const models = response.posts.map((coll) => coll.models).flat();
-    // console.log('models ', models);
-    return models;
-  }
-);
+//     const models = response.posts.map((coll) => coll.models).flat();
+//     // console.log('models ', models);
+//     return models;
+//   }
+// );
 
 const explorePostsSlice = createSlice({
   name: "explorePosts",
@@ -89,29 +78,24 @@ const explorePostsSlice = createSlice({
       explorePostsAdapter.upsertMany(state, posts);
     },
 
-    [searchUsersPostsByUserName.pending]: (state, action) => {
-      state.status = StatusData.loading;
-    },
-
-    [searchUsersPostsByUserName.rejected]: (state, action) => {
-      state.status = StatusData.succeeded;
-    },
-
-    [searchUsersPostsByUserName.fulfilled]: (state, action) => {
-      state.status = StatusData.succeeded;
-
-      const posts = action.payload;
-      const postsLength = Array.from(posts).length;
-
-      state.fetchedAllEntitiesLength = postsLength;
-
-      explorePostsAdapter.setAll(state, posts);
-    },
-
-    // [addLikeToExplorePost.fulfilled]: (state, action) => {
-    //   state.status = StatusData.succeeded;
-		// 	explorePostsAdapter.updateOne(state, action.payload);
+    // [searchUsersPostsByUserName.pending]: (state, action) => {
+    //   state.status = StatusData.loading;
     // },
+
+    // [searchUsersPostsByUserName.rejected]: (state, action) => {
+    //   state.status = StatusData.succeeded;
+    // },
+
+    // [searchUsersPostsByUserName.fulfilled]: (state, action) => {
+    //   state.status = StatusData.succeeded;
+
+    //   const posts = action.payload;
+    //   const postsLength = Array.from(posts).length;
+
+    //   state.fetchedAllEntitiesLength = postsLength;
+
+    //   explorePostsAdapter.setAll(state, posts);
+    // }
   },
 });
 

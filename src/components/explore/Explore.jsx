@@ -21,19 +21,7 @@ import classNames from "classnames";
 
 import {Link} from 'react-router-dom';
 
-
-export const atTheBottom = () => {
-
-  const heightAndOffset = Math.ceil(window.innerHeight + window.pageYOffset);
-
-  const bodyOffsetHeight = Math.floor(document.documentElement.offsetHeight);
-
-  if (heightAndOffset >= bodyOffsetHeight - 5) {
-
-    return true;
-  }
-  return false;
-};
+import {atTheBottom} from '../../helpers/atTheBottom';
 
 
 export const Explore = () => {
@@ -79,9 +67,9 @@ export const Explore = () => {
   }, [dispatch, explorePostsStatus]);
 
   const setPaginationProperties = (from, to) => {
+    
     setFromPaginationProp(from);
     setToPaginationProp(to);
-
   };
 
   const handleScroll = () => {
@@ -117,9 +105,8 @@ export const Explore = () => {
 
   const explorePostsContent = orderedExplorePostIds.map((postId, index) => {
 
-    const randomClassLg = `col-lg-${6}`;
     const postExploreClassName = classNames(
-      `col-6 col-md-6 aos-init aos-animate p-1 ${randomClassLg}`
+      `col-sm-12 col-md-6 aos-init aos-animate p-1 col-lg-${4}`
     );
     return (
       <ExplorePostExcerpt
@@ -153,20 +140,22 @@ export const Explore = () => {
 
 export const ExplorePostExcerpt = (props) => {
 
- // not rendering
-
   const dispatch = useDispatch();
   const { postId, postExploreClassName } = props;
 
   const post = useSelector((state) => selectExplorePostById(state, postId));
   const { userId } = post;
 
-  useEffect(() => {
-
-    dispatch(fetchSingleUser(userId));
-  }, [userId, dispatch]);
-
   const user = useSelector((state) => selectUserById(state, userId));
+
+  useEffect(() => {
+    if(!user){
+      dispatch(fetchSingleUser(userId));
+    }
+    
+  }, [userId, dispatch, user]);
+
+  
 
   if (!user || !post) {
     return (
@@ -247,10 +236,10 @@ export const ExploreAsideBar = (props) => {
 };
 
 
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+// function getRandomInt(min, max) {
+//   min = Math.ceil(min);
+//   max = Math.floor(max);
+//   return Math.floor(Math.random() * (max - min + 1)) + min;
+// }
 
 export default Explore;

@@ -33,7 +33,6 @@ function isVisible(elem) {
 
 export function showVisible() {
   
-
   for (let img of document.querySelectorAll("img")) {
     let realSrc = img.dataset.src;
     if (!realSrc) continue;

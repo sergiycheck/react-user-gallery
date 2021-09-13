@@ -4,7 +4,7 @@ export const atTheBottom = () => {
 
   const heightAndOffset = Math.ceil(window.innerHeight + window.pageYOffset);
 
-  const bodyOffsetHeight = Math.floor(document.body.offsetHeight);
+  const bodyOffsetHeight = Math.floor( document.body.offsetHeight || document.documentElement.offsetHeight );
 
   if (heightAndOffset >= bodyOffsetHeight - 5) {
     // console.log("At the bottom!");

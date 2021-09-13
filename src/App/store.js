@@ -5,7 +5,9 @@ import videosReducer from '../components/home/VideoComponent/videosSlice';
 import usersReducer from '../components/profile/usersSlice';
 
 import commentsReducer from '../components/comments/commentSlice';
-import explorePostsReducer from '../components/explore/exploreSlice'
+import explorePostsReducer from '../components/explore/exploreSlice';
+
+import searchDataReducer from '../components/explore/searchComponent/searchDataSlice';
 
 const loggerMiddleware = storeAPI => next => action =>{
 
@@ -23,7 +25,8 @@ export default configureStore({
 		videos:videosReducer,
 		users:usersReducer,
 		comments:commentsReducer,
-		explorePosts:explorePostsReducer
+		explorePosts:explorePostsReducer,
+		searchData: searchDataReducer
 	},
 	middleware:(getDefaultMiddleware) =>
 		getDefaultMiddleware().concat(loggerMiddleware)

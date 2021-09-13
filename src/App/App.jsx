@@ -8,6 +8,7 @@ import Home from "../components/home/Home.jsx";
 import Explore from "../components/explore/Explore.jsx";
 import Messages from "../components/messages/Messages.jsx";
 import Profile from "../components/profile/Profile.jsx";
+import SearchDataComponent from '../components/explore/searchComponent/searchData';
 
 import { showVisible } from "../helpers/imgLazyLoading";
 import { SinglePost } from "../components/PostList/SinglePost.jsx";
@@ -48,6 +49,8 @@ export default function App() {
           <Route path="/log out">
             <LogOut />
           </Route>
+          
+          <Route exact path='/searchResults/:query' component={SearchDataComponent}></Route>
           
           <Route exact path="/posts/:postId" component={SinglePost}></Route>
 

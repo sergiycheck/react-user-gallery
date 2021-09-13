@@ -4,7 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 
 import SvgIcon from "@material-ui/core/SvgIcon";
 
-import { searchUsersPostsByUserName } from "../explore/exploreSlice";
+import {
+  // searchUsersPostsByUserName,
+  removeAllEntities,
+  setSearchQuery,
+  // selectFromAndToForPagination,
+  // changePaginationPropsForSearchQuery
+} from "../explore/searchComponent/searchDataSlice";
 
 import {
   searchForUsersNames,
@@ -18,8 +24,6 @@ import classNames from "classnames";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { throttle } from "./throttle";
 import { useHistory } from "react-router-dom";
-
-
 
 const NavBar = (props) => {
   return (
@@ -147,6 +151,8 @@ const SearchForm = (props) => {
 
   const history = useHistory();
 
+  // const fromAndTo = useSelector(selectFromAndToForPagination);
+
   const handleListItemClick = (e) => {
     setText(e.target.innerText.trim());
     searchInput.current.focus();
@@ -193,7 +199,7 @@ const SearchForm = (props) => {
     requestForUserNames(e.target.value);
   };
 
-  const handleKeyDown = async (e) => {
+  const handleKeyDown = (e) => {
     const trimmedText = text.trim();
 
     if (e.key === "Enter" && trimmedText) {
@@ -201,12 +207,17 @@ const SearchForm = (props) => {
       setListHidden(true);
 
       // console.log(`searching for posts with query ${trimmedText}...`);
+      dispatch(removeAllEntities());
 
-      await dispatch(
-        searchUsersPostsByUserName({ searchUserName: trimmedText })
-      );
+      dispatch(setSearchQuery({query:trimmedText}))
 
-      history.push("/explore");
+      // await dispatch(
+      //   searchUsersPostsByUserName({ query: trimmedText, ...fromAndTo })
+      // );
+
+      // await dispatch(changePaginationPropsForSearchQuery({query:trimmedText}));
+
+      history.push(`/searchResults/${trimmedText}`);
 
       setLoadingStatus(StatusData.idle);
     }

@@ -14,6 +14,8 @@ import {
 import { client } from "../../api/client";
 
 
+//TODO: fetch only posts that user subscribed to them
+
 const postsAdapter = createEntityAdapter({
   // sortComparer:(postA, postB)=>
   // 	postB.date.localeCompare(postA.date)
@@ -31,8 +33,8 @@ export const addLikeToPost = createAsyncThunk(
   async ({ postId }) => {
     const response = await client.post(`${postsRoute}/addLikeToPost`, {postId: postId,});
 
-    // console.log('response from server ', response);
     const post = response.result;
+    // return {id: post.id, changes: {...post}};
     return post;
   }
 );
@@ -40,7 +42,6 @@ export const addLikeToPost = createAsyncThunk(
 export const fetchPosts = createAsyncThunk(
   "posts/fetchPosts",
   async ({ from, to }, { getState }) => {
-    // console.log('getState passed as obj', getState);
       
     const response = await client.get(postsRoute, {
       headers: {
@@ -50,10 +51,7 @@ export const fetchPosts = createAsyncThunk(
     });
 
     const { posts, allPostsLength } = response;
-    // console.log("all posts length", allPostsLength);
 
-    // console.log('response  from server', response);
-    // console.log('every post has user',posts.every(p=>p.userId))
     return { posts, allPostsLength };
   }
 );
@@ -69,19 +67,6 @@ export const fetchSinglePost = createAsyncThunk(
 	}
 )
 
-
-// export const searchUsersPostsByUserName = createAsyncThunk(
-//   `posts/${usersName}/searchForUsersPosts`,
-//   async ({ searchUserName }) => {
-//     // console.log(`fetch post  searchUsersPostsByUserName ${searchUserName}...`);
-
-//     const response = await client.post(`${usersRoute}/searchForUsersPosts`, {searchUserName});
-
-//     const models = response.posts.map((coll) => coll.models).flat();
-//     // console.log('models ', models);
-//     return models;
-//   }
-// );
 
 const postsSlice = createSlice({
   name: "posts",
@@ -116,26 +101,6 @@ const postsSlice = createSlice({
       postsAdapter.upsertMany(state, posts);
     },
 
-    // [searchUsersPostsByUserName.pending]: (state, action) => {
-    //   state.status = StatusData.loading;
-    // },
-
-    // [searchUsersPostsByUserName.rejected]: (state, action) => {
-    //   state.status = StatusData.succeeded;
-    // },
-
-    // [searchUsersPostsByUserName.fulfilled]: (state, action) => {
-    //   state.status = StatusData.succeeded;
-
-    //   const posts = action.payload;
-    //   const postsLength = Array.from(posts).length;
-
-    //   state.fetchedAllEntitiesLength = postsLength;
-
-    //   postsAdapter.setAll(state, posts);
-    // },
-
-
     [fetchSinglePost.rejected]: (state, action) =>{
       state.status = StatusData.idle;
     },
@@ -163,6 +128,7 @@ const postsSlice = createSlice({
       // console.log(`updatedPost id ${updatedPost.id}, updatedPost likes ${updatedPost.likeCount}`);
 
       Object.assign(oldPost, updatedPost);
+
       // postsAdapter.updateOne(state, updatedPost)
     },
   },

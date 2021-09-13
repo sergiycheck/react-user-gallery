@@ -151,7 +151,9 @@ export default function makeServer(environment = "development") {
 
         const { searchUserName } = JSON.parse(req.requestBody);
 
-        console.log(`searchUserName`, searchUserName);
+        const { from, to } = req.requestHeaders;
+
+        console.log(`searchUserName from, to `, searchUserName, from, to );
 
         const allUsers = schema.users.all().models;
         // console.log(`allUsers`, allUsers);
@@ -162,7 +164,34 @@ export default function makeServer(environment = "development") {
           return normalizedUserName.includes(normalizedSearchName);
         });
 
+
+        // if(Array.from(filteredUsers).length>0){
+
+        // console.log("filteredUsers first", filteredUsers);
+          
+        //   const reducedPosts = filteredUsers.reduce(
+        //     (previousArr, currentUser) => {
+        //       return previousArr.concat(currentUser.posts);
+        //     },
+        //     []
+        //   );
+
+        //   console.log("reducedPosts first", reducedPosts);
+
+        //   let sliceTo = to;
+        //   if(to >= reducedPosts.length){
+        //     sliceTo = reducedPosts.length;
+        //   }
+        //   const slicedPosts = reducedPosts.slice(from, sliceTo);
+
+        //   console.log("slicedPosts first", slicedPosts);
+  
+        //   return { posts: slicedPosts, allPostsLength: reducedPosts.length, };
+        // }
+
+
         if (!filteredUsers || filteredUsers.length === 0) {
+
           const normQuery = searchUserName.toLocaleLowerCase();
           const queryChars = normQuery.split("");
 
@@ -207,8 +236,6 @@ export default function makeServer(environment = "development") {
             });
         }
 
-        console.log("filteredUsers ", filteredUsers);
-
         const reducedPosts = filteredUsers.reduce(
           (previousArr, currentUser) => {
             return previousArr.concat(currentUser.posts);
@@ -217,7 +244,19 @@ export default function makeServer(environment = "development") {
         );
         // console.log("reducedPosts.models ", reducedPosts);
 
-        return { posts: reducedPosts };
+        const mappedPosts = reducedPosts.map((collection) => collection.models).flat();
+
+        console.log("mappedPosts ", mappedPosts);
+
+        let sliceTo = to;
+        if(to >= mappedPosts.length){
+          sliceTo = mappedPosts.length;
+        }
+        const slicedPosts = mappedPosts.slice(from, sliceTo);
+
+        console.log('slicedPosts ', slicedPosts);
+
+        return { posts: slicedPosts, allPostsLength: mappedPosts.length, };
       });
 
       this.get("/users/searchForNames/:query", (schema, req) => {
