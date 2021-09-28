@@ -1,17 +1,10 @@
 import { useEffect } from "react";
 
-import { useSelector, useDispatch } from "react-redux";
-
 import { CommentsList } from "../comments/CommentsList.jsx";
 
 import { TimeAgo } from "../helperComponents/TimeAgo";
-// import { unwrapResult } from "@reduxjs/toolkit";
 
 import { selectPostById } from "./postSlice";
-
-import { fetchSingleUser, selectUserById } from "../profile/usersSlice";
-
-// import { fetchPostComments } from "../comments/commentSlice";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
 
@@ -24,26 +17,30 @@ import classNames from "classnames";
 
 import { AddNewCommentComp } from "../comments/AddNewCommentComp.jsx";
 
-import {Link} from 'react-router-dom';
+import { Link } from "react-router-dom";
 
-import {PostReactions} from './PostReactioins.jsx';
+import { PostReactions } from "./PostReactioins.jsx";
+
+import { HashTags } from "../hashTags/HashTags.jsx";
+
+import {
+  useUserIdToSelectOrFetchUser,
+  usePostIdToSelectOrFetchHashTags,
+} from "./PostDataHelpers.js";
+
+import { useSelector } from "react-redux";
 
 
-const Post = (props) => {
-  const dispatch = useDispatch();
-  const { postId } = props;
+
+const Post = ({ postId }) => {
 
   const post = useSelector((state) => selectPostById(state, postId));
-  const { userId, content } = post;
-
-  const user = useSelector((state) => selectUserById(state, userId));
-
+  const user = useUserIdToSelectOrFetchUser({ userId: post.userId });
+  const hashTags = usePostIdToSelectOrFetchHashTags({ postId });
+  
   useEffect(() => {
-    if(!user){
-      dispatch(fetchSingleUser(userId));
-    }
-    
-  }, [userId, dispatch, user]);
+    showVisible("POST");
+  }, [user, post]);
 
 
   if (!user || !post) {
@@ -52,10 +49,6 @@ const Post = (props) => {
         <CardPlaceholder showAvatarContent={true}></CardPlaceholder>
       </section>
     );
-  }
-  
-  if (user && post) {
-    showVisible("POST");
   }
 
   return (
@@ -73,7 +66,9 @@ const Post = (props) => {
             </div>
 
             <div className="mx-2">
-              <b>{user.userName}</b>
+              <Link to={`/profile/${user.id}`}>
+                <b>{user.userName}</b>
+              </Link>
             </div>
           </div>
         </div>
@@ -102,31 +97,28 @@ const Post = (props) => {
             <div className="row align-items-start">
               <div className="col">
                 <div>
-                  <b>{user.userName}</b>
+                  <Link to={`/profile/${user.id}`}>
+                    <b>{user.userName}</b>
+                  </Link>
                 </div>
               </div>
 
               <div className=" col-sm-10 col-md-10 ">
                 <p className="card-text mb-1">
-                  <ReadMoreText content={content}></ReadMoreText>
+                  <ReadMoreText content={post.content}></ReadMoreText>
                 </p>
               </div>
             </div>
           </div>
 
+          <HashTags hashTags={hashTags}></HashTags>
           <hr />
 
-          <CommentsList
-            postId={postId}
-          ></CommentsList>
+          <CommentsList postId={postId}></CommentsList>
 
           <div className="row">
             <div className="row">
-              <Link
-                to={`/posts/${post.id}`}
-              >
-                view post
-              </Link>
+              <Link to={`/posts/${post.id}`}>view post</Link>
             </div>
             <div className="row">
               <div>

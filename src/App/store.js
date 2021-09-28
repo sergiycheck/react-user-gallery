@@ -9,6 +9,13 @@ import explorePostsReducer from '../components/explore/exploreSlice';
 
 import searchDataReducer from '../components/explore/searchComponent/searchDataSlice';
 
+import hashTagsReducer from '../components/hashTags/hashTagSlice';
+
+import postsSameHashTagsReducer from '../components/PostList/postsWithSameHashTagsSlice.js';
+
+import profilePostsReducer from '../components/profile/profilePostsSlice.js';
+
+
 const loggerMiddleware = storeAPI => next => action =>{
 
   console.log('dispatching', action);
@@ -26,7 +33,12 @@ export default configureStore({
 		users:usersReducer,
 		comments:commentsReducer,
 		explorePosts:explorePostsReducer,
-		searchData: searchDataReducer
+		searchData: searchDataReducer,
+		hashTags:hashTagsReducer,
+		postsSameHashTags: postsSameHashTagsReducer,
+		
+		profilePosts:profilePostsReducer
+
 	},
 	middleware:(getDefaultMiddleware) =>
 		getDefaultMiddleware().concat(loggerMiddleware)

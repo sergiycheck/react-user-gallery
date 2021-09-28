@@ -26,3 +26,5 @@ export const commentsRoute = `${apiName}/comments`;
 
 export const allUsersRoute =`${apiName}/${usersName}`;
 export const singleUserPageRoute = `${allUsersRoute}/:userId`;
+
+export const userPostsRoute = `${usersRoute}/:userId/${postName}`

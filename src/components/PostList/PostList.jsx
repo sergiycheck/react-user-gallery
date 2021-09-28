@@ -1,7 +1,6 @@
-import { 
-  useEffect, 
-  useState, 
-  // useCallback 
+import {
+  // useEffect,
+  useState,
 } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -17,14 +16,20 @@ import {
 
 import { StatusData } from "../../api/ApiRoutes";
 
-import { Loader } from "../helperComponents/Loader.jsx";
+import { atTheBottom } from "../../helpers/atTheBottom";
 
-import {atTheBottom} from '../../helpers/atTheBottom';
+import {
+  useLoadingStatusToRenderLoader,
+  useStatusAndArrOfIdsToFetchData,
+  // scrollHandlerWithCallBack,
+  useLoadingStatusToAddOrRemoveScrollListeners,
+
+} from '../loadMoreDataOnScrollLogic/loadMoreDataRenderAndHooks.js';
 
 
 const PostsList = () => {
   const dispatch = useDispatch();
-  
+
   const orderedPostIds = useSelector((state) => selectPostIds(state));
   const postsStatus = useSelector((state) => state.posts.status);
   const allFetchedPostsLength = useSelector(selectFetchedAllPostsLength);
@@ -33,47 +38,32 @@ const PostsList = () => {
   const [from, setFromPaginationProp] = useState(0);
   const [to, setToPaginationProp] = useState(increment);
 
-  const handleScroll = 
-  // useCallback(
-    () => {
+  const handleScroll = () => {
     if (atTheBottom()) {
       dispatch(changePostStatusToStartFetching({ newStatus: StatusData.idle }));
     }
-  }
-  // ,[dispatch]);
+  };
 
-  useEffect(() => {
+  useLoadingStatusToAddOrRemoveScrollListeners({
+    itemIdsArr:orderedPostIds,
+    allItemsLength: allFetchedPostsLength,
+    handler:handleScroll
+  });
 
-    const requestProcessing = postsStatus === StatusData.loading;
-    if (requestProcessing) {
-      console.log("processing current request");
-      return;
-    }
-
-    const allPostsFetched = orderedPostIds.length >= allFetchedPostsLength;
-    const somePostsFetched = orderedPostIds.length > 0;
-
-    if (allPostsFetched && somePostsFetched) {
-      console.log('allPostsFetched && somePostsFetched')
-
-      window.removeEventListener("scroll", handleScroll);
-      return;
-    }
-
-    const statusChangedToFetchMorePosts = postsStatus === StatusData.idle;
-    if (statusChangedToFetchMorePosts) {
-      console.log('statusChangedToFetchMorePosts')
-
-      fetchPostAndSetPagination();
-    }
-
+  
+  useStatusAndArrOfIdsToFetchData(
+    {
+      itemsStatus: postsStatus,
+      idsArr: orderedPostIds,
+      allItemsLength: allFetchedPostsLength,
+      scrollHandler: handleScroll,
+    },
     async function fetchPostAndSetPagination() {
-      // console.log("fetching posts");
 
       await dispatch(fetchPosts({ from, to }));
       setPaginationProperties(from + increment, to + increment);
     }
-  }, [dispatch, postsStatus]);
+  );
 
   const setPaginationProperties = (from, to) => {
     setFromPaginationProp(from);
@@ -81,40 +71,14 @@ const PostsList = () => {
     // console.log("pagination properties set", " from ", from, " to ", to);
   };
 
-  // const handleScroll = useCallBack(() => {
-  //   if (atTheBottom()) {
-  //     dispatch(changePostStatusToStartFetching({ newStatus: StatusData.idle }));
-  //   }
-  // }) 
 
-  useEffect(() => {
-    
-    if (
-      orderedPostIds.length !== allFetchedPostsLength &&
-      orderedPostIds.length > 0
-    ) {
-      console.log("setting load more scroll event listener");
-
-      window.addEventListener("scroll", handleScroll);
-    }
-
-    return function removeScrollListener() {
-      console.log("removing scroll down listener from post list");
-
-      window.removeEventListener("scroll", handleScroll);
-    };
-  });
+  const { statusPostLoadingData } = useLoadingStatusToRenderLoader(
+    postsStatus
+  );
 
   const contentPosts = orderedPostIds.map((postId) => {
     return <Post key={postId} postId={postId}></Post>;
   });
-
-  let statusPostLoadingData = "";
-  if (postsStatus === StatusData.loading) {
-    statusPostLoadingData = <Loader></Loader>;
-  } else if (postsStatus === StatusData.succeeded) {
-    statusPostLoadingData = "";
-  }
 
   return (
     <div className="row display-container justify-content-center">

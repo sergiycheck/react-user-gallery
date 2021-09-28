@@ -1,10 +1,22 @@
 
-export const atTheBottom = () => {
 
+// function getRandomInt(min, max) {
+//   min = Math.ceil(min);
+//   max = Math.floor(max);
+//   return Math.floor(Math.random() * (max - min + 1)) + min;
+// }
+
+
+export const atTheBottom = () => {
+  
+  // logPositionScroll()
 
   const heightAndOffset = Math.ceil(window.innerHeight + window.pageYOffset);
 
-  const bodyOffsetHeight = Math.floor( document.body.offsetHeight || document.documentElement.offsetHeight );
+  let bodyOffsetHeight = Math.floor( document.body.offsetHeight && document.documentElement.offsetHeight );
+  if(bodyOffsetHeight === 0){
+    bodyOffsetHeight = Math.floor( document.body.offsetHeight ||  document.documentElement.offsetHeight );
+  }
 
   if (heightAndOffset >= bodyOffsetHeight - 5) {
     // console.log("At the bottom!");
@@ -14,21 +26,27 @@ export const atTheBottom = () => {
 };
 
 
-// const logPositionScroll = _ =>{
-//   const rect = document.documentElement.getBoundingClientRect();
+export const logPositionScroll = _ =>{
+  const rect = document.documentElement.getBoundingClientRect();
 
-//   document.getElementById('PositionAlertMessage').innerText = `
+  const bodyAndDocumentElementOffsetHeight = Math.floor( document.body.offsetHeight && document.documentElement.offsetHeight );
+  const bodyOrDocumentElementOffsetHeight = Math.floor( document.body.offsetHeight || document.documentElement.offsetHeight );
 
-//   heightAndOffset: ${Math.ceil(window.innerHeight + window.pageYOffset)}
-//   bodyOffsetHeight: ${Math.floor(document.body.offsetHeight)}
+
+  document.getElementById('PositionAlertMessage').innerText = `
+
+  heightAndOffset: ${Math.ceil(window.innerHeight + window.pageYOffset)}
+  bodyOffsetHeight: ${Math.floor(document.body.offsetHeight)}
+  bodyAndDocumentElementOffsetHeight: ${bodyAndDocumentElementOffsetHeight}
+  bodyOrDocumentElementOffsetHeight: ${bodyOrDocumentElementOffsetHeight}
   
-//   documentElement.clientHeight: ${document.documentElement.clientHeight}
+  documentElement.clientHeight: ${document.documentElement.clientHeight}
 
-//   documentElementOffsetHeight: ${Math.floor(document.documentElement.offsetHeight)}
-//   rect x: ${rect.x}
-//   rect y: ${rect.y}
-//   rect height: ${rect.height}
-//   rect bottom: ${rect.bottom}
-//   rect top: ${rect.top}
-//   `;
-// }
+  documentElementOffsetHeight: ${Math.floor(document.documentElement.offsetHeight)}
+  rect x: ${rect.x}
+  rect y: ${rect.y}
+  rect height: ${rect.height}
+  rect bottom: ${rect.bottom}
+  rect top: ${rect.top}
+  `;
+}

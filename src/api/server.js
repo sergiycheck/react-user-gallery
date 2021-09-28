@@ -49,8 +49,6 @@ export default function makeServer(environment = "development") {
       // 	return schema.videos.all();
       // })
 
-
-
       this.get("/posts/:postId/comments", (schema, req) => {
         // console.log(`Server /posts/:postId/comments `);
         const postId = req.params["postId"];
@@ -75,27 +73,70 @@ export default function makeServer(environment = "development") {
         // console.log("sorted comments ", commentsSliced);
 
         return commentsSliced;
-
       });
 
       this.get("/users/:userId/posts", (schema, req) => {
         const userId = req.params["userId"];
         // console.log('server got userId ', userId);
         const user = schema.users.find(userId);
-        return user.posts;
+
+        if (!user) throw new Error(`can not find user with ${userId}`);
+
+        let resultPosts;
+        let allUserPosts = user.posts;
+
+        if (
+          Object.keys(req.requestHeaders).includes("from") &&
+          Object.keys(req.requestHeaders).includes("to")
+        ) {
+          const { from, to } = req.requestHeaders;
+          resultPosts = allUserPosts.models.slice(from, to);
+        } else {
+          resultPosts = allUserPosts;
+        }
+
+        return {
+          posts: resultPosts,
+          allPostsLength: allUserPosts.length,
+        };
+      });
+      this.get("/users/:userId/posts/single/:postId", (schema, req) => {
+        const userId = req.params["userId"];
+        const user = schema.users.find(userId);
+        if (!user) throw new Error(`can not find user with ${userId}`);
+
+        const postId = req.params["postId"];
+        const post = user.posts.find(postId);
+        if (!post) throw new Error(`can not find post with ${postId}`);
+
+        let allUserPosts = user.posts;
+
+        return {
+          fetchedPost: post,
+          allPostsLength: allUserPosts.length,
+        };
       });
 
-      this.get("/posts/:postId", (schema, req) => {
+      this.get("/posts/single/:postId", (schema, req) => {
         const postId = req.params["postId"];
         // console.log('server got postId ', postId);
         const allPosts = schema.posts.all();
 
         const post = schema.posts.find(postId);
-        
+        if (!post) throw new Error(`can not find post with ${postId}`);
+
         return {
           fetchedPost: post,
-          allPostsLength: allPosts.length
-        }
+          allPostsLength: allPosts.length,
+        };
+      });
+
+      this.get("/posts/:postId/hashTags", (schema, req) => {
+        const postId = req.params["postId"];
+        const post = schema.posts.find(postId);
+        if (!post) throw new Error(`can not find post with ${postId}`);
+
+        return post.hashTags;
       });
 
       this.post("/posts/addLikeToPost", function (schema, req) {
@@ -134,13 +175,11 @@ export default function makeServer(environment = "development") {
 
       this.get("/posts", (schema, req) => {
         const { from, to } = req.requestHeaders;
-        // console.log(`server got from ${from}, and to ${to}`);
-        const allPosts = schema.posts.all();
 
-        // console.log('allPosts length ', allPosts.models.length);
+        let allPosts = schema.posts.all();
+
         const resultPosts = allPosts.models.slice(from, to);
-        // console.log(resultPosts);
-        // return resultPosts;
+
         return {
           posts: resultPosts,
           allPostsLength: allPosts.length,
@@ -148,12 +187,11 @@ export default function makeServer(environment = "development") {
       });
 
       this.post("/users/searchForUsersPosts", (schema, req) => {
-
         const { searchUserName } = JSON.parse(req.requestBody);
 
         const { from, to } = req.requestHeaders;
 
-        console.log(`searchUserName from, to `, searchUserName, from, to );
+        console.log(`searchUserName from, to `, searchUserName, from, to);
 
         const allUsers = schema.users.all().models;
         // console.log(`allUsers`, allUsers);
@@ -164,34 +202,7 @@ export default function makeServer(environment = "development") {
           return normalizedUserName.includes(normalizedSearchName);
         });
 
-
-        // if(Array.from(filteredUsers).length>0){
-
-        // console.log("filteredUsers first", filteredUsers);
-          
-        //   const reducedPosts = filteredUsers.reduce(
-        //     (previousArr, currentUser) => {
-        //       return previousArr.concat(currentUser.posts);
-        //     },
-        //     []
-        //   );
-
-        //   console.log("reducedPosts first", reducedPosts);
-
-        //   let sliceTo = to;
-        //   if(to >= reducedPosts.length){
-        //     sliceTo = reducedPosts.length;
-        //   }
-        //   const slicedPosts = reducedPosts.slice(from, sliceTo);
-
-        //   console.log("slicedPosts first", slicedPosts);
-  
-        //   return { posts: slicedPosts, allPostsLength: reducedPosts.length, };
-        // }
-
-
         if (!filteredUsers || filteredUsers.length === 0) {
-
           const normQuery = searchUserName.toLocaleLowerCase();
           const queryChars = normQuery.split("");
 
@@ -244,19 +255,21 @@ export default function makeServer(environment = "development") {
         );
         // console.log("reducedPosts.models ", reducedPosts);
 
-        const mappedPosts = reducedPosts.map((collection) => collection.models).flat();
+        const mappedPosts = reducedPosts
+          .map((collection) => collection.models)
+          .flat();
 
         console.log("mappedPosts ", mappedPosts);
 
         let sliceTo = to;
-        if(to >= mappedPosts.length){
+        if (to >= mappedPosts.length) {
           sliceTo = mappedPosts.length;
         }
         const slicedPosts = mappedPosts.slice(from, sliceTo);
 
-        console.log('slicedPosts ', slicedPosts);
+        console.log("slicedPosts ", slicedPosts);
 
-        return { posts: slicedPosts, allPostsLength: mappedPosts.length, };
+        return { posts: slicedPosts, allPostsLength: mappedPosts.length };
       });
 
       this.get("/users/searchForNames/:query", (schema, req) => {
@@ -325,7 +338,8 @@ export default function makeServer(environment = "development") {
       });
 
       this.post("/comments/addNew", (schema, req) => {
-        const { postId, text } = JSON.parse(req.requestBody);
+        const parsedBody = JSON.parse(req.requestBody);
+        const { postId, text } = parsedBody;
 
         if (text === "error") {
           throw new Error("Could not add new todo");
@@ -341,6 +355,50 @@ export default function makeServer(environment = "development") {
 
         return { addedComment };
       });
+
+      // /posts/postIdToFindSameHashTags=postId&other=params&other1=params1
+      //or
+      // /posts/postIdToFindSameHashTags=postId
+      this.get("/posts/:filters", (schema, req) => {
+        // const postId = req.params["postId"];
+
+        let filters = req.params["filters"];
+
+        const paramObject = filters.split("&").reduce((prev, curr) => {
+          let keyValArr = curr.split("=");
+          prev[`${keyValArr[0]}`] = keyValArr[1];
+          return prev;
+        }, {});
+
+        if (!Object.keys(paramObject).includes("postIdToFindSameHashTags"))
+          return;
+
+        const postId = paramObject["postIdToFindSameHashTags"];
+
+        const foundPost = schema.posts.find(postId);
+        if (!foundPost) throw new Error(`can not find post with ${postId}`);
+
+        const { from, to } = req.requestHeaders;
+
+        const allPosts = schema.posts.all();
+
+        const filteredPostsByHashTags = allPosts.filter((post) => {
+          const hashTagIntersection = _.intersectionBy(
+            post.hashTags.models,
+            foundPost.hashTags.models,
+            "name"
+          );
+          const hasIntersection = Array.from(hashTagIntersection).length > 0;
+          return hasIntersection;
+        });
+
+        const resultPosts = filteredPostsByHashTags.models.slice(from, to);
+
+        return {
+          posts: resultPosts,
+          filteredPostsByHashTagsLength: filteredPostsByHashTags.length,
+        };
+      });
     },
 
     models: {
@@ -351,6 +409,10 @@ export default function makeServer(environment = "development") {
       post: Model.extend({
         user: belongsTo(),
         comments: hasMany(),
+        hashTags: hasMany(),
+      }),
+      hashTag: Model.extend({
+        posts: hasMany(),
       }),
       comment: Model.extend({
         // commentable: belongsTo({ polymorphic: true }),
@@ -382,7 +444,9 @@ export default function makeServer(environment = "development") {
         userName() {
           return faker.internet.userName(this.firstName, this.lastName);
         },
-
+        bio() {
+          return faker.lorem.paragraph();
+        },
         gender() {
           return this.allData.gender();
         },
@@ -393,9 +457,9 @@ export default function makeServer(environment = "development") {
           return faker.image.avatar();
         },
 
-        afterCreate(user, server) {
-          server.createList("post", 3, { user });
-        },
+        // afterCreate(user, server) {
+        //   server.createList("post", 3, { user });
+        // },
       }),
 
       post: Factory.extend({
@@ -420,11 +484,20 @@ export default function makeServer(environment = "development") {
         postLiked() {
           return false;
         },
-        afterCreate(post, server) {
-          server.createList("comment", 9, { post });
-        },
+        // afterCreate(post, server) {
+        //   server.createList("comment", 3, { post });
+        // },
 
         user: association(),
+      }),
+
+      hashTag: Factory.extend({
+        id() {
+          return nanoid();
+        },
+        name() {
+          return `#`.concat(faker.lorem.word());
+        },
       }),
       comment: Factory.extend({
         id() {
@@ -473,7 +546,51 @@ export default function makeServer(environment = "development") {
     },
 
     seeds(server) {
-      server.createList("user", 6);//6 //100
+      // server.createList("user", 6);//6 //100
+
+      server.createList("user", 5).forEach((user) => {
+        let postA = server.create("post", { user });
+        let postB = server.create("post", { user });
+        let postC = server.create("post", { user });
+
+        let postsCreated = [postA, postB, postC];
+
+        postsCreated.forEach((post) => {
+          server.createList("comment", 3, { post });
+        });
+
+        server.create("hashTag", { posts: [postA, postB] });
+        server.create("hashTag", { posts: [postA] });
+        server.create("hashTag", { posts: [postB, postC] });
+        server.create("hashTag", { posts: [postC, postA] });
+      });
+
+      let knownIdUser = server.create("user", { id: "knownId" });
+      let knownPost = server.create("post", {
+        id: "knownPostId",
+        user: knownIdUser,
+      });
+
+      let postList = server.createList("post", 10, { user: knownIdUser });
+      postList = [...postList, knownPost];
+
+      postList.forEach((post) => {
+        server.createList("comment", 5, { post });
+      });
+
+      server.create("hashTag", {
+        posts: postList,
+      });
+      server.create("hashTag", {
+        posts: postList,
+      });
+      server.create("hashTag", {
+        posts: postList,
+      });
+      server.create("hashTag", {
+        posts: postList,
+      });
+
       let userForVideos = server.create("user");
       server.create("video", {
         name: videoDataStoredArr[0].name,
@@ -501,7 +618,7 @@ export default function makeServer(environment = "development") {
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 // const getRandomArrIndex = (arr) => {

@@ -16,22 +16,9 @@ import { client } from "../../api/client";
 const usersAdapter = createEntityAdapter();
 
 const initialState = usersAdapter.getInitialState({
-  searchedNamesAndIds: [],
   status: StatusData.idle,
   error: null,
 });
-
-export const searchForUsersNames = createAsyncThunk(
-  `${usersName}/searchForUsersNames`,
-  async ({ query }) => {
-
-    const response = await client.get(`${usersRoute}/searchForNames/${query}`);
-
-    // console.log('response', response);
-    if (response) return response.userNamesArr;
-    return [];
-  }
-);
 
 
 export const fetchSingleUser = createAsyncThunk(
@@ -82,10 +69,6 @@ const usersSlice = createSlice({
       usersAdapter.upsertOne(state, action.payload);
     },
 
-    [searchForUsersNames.fulfilled]: (state, action) => {
-      const namesAndIdsArr = action.payload;
-      state.searchedNamesAndIds = namesAndIdsArr;
-    },
   },
 });
 
@@ -101,7 +84,4 @@ export const {
   selectIds: selectUsersIds,
 } = usersAdapter.getSelectors((state) => state.users);
 
-
-export const selectSearchedNamesAndIds = (state) =>
-  state.users.searchedNamesAndIds;
 

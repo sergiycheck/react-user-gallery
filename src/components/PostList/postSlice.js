@@ -59,14 +59,13 @@ export const fetchPosts = createAsyncThunk(
 export const fetchSinglePost = createAsyncThunk(
 	`posts/fetchSinglePost`,
 	async ({postId}) => {
-		const response = await client.get(`${postsRoute}/${postId}`);
+		const response = await client.get(`${postsRoute}/single/${postId}`);
 
     const { fetchedPost, allPostsLength } = response;
 
     return { fetchedPost, allPostsLength };
 	}
 )
-
 
 const postsSlice = createSlice({
   name: "posts",

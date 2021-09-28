@@ -1,13 +1,8 @@
 import React, { useEffect } from "react";
 
-import { useSelector, useDispatch } from "react-redux";
-
 import { CommentsList } from "../comments/CommentsList.jsx";
 
 import { TimeAgo } from "../helperComponents/TimeAgo";
-
-import { selectPostById } from "./postSlice";
-import { fetchSingleUser, selectUserById } from "../profile/usersSlice";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
 
@@ -21,23 +16,32 @@ import classNames from "classnames";
 import { AddNewCommentComp } from "../comments/AddNewCommentComp.jsx";
 
 import { PostReactions } from "./PostReactioins.jsx";
-import {fetchSinglePost} from './postSlice';
+
+import {
+  usePostIdToSelectOrFetchPost,
+  useUserIdToSelectOrFetchUser,
+  usePostIdToSelectOrFetchHashTags,
+} from "./PostDataHelpers.js";
+
+import { HashTags } from "../hashTags/HashTags.jsx";
+
+import { fetchSinglePost, selectPostById } from "./postSlice";
+
+import { ExploreSameHashTags } from "./ExploreSameHashTags.jsx";
+
+import { Link } from "react-router-dom";
+
 
 export const SinglePost = ({ match }) => {
-  // console.clear();
-  const dispatch = useDispatch();
-
   console.log("match.params ", match.params);
 
   const { postId } = match.params;
 
-  const post = useSelector((state) => selectPostById(state, postId));
-
-  useEffect(()=>{
-    if(!post){
-      dispatch(fetchSinglePost({postId}))
-    }
-  })
+  const post = usePostIdToSelectOrFetchPost({
+    postId,
+    postSelector: selectPostById,
+    postFetcher: fetchSinglePost,
+  });
 
   if (!post) {
     return <LoadingContentForPost></LoadingContentForPost>;
@@ -50,9 +54,7 @@ const LoadingContentForPost = () => {
   return (
     <section style={{ marginTop: "100px" }} className="container">
       <div className="row">
-        
-				<div className="col-md-10 col-sm-12">
-
+        <div className="col-md-10 col-sm-12">
           <CardPlaceholder showAvatarContent={true}></CardPlaceholder>
         </div>
       </div>
@@ -62,106 +64,119 @@ const LoadingContentForPost = () => {
 
 const UserForPost = ({ post }) => {
 
-  const dispatch = useDispatch();
-  const user = useSelector((state) => selectUserById(state, post.userId));
+
+  const { postId, userId } = post;
+
+  const user = useUserIdToSelectOrFetchUser({ userId });
+
+  const hashTags = usePostIdToSelectOrFetchHashTags({ postId });
 
   useEffect(() => {
-    if (!user && post.userId) {
-      dispatch(fetchSingleUser(post.userId));
-    }
-  }, [post.userId, dispatch, user]);
+    showVisible("UserForPost");
+  }, [user, post]);
+
+
 
   if (!post || !user) {
     return <LoadingContentForPost></LoadingContentForPost>;
-  }else{
-		showVisible("UserForPost");
-	}
+  }
 
   return (
-    <section style={{ marginTop: "100px" }} className="container">
-      <div className="row">
+    <section style={{ marginTop: "100px" }} className="container-fluid">
+      <div className="container">
+        <div className="row">
+          <div className="col-md-10 col-sm-12">
+            <div className="card mt-2">
+              <div className="row">
+                <div className={postS.avatarAndNick}>
+                  <div>
+                    <img
+                      className={classNames(
+                        "img-fluid mx-auto",
+                        postS.postAvatarImg
+                      )}
+                      src="/assets/img/img-placeholder.gif"
+                      data-src={user.image}
+                      alt="user profile"
+                    />
+                  </div>
 
-        <div className="col-md-10 col-sm-12">
-
-          <div className="card mt-2">
-
-            <div className="row">
-              <div className={postS.avatarAndNick}>
-                <div>
+                  <div className="mx-2">
+                    <Link to={`/profile/${user.id}`}>
+                      <b>{user.userName}</b>
+                    </Link>
+                  </div>
+                </div>
+              </div>{" "}
+              {/* circle avatar and nick name  */}
+              <div className={postS["bd-placeholder-img"]}>
+                <div className="d-inline-flex">
                   <img
                     className={classNames(
-                      "img-fluid mx-auto",
-                      postS.postAvatarImg
+                      postS["user-img"],
+                      "img-fluid rounded"
                     )}
                     src="/assets/img/img-placeholder.gif"
-                    data-src={user.image}
-                    alt="user profile"
+                    data-src={post.image}
+                    alt="user post"
                   />
                 </div>
-
-                <div className="mx-2">
-                  <b>{user.userName}</b>
-                </div>
               </div>
-            </div>
+              {/* post image  */}
+              <div className="card-body">
+                <div className="row">
+                  <div className="row mb-1">
+                    <PostReactions
+                      postId={post.id}
+                      isLiked={post.postLiked}
+                      likeCount={post.likeCount}
+                    ></PostReactions>
+                  </div>
 
-            <div className={postS["bd-placeholder-img"]}>
-              <div className="d-inline-flex">
-                <img
-                  className={classNames(postS["user-img"], "img-fluid rounded")}
-                  src="/assets/img/img-placeholder.gif"
-                  data-src={post.image}
-                  alt="user post"
-                />
-              </div>
-            </div>
+                  <div className="row align-items-start">
+                    <div className="col">
+                      <div>
+                        <Link to={`/profile/${user.id}`}>
+                          <b>{user.userName}</b>
+                        </Link>
+                      </div>
+                    </div>
 
-            <div className="card-body">
-              <div className="row">
-                <div className="row mb-1">
-                  <PostReactions
-                    postId={post.id}
-                    isLiked={post.postLiked}
-                    likeCount={post.likeCount}
-                  ></PostReactions>
+                    <div className=" col-sm-10 col-md-10 ">
+                      <p className="card-text mb-1">
+                        <ReadMoreText content={post.content}></ReadMoreText>
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="row align-items-start">
-                  <div className="col">
+                <HashTags hashTags={hashTags}></HashTags>
+
+                <hr />
+
+                <CommentsList postId={post.id}></CommentsList>
+
+                <div className="row">
+                  <div className="row">
                     <div>
-                      <b>{user.userName}</b>
+                      <small className=" text-muted">
+                        <TimeAgo timeStamp={post.date}></TimeAgo>
+                      </small>
                     </div>
                   </div>
 
-                  <div className=" col-sm-10 col-md-10 ">
-                    <p className="card-text mb-1">
-                      <ReadMoreText content={post.content}></ReadMoreText>
-                    </p>
+                  <div className="row">
+                    <AddNewCommentComp postId={post.id}></AddNewCommentComp>
                   </div>
-                </div>
-              </div>
-
-              <hr />
-
-              <CommentsList postId={post.id}></CommentsList>
-
-              <div className="row">
-                <div className="row">
-                  <div>
-                    <small className=" text-muted">
-                      <TimeAgo timeStamp={post.date}></TimeAgo>
-                    </small>
-                  </div>
-                </div>
-
-                <div className="row">
-                  <AddNewCommentComp postId={post.id}></AddNewCommentComp>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <ExploreSameHashTags postId={post.id}></ExploreSameHashTags>
+
     </section>
   );
 };

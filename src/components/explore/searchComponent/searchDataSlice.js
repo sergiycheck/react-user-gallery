@@ -10,7 +10,7 @@ import {
 
 import {
   StatusData,
-  // postsRoute,
+  postsRoute,
   usersName,
   usersRoute,
 } from "../../../api/ApiRoutes";
@@ -30,6 +30,8 @@ const initialState = searchDataAdapter.getInitialState({
   searchQuery: "",
   fetchFrom: 0,
   fetchTo: FetchIncrement,
+
+  searchedNamesAndIds: [],
   
 });
 
@@ -71,6 +73,19 @@ export const searchForUsersNames = createAsyncThunk(
     return [];
   }
 );
+
+
+export const fetchSingleSearchDataPost = createAsyncThunk(
+	`posts/fetchSingleSearchDataPost`,
+	async ({postId}) => {
+		const response = await client.get(`${postsRoute}/single/${postId}`);
+
+    const { fetchedPost, allPostsLength } = response;
+
+    return { fetchedPost, allPostsLength };
+	}
+);
+
 
 const searchDataSlice = createSlice({
   name: "searchData",
@@ -119,6 +134,7 @@ const searchDataSlice = createSlice({
       state.fetchTo = FetchIncrement;
       state.status = StatusData.idle;
       state.error = null;
+      state.searchedNamesAndIds = [];
     }, 
   },
   extraReducers: {
@@ -138,6 +154,28 @@ const searchDataSlice = createSlice({
 
       searchDataAdapter.upsertMany(state, posts);
     },
+
+    
+    [fetchSingleSearchDataPost.pending]: (state, action) =>{
+      state.status = StatusData.loading;
+    },
+    [fetchSingleSearchDataPost.rejected]: (state, action) =>{
+      state.status = StatusData.idle;
+    },
+    [fetchSingleSearchDataPost.fulfilled]: (state, action) =>{
+
+      const {fetchedPost, allPostsLength} = action.payload;
+
+      state.fetchedAllEntitiesLength = allPostsLength;
+
+      searchDataAdapter.upsertOne(state, fetchedPost);
+    },
+
+    [searchForUsersNames.fulfilled]: (state, action) => {
+      const namesAndIdsArr = action.payload;
+      state.searchedNamesAndIds = namesAndIdsArr;
+    },
+
   },
 });
 
@@ -172,3 +210,6 @@ export const selectFromAndToForPagination = createSelector(
     return { from, to };
   }
 );
+
+export const selectSearchedNamesAndIds = (state) =>
+  state.searchData.searchedNamesAndIds;

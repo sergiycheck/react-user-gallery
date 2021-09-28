@@ -3,7 +3,7 @@ function isVisible(elem) {
   const imgRect = elem.getBoundingClientRect();
   // console.log(`imgRect `, imgRect);
 
-  const documentElementRect = document.documentElement.getBoundingClientRect();
+  // const documentElementRect = document.documentElement.getBoundingClientRect();
   // console.log(`documentElementRect `, documentElementRect);
 
   // document.querySelector('#PositionAlertMessage').innerHTML = `
@@ -23,7 +23,7 @@ function isVisible(elem) {
     imgRect.bottom >= -1 * document.documentElement.clientHeight &&
     imgRect.bottom < document.documentElement.clientHeight;
 	
-	// console.clear();
+	
 	// console.log('img ', elem);
   // console.log("isTopVisible ", isTopVisible);
   // console.log("isBottomVisible ", isBottomVisible);
@@ -33,6 +33,9 @@ function isVisible(elem) {
 
 export function showVisible() {
   
+  // console.clear();
+  // console.log('showVisible', Array.from(arguments).length? Array.from(arguments)[0]: 'empty');
+
   for (let img of document.querySelectorAll("img")) {
     let realSrc = img.dataset.src;
     if (!realSrc) continue;

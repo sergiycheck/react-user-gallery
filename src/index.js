@@ -64,7 +64,7 @@ reportWebVitals();
 // alertMessage.style.position = 'fixed';
 // alertMessage.style.zIndex = 999999;
 // alertMessage.style.width = '500px';
-// alertMessage.style.height = '300px';
+// alertMessage.style.height = '400px';
 // alertMessage.style.top = '60px';
 // alertMessage.style.left = '0';
 // alertMessage.style.backgroundColor = 'purple';

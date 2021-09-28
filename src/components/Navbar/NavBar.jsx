@@ -15,7 +15,7 @@ import {
 import {
   searchForUsersNames,
   selectSearchedNamesAndIds,
-} from "../profile/usersSlice.js";
+} from "../explore/searchComponent/searchDataSlice.js";
 
 import { StatusData } from "../../api/ApiRoutes";
 import navbarStyles from "./NavBar.module.scss";
@@ -75,7 +75,7 @@ const NavBar = (props) => {
                   Messages
                 </Link>
 
-                <Link to="/profile" className="nav-link">
+                <Link to="/profile" className="nav-link disabled">
                   Profile
                 </Link>
 
@@ -207,15 +207,10 @@ const SearchForm = (props) => {
       setListHidden(true);
 
       // console.log(`searching for posts with query ${trimmedText}...`);
+      
       dispatch(removeAllEntities());
 
       dispatch(setSearchQuery({query:trimmedText}))
-
-      // await dispatch(
-      //   searchUsersPostsByUserName({ query: trimmedText, ...fromAndTo })
-      // );
-
-      // await dispatch(changePaginationPropsForSearchQuery({query:trimmedText}));
 
       history.push(`/searchResults/${trimmedText}`);
 
