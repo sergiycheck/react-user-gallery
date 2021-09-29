@@ -69,8 +69,7 @@ export const ExploreWrapped = ({ explorePageDataMethods }) => {
 
     async function fetchPostAndSetPagination() {
       
-      // debugger;
-
+      //debugger //here if from ===5
       if(Object.keys(explorePageDataMethods).includes('postId')){
 
         const {postId} = explorePageDataMethods;
@@ -84,7 +83,8 @@ export const ExploreWrapped = ({ explorePageDataMethods }) => {
 
         await dispatch(fetchItems({ from, to }));
       }
-        
+
+      // debugger;
       setPaginationProperties(from + increment, to + increment);
     }
   );

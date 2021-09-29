@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import SvgIcon from "@material-ui/core/SvgIcon";
@@ -26,9 +26,60 @@ import { throttle } from "./throttle";
 import { useHistory } from "react-router-dom";
 
 const NavBar = (props) => {
+  const navbarelem = useRef(null);
+
+  const initialNavBarTopRef = useRef();
+  const docScrollTopPrevVal = useRef(0);
+
+  useEffect(() => {
+    function getNavBarTopAndSet() {
+      const navbarRect = navbarelem.current.getBoundingClientRect();
+      initialNavBarTopRef.current = navbarRect.top;
+    }
+    getNavBarTopAndSet();
+  }, []);
+
+  const navbarHandleScrollMemoizedCallback = useCallback(() => {
+    const navbarRect = navbarelem.current.getBoundingClientRect();
+
+    const docElScrollTop = document.documentElement.scrollTop;
+    const docElclientHeight = document.documentElement.clientHeight;
+
+    const userScrolledHalfOfPageDown = docElScrollTop > docElclientHeight / 2;
+    const userScrollingDonw = docElScrollTop > docScrollTopPrevVal.current;
+    if (userScrolledHalfOfPageDown && userScrollingDonw) {
+      navbarelem.current.style.top = -1 * navbarRect.height + "px";
+    } else {
+      navbarelem.current.style = null;
+    }
+    docScrollTopPrevVal.current = docElScrollTop;
+
+    // console.log("docElScrollTop ", docElScrollTop);
+    // console.log("docScrollTopPrevVal ", docScrollTopPrevVal);
+
+    // console.log("docElclientHeight ", docElclientHeight);
+
+    if (docElScrollTop <= initialNavBarTopRef.current) {
+      navbarelem.current.classList.remove("fixed-top");
+    } else if (navbarRect.top <= 0) {
+      navbarelem.current.classList.add("fixed-top");
+    }
+  }, [initialNavBarTopRef, docScrollTopPrevVal]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", navbarHandleScrollMemoizedCallback);
+    return () => {
+      window.addEventListener("scroll", navbarHandleScrollMemoizedCallback);
+    };
+  }, [navbarHandleScrollMemoizedCallback]);
+
   return (
     <nav
-      className="navbar navbar-expand-md fixed-top navbar-light shadow py-1 bg-light"
+      ref={navbarelem}
+      className={classNames(
+        "navbar navbar-expand-md navbar-light py-0 shadow bg-light",
+        navbarStyles.navbarTransition
+      )}
       role="navigation"
     >
       <div className="container  text-dark">
@@ -207,10 +258,10 @@ const SearchForm = (props) => {
       setListHidden(true);
 
       // console.log(`searching for posts with query ${trimmedText}...`);
-      
+
       dispatch(removeAllEntities());
 
-      dispatch(setSearchQuery({query:trimmedText}))
+      dispatch(setSearchQuery({ query: trimmedText }));
 
       history.push(`/searchResults/${trimmedText}`);
 
