@@ -507,7 +507,7 @@ export default function makeServer(environment = "development") {
           return faker.date.recent(2);
         },
         content() {
-          return paragraph();
+          return faker.lorem.sentence();
         },
 
         commentatorAvatar() {

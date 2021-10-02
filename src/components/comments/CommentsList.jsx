@@ -9,7 +9,7 @@ import { TimeAgo } from "../helperComponents/TimeAgo";
 import { ReadMoreText } from "../helperComponents/ReadMoreText.jsx";
 import { fetchPostComments } from "./commentSlice";
 
-import './commentList.scss';
+import "./commentList.scss";
 // import classNames from "classnames";
 
 export const CommentsList = (props) => {
@@ -22,13 +22,12 @@ export const CommentsList = (props) => {
   const increment = 2;
   const [from, setPaginationFromProp] = useState(0);
   const [to, setPaginationToProp] = useState(increment);
-  
+
   const comments = useSelector((state) =>
     selectCommentsByPostId(state, postId)
   );
 
   useEffect(() => {
-    
     async function fetchComments() {
       const resultFetchedComments = await dispatch(
         fetchPostComments({ postId, from, to })
@@ -37,14 +36,11 @@ export const CommentsList = (props) => {
 
       setPaginationProperties(from, to);
     }
-    
+
     //create all comments length for single post
-    if(comments.length === 0){
-  
+    if (comments.length === 0) {
       fetchComments();
     }
-      
-
   }, [dispatch, postId, from, to, comments.length]);
 
   const setPaginationProperties = (from, to) => {
@@ -52,7 +48,6 @@ export const CommentsList = (props) => {
     setPaginationToProp(to);
     // console.log("pagination properties set", " from ", from, " to ", to);
   };
-
 
   const contentComments = comments.map((comment) => {
     return (
@@ -76,36 +71,29 @@ export const CommentExcerpt = (props) => {
   return (
     <React.Fragment>
       <div className="row">
+        <div className="row">
 
-        {/*           <img
-            className="img-fluid mx-auto rounded"
-            style={{ height: "30px" }}
-            // src={comment.commentatorAvatar}
+          <div className="comment-content">
+          
+            <div className="comment-single">
+              <span className="author">
+                <b>{comment.author} </b>
+              </span>
 
-            src="/assets/img/img-placeholder.gif"
-            data-src={comment.commentatorAvatar}
-            alt="comment user profile"
-          /> */}
-        <div className="row comment-content">
+              <span>
+                <ReadMoreText
+                  content={content}
+                  maxCharCount={50}
+                ></ReadMoreText>
+              </span>
+            </div>
 
-            {/* modules not working with scss inner classses  */}
-          <div className='col-sm-12'>
-
-            <span className='author'>
-              <b>{comment.author} </b>
-            </span>
-              
-            <span>
-              <ReadMoreText content={content}></ReadMoreText>
-            </span>
-          </div>
-
-          <div className="comment-post-time">
-            <TimeAgo timeStamp={comment.date}></TimeAgo>
+            <div className="comment-post-time">
+              <TimeAgo timeStamp={comment.date}></TimeAgo>
+            </div>
           </div>
 
         </div>
-        
       </div>
     </React.Fragment>
   );

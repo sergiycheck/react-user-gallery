@@ -144,7 +144,7 @@ const UserForPost = ({ post }) => {
 
                     <div className=" col-sm-10 col-md-10 ">
                       <p className="card-text mb-1">
-                        <ReadMoreText content={post.content}></ReadMoreText>
+                        <ReadMoreText content={post.content} maxCharCount={120}></ReadMoreText>
                       </p>
                     </div>
                   </div>

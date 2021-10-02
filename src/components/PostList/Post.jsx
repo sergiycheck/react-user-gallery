@@ -30,18 +30,14 @@ import {
 
 import { useSelector } from "react-redux";
 
-
-
 const Post = ({ postId }) => {
-
   const post = useSelector((state) => selectPostById(state, postId));
   const user = useUserIdToSelectOrFetchUser({ userId: post.userId });
   const hashTags = usePostIdToSelectOrFetchHashTags({ postId });
-  
+
   useEffect(() => {
     showVisible("POST");
   }, [user, post]);
-
 
   if (!user || !post) {
     return (
@@ -52,89 +48,95 @@ const Post = ({ postId }) => {
   }
 
   return (
-    <section className="col-sm-8">
-      <div className="card mt-2">
-        <div className="row">
-          <div className={postS.avatarAndNick}>
-            <div>
-              <img
-                className={classNames("img-fluid mx-auto", postS.postAvatarImg)}
-                src="/assets/img/img-placeholder.gif"
-                data-src={user.image}
-                alt="user profile"
-              />
-            </div>
+    <article className={classNames('row justify-content-center mt-2 p-0')}> {/*postS['post-section'] */}
+      <section className={postS['post-section']}>
 
-            <div className="mx-2">
-              <Link to={`/profile/${user.id}`}>
-                <b>{user.userName}</b>
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div className={postS["bd-placeholder-img"]}>
-          <div className="d-inline-flex">
-            <img
-              className={classNames(postS["user-img"], "img-fluid rounded")}
-              src="/assets/img/img-placeholder.gif"
-              data-src={post.image}
-              alt="user post"
-            />
-          </div>
-        </div>
-
-        <div className="card-body">
+        <div className={postS['post-card']}>
           <div className="row">
-            <div className="row mb-1">
-              <PostReactions
-                postId={postId}
-                isLiked={post.postLiked}
-                likeCount={post.likeCount}
-              ></PostReactions>
+            <div className={postS.avatarAndNick}>
+              <div>
+                <img
+                  className={classNames(
+                    "img-fluid mx-auto",
+                    postS.postAvatarImg
+                  )}
+                  src="/assets/img/img-placeholder.gif"
+                  data-src={user.image}
+                  alt="user profile"
+                />
+              </div>
+
+              <div className="mx-2">
+                <Link to={`/profile/${user.id}`}>
+                  <b>{user.userName}</b>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className={classNames(postS["bd-placeholder-img"])}>
+            {/* <div className="d-inline-flex"> */}
+              <img
+                className={classNames(postS["user-img"], "img-fluid rounded")}
+                src="/assets/img/img-placeholder.gif"
+                data-src={post.image}
+                alt="user post"
+              />
+            {/* </div> */}
+          </div>
+
+          <div className="card-body">
+            <div className="row">
+              <div className="row mb-1">
+                <PostReactions
+                  postId={postId}
+                  isLiked={post.postLiked}
+                  likeCount={post.likeCount}
+                ></PostReactions>
+              </div>
+
+              <div className="row align-items-start">
+                <div className="col">
+                  <div>
+                    <Link to={`/profile/${user.id}`}>
+                      <b>{user.userName}</b>
+                    </Link>
+                  </div>
+                </div>
+
+                <div className=" col-sm-10 col-md-10 ">
+                  <p className="card-text mb-1">
+                    <ReadMoreText content={post.content} maxCharCount={120}></ReadMoreText>
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="row align-items-start">
-              <div className="col">
+            <HashTags hashTags={hashTags}></HashTags>
+            <hr />
+
+            <CommentsList postId={postId}></CommentsList>
+
+            <div className="row">
+              <div className="row">
+                <Link to={`/posts/${post.id}`}>view post</Link>
+              </div>
+              <div className="row">
                 <div>
-                  <Link to={`/profile/${user.id}`}>
-                    <b>{user.userName}</b>
-                  </Link>
+                  <small className=" text-muted">
+                    <TimeAgo timeStamp={post.date}></TimeAgo>
+                  </small>
                 </div>
               </div>
 
-              <div className=" col-sm-10 col-md-10 ">
-                <p className="card-text mb-1">
-                  <ReadMoreText content={post.content}></ReadMoreText>
-                </p>
+              <div className="row justify-content-between">
+                <AddNewCommentComp postId={postId}></AddNewCommentComp>
               </div>
-            </div>
-          </div>
-
-          <HashTags hashTags={hashTags}></HashTags>
-          <hr />
-
-          <CommentsList postId={postId}></CommentsList>
-
-          <div className="row">
-            <div className="row">
-              <Link to={`/posts/${post.id}`}>view post</Link>
-            </div>
-            <div className="row">
-              <div>
-                <small className=" text-muted">
-                  <TimeAgo timeStamp={post.date}></TimeAgo>
-                </small>
-              </div>
-            </div>
-
-            <div className="row">
-              <AddNewCommentComp postId={postId}></AddNewCommentComp>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </article>
   );
 };
 // Post = React.memo(Post);

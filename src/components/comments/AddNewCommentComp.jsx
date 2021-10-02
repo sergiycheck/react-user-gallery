@@ -32,11 +32,11 @@ export function AddNewCommentComp({ postId }) {
   };
 
   let isLoading = status === StatusData.loading;
-  let loader = isLoading ? <Loader dim="30"></Loader> : null;
+  let loader = isLoading ? <div className="col-md-2 col-2"><Loader dim="30"></Loader></div>  : null;
 
   return (
     <React.Fragment>
-      <div className="col-sm-8">
+      <div className="col-md-8 col-8">
         <input
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
@@ -45,8 +45,8 @@ export function AddNewCommentComp({ postId }) {
           placeholder="Add a comment"
         />
       </div>
-      <div className="col-sm-2">{loader}</div>
-      <div className="col-sm-2 d-flex justify-content-start">
+      {loader}
+      <div className="col-sm-2 col-2 d-flex justify-content-start">
         <button
           onClick={handleClickAddComment}
           className="btn btn-outline-secondary"
