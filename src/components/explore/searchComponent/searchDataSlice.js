@@ -95,6 +95,7 @@ const searchDataSlice = createSlice({
       const { query } = action.payload;
 
       if(query !== state.searchQuery){
+
         state.fetchFrom = 0;
         state.fetchTo = FetchIncrement
       }
@@ -107,7 +108,7 @@ const searchDataSlice = createSlice({
       const {query} = action.payload;
 
       if(query !== state.searchQuery){
-
+        debugger;
         state.fetchFrom = 0;
         state.fetchTo = FetchIncrement
         return;

@@ -26,7 +26,7 @@ export const usePostIdToSelectOrFetchPost = ({ postId, postSelector, postFetcher
     if (!post) {
       dispatch(postFetcher({ postId }));
     }
-  });
+  },[postId, dispatch, post, postFetcher]);
 
   return post;
 };

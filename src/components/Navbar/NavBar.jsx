@@ -47,11 +47,13 @@ const NavBar = (props) => {
 
     const userScrolledHalfOfPageDown = docElScrollTop > docElclientHeight / 2;
     const userScrollingDonw = docElScrollTop > docScrollTopPrevVal.current;
+
     if (userScrolledHalfOfPageDown && userScrollingDonw) {
       navbarelem.current.style.top = -1 * navbarRect.height + "px";
     } else {
       navbarelem.current.style = null;
     }
+
     docScrollTopPrevVal.current = docElScrollTop;
 
     // console.log("docElScrollTop ", docElScrollTop);
@@ -192,6 +194,7 @@ const throttledRequest = throttle(
 );
 
 const SearchForm = (props) => {
+
   const dispatch = useDispatch();
 
   const [text, setText] = useState("");
@@ -202,18 +205,34 @@ const SearchForm = (props) => {
 
   const history = useHistory();
 
-  // const fromAndTo = useSelector(selectFromAndToForPagination);
+  const listItems = useRef(null);
+  const focusedElemIndex = useRef(-1);
+  const [previouslistItem, setPreviousListItems] = useState(null);
+
 
   const handleListItemClick = (e) => {
     setText(e.target.innerText.trim());
     searchInput.current.focus();
   };
 
-  // const [searchedArrNames, setSearchedArrName] = useState([]);
+
   const searchedArrNames = useSelector(selectSearchedNamesAndIds);
 
-  let renderedArrNames = searchedArrNames.map((name) => (
-    <li key={name.id} onClick={handleListItemClick} className="list-group-item">
+  const handleListItemsKeyDown = (e) =>{
+    e.preventDefault();
+
+    arrowsKeysHandler(e);
+  }
+
+  let renderedArrNames = searchedArrNames.map((name, index) => (
+    <li 
+      key={name.id} 
+      onClick={handleListItemClick} 
+      className="list-group-item" 
+      tabIndex={index+1}
+      onKeyDown={handleListItemsKeyDown}
+
+      >
       {name.userName}
     </li>
   ));
@@ -233,12 +252,16 @@ const SearchForm = (props) => {
       console.log("setting promise result");
       unwrappedResultPromise.then((result) => {
         console.log("result of resolved promise", result);
+
         // setSearchedArrName(result.slice());
+        focusedElemIndex.current = -1;
+
       });
     }
   };
 
   const handleInputChange = (e) => {
+    
     setText(e.target.value);
     setListHidden(false);
 
@@ -250,10 +273,24 @@ const SearchForm = (props) => {
     requestForUserNames(e.target.value);
   };
 
+  
+
   const handleKeyDown = (e) => {
+
+    handleEnterPress(e);
+
+    arrowsKeysHandler(e);
+
+  };
+
+  const handleEnterPress = (e) => {
+    
     const trimmedText = text.trim();
 
     if (e.key === "Enter" && trimmedText) {
+
+      focusedElemIndex.current = -1;
+
       setLoadingStatus(StatusData.loading);
       setListHidden(true);
 
@@ -266,8 +303,70 @@ const SearchForm = (props) => {
       history.push(`/searchResults/${trimmedText}`);
 
       setLoadingStatus(StatusData.idle);
+
+      return;
     }
-  };
+
+  }
+
+  const arrowsKeysHandler = (e) =>{
+
+    if(e.key === 'ArrowDown'){
+
+      focusedElemIndex.current++;
+      
+      if(focusedElemIndex.current >= renderedArrNames.length - 1 ){
+        focusedElemIndex.current = renderedArrNames.length - 1;
+      }
+
+    }else if (e.key === 'ArrowUp'){
+
+      focusedElemIndex.current--;
+
+      if(focusedElemIndex.current<=0){
+        focusedElemIndex.current = 0;
+      }
+    }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp' ){
+
+      const currentListItem = listItems.current.children[focusedElemIndex.current];
+      if(!currentListItem) return;
+      
+      setPreviousListItems(currentListItem);
+      if(previouslistItem!== null && previouslistItem['style']){
+        previouslistItem.style.background = null;
+      }
+
+      currentListItem.focus();
+
+      searchInput.current.value = currentListItem.innerText.trim();
+      setText(searchInput.current.value);
+
+      searchInput.current.focus();
+    }
+  }
+
+
+  const focusoutHandler = (e) => {
+    e.target.style.background = '#e9ecef';
+  }
+
+  const addFocusListeners = () => {
+    listItems.current.addEventListener('focusout',focusoutHandler);
+  }
+  const removeFocusListeners = () => {
+    listItems.current.removeEventListener('focusout',focusoutHandler);
+  }
+
+  useEffect(()=>{
+    addFocusListeners();
+    return () => {
+      removeFocusListeners();
+    }
+
+  })
+
+
   let isLoading = loadingStatus === StatusData.loading;
 
   const searchInputClasses = classNames(
@@ -295,7 +394,9 @@ const SearchForm = (props) => {
           autoComplete="off"
         />
 
-        <ul className={searchInputClasses} hidden={isListHidden}>
+        <ul
+          ref={listItems}
+          className={searchInputClasses} hidden={isListHidden}>
           {renderedArrNames}
         </ul>
       </div>
