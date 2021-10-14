@@ -165,7 +165,7 @@ const UserForPost = ({ post }) => {
                     </div>
                   </div>
 
-                  <div className="row">
+                  <div className="row justify-content-between">
                     <AddNewCommentComp postId={post.id}></AddNewCommentComp>
                   </div>
                 </div>
