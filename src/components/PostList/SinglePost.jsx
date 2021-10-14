@@ -55,7 +55,7 @@ const LoadingContentForPost = () => {
     <section style={{ marginTop: "100px" }} className="container">
       <div className="row">
         <div className="col-md-10 col-sm-12">
-          <CardPlaceholder showAvatarContent={true}></CardPlaceholder>
+          <CardPlaceholder showAvatarContent={true} showCardImage={true}></CardPlaceholder>
         </div>
       </div>
     </section>

@@ -1,6 +1,6 @@
 import "./App.scss";
 
-import { Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import NavBar from "../components/Navbar/NavBar.jsx";
 
@@ -27,50 +27,52 @@ export default function App() {
   enableImageLazyLoading();
 
   return (
-    <div className="wrapper">
-      <DismissibleAlert></DismissibleAlert>
-      <NavBar></NavBar>
+    <Router>
+      <div className="wrapper">
+        <DismissibleAlert></DismissibleAlert>
+        <NavBar></NavBar>
 
-      <div className="mainContent">
-        <Switch>
-          <Route path="/explore">
-            <ExploreForExplorePage />
-          </Route>
+        <div className="mainContent">
+          <Switch>
+            <Route path="/explore">
+              <ExploreForExplorePage />
+            </Route>
 
-          <Route path="/messages">
-            <Messages />
-          </Route>
+            <Route path="/messages">
+              <Messages />
+            </Route>
 
-          <Route path="/options">
-            <Options />
-          </Route>
+            <Route path="/options">
+              <Options />
+            </Route>
 
-          <Route path="/help">
-            <Help />
-          </Route>
+            <Route path="/help">
+              <Help />
+            </Route>
 
-          <Route path="/log out">
-            <LogOut />
-          </Route>
+            <Route path="/log out">
+              <LogOut />
+            </Route>
 
-          <Route
-            exact
-            path="/searchResults/:query"
-            component={SearchDataComponent}
-          ></Route>
+            <Route
+              exact
+              path="/searchResults/:query"
+              component={SearchDataComponent}
+            ></Route>
 
-          <Route exact path={singlePostRoute} component={SinglePost}></Route>
+            <Route exact path={singlePostRoute} component={SinglePost}></Route>
 
-          <Route exact path="/profile/:userId" component={Profile}></Route>
+            <Route exact path="/profile/:userId" component={Profile}></Route>
 
-          <Route exact path="/">
-            <Home />
-          </Route>
-        </Switch>
+            <Route exact path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </div>
+
+        <footer></footer>
       </div>
-
-      <footer></footer>
-    </div>
+    </Router>
   );
 }
 
@@ -83,5 +85,3 @@ function Help() {
 function LogOut() {
   return <h2 className="mt-5">LogOut</h2>;
 }
-
-

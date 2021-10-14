@@ -37,17 +37,27 @@ export default function makeServer(environment = "development") {
       this.namespace = "/fakeApi";
       const server = this;
 
-      this.resource("users");
+      // this.resource("users");
       // this.resource('posts')
       this.resource("comments");
       this.resource("videos");
 
-      // this.get('/users',(schema,req)=>{
-      // 	return schema.users.all();
-      // })
-      // this.get('/videos',(schema,req)=>{
-      // 	return schema.videos.all();
-      // })
+      this.get(
+        "/users",
+        (schema, req) => {
+          const { from, to } = req.requestHeaders;
+
+          let allUsers = schema.users.all();
+
+          const resultUsers = allUsers.models.slice(from, to);
+
+          return {
+            users: resultUsers,
+            allUsersLength: allUsers.length,
+          };
+        },
+        { timing: 2000 }
+      );
 
       this.get("/posts/:postId/comments", (schema, req) => {
         // console.log(`Server /posts/:postId/comments `);
@@ -100,6 +110,7 @@ export default function makeServer(environment = "development") {
           allPostsLength: allUserPosts.length,
         };
       });
+
       this.get("/users/:userId/posts/single/:postId", (schema, req) => {
         const userId = req.params["userId"];
         const user = schema.users.find(userId);
@@ -163,14 +174,14 @@ export default function makeServer(environment = "development") {
 
       this.get("/users/:userId", (schema, req) => {
         const userId = req.params["userId"];
-        // console.log('server got userId ', userId);
+        let allUsers = schema.users.all();
         const user = schema.users.find(userId);
-        return user;
-        // return new Promise(resolve=>{
-        //   setTimeout(()=>{
-        //     resolve(user);
-        //   },30000)
-        // })
+        if (!user) throw new Error(`can not find user with ${userId}`);
+
+        return {
+          user: user,
+          allUsersLength: allUsers.length,
+        };
       });
 
       this.get("/posts", (schema, req) => {
@@ -402,6 +413,10 @@ export default function makeServer(environment = "development") {
     },
 
     models: {
+      currentUser: Model.extend({
+        subscribedUsers: hasMany('users'),
+        posts: hasMany()
+      }),
       user: Model.extend({
         posts: hasMany(),
         // comments: hasMany()
@@ -428,38 +443,12 @@ export default function makeServer(environment = "development") {
     },
 
     factories: {
-      user: Factory.extend({
-        id() {
-          return nanoid();
-        },
-        allData() {
-          return faker.name;
-        },
-        firstName() {
-          return this.allData.firstName();
-        },
-        lastName() {
-          return this.allData.lastName();
-        },
-        userName() {
-          return faker.internet.userName(this.firstName, this.lastName);
-        },
-        bio() {
-          return faker.lorem.paragraph();
-        },
-        gender() {
-          return this.allData.gender();
-        },
-        phoneNumber() {
-          return faker.phone.phoneNumber();
-        },
-        image() {
-          return faker.image.avatar();
-        },
+      currentUser: Factory.extend({
+        ...userConfigObject,
 
-        // afterCreate(user, server) {
-        //   server.createList("post", 3, { user });
-        // },
+      }),
+      user: Factory.extend({
+        ...userConfigObject
       }),
 
       post: Factory.extend({
@@ -548,7 +537,7 @@ export default function makeServer(environment = "development") {
     seeds(server) {
       // server.createList("user", 6);//6 //100
 
-      server.createList("user", 5).forEach((user) => {
+      server.createList("user", 50).forEach((user) => {
         let postA = server.create("post", { user });
         let postB = server.create("post", { user });
         let postC = server.create("post", { user });
@@ -640,41 +629,32 @@ let videoDataStoredArr = [
   },
 ];
 
-// let usersData = [
-//   {
-//     id: nanoid(),
-//     name: "Stephanie",
-//     isOnline: true,
-//     img: "https://randomuser.me/api/portraits/med/women/5.jpg",
-//   },
-//   {
-//     id: nanoid(),
-//     name: "Julie",
-//     isOnline: true,
-//     img: "https://randomuser.me/api/portraits/med/women/6.jpg",
-//   },
-//   {
-//     id: nanoid(),
-//     name: "Terrence ",
-//     isOnline: true,
-//     img: "https://randomuser.me/api/portraits/med/women/7.jpg",
-//   },
-//   {
-//     id: nanoid(),
-//     name: "Bradley ",
-//     isOnline: false,
-//     img: "https://randomuser.me/api/portraits/med/men/5.jpg",
-//   },
-//   {
-//     id: nanoid(),
-//     name: "Regina ",
-//     isOnline: true,
-//     img: "https://randomuser.me/api/portraits/med/women/8.jpg",
-//   },
-//   {
-//     id: nanoid(),
-//     name: "Dana ",
-//     isOnline: false,
-//     img: "https://randomuser.me/api/portraits/med/women/9.jpg",
-//   },
-// ];
+const userConfigObject = {
+  id() {
+    return nanoid();
+  },
+  allData() {
+    return faker.name;
+  },
+  firstName() {
+    return this.allData.firstName();
+  },
+  lastName() {
+    return this.allData.lastName();
+  },
+  userName() {
+    return faker.internet.userName(this.firstName, this.lastName);
+  },
+  bio() {
+    return faker.lorem.paragraph();
+  },
+  gender() {
+    return this.allData.gender();
+  },
+  phoneNumber() {
+    return faker.phone.phoneNumber();
+  },
+  image() {
+    return faker.image.avatar();
+  },
+};

@@ -52,6 +52,7 @@ const Post = ({ postId }) => {
       <section className={postS['post-section']}>
 
         <div className={postS['post-card']}>
+
           <div className="row">
             <div className={postS.avatarAndNick}>
               <div>
@@ -71,6 +72,7 @@ const Post = ({ postId }) => {
                   <b>{user.userName}</b>
                 </Link>
               </div>
+              
             </div>
           </div>
 

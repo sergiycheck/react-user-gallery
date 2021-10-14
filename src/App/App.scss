@@ -19,6 +19,7 @@ $grid-breakpoints: (
 	top: 0;
 	height: 100%;
 }
+
 .mainContent{
   min-height: 100%;
   position: relative;
@@ -27,6 +28,14 @@ $grid-breakpoints: (
     height: 100%;
     width: 100%;
     position: absolute;
+  }
+}
+
+
+@media screen and (min-width: 960px){
+  .mainContent{
+    margin-left:calc(100vw - 100%)!important;
+    margin-left:0;
   }
 }
 

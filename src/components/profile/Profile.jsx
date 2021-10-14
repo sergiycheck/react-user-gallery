@@ -20,25 +20,33 @@ import {
   selectProfilePostIds,
   selectFetchedAllProfilePostsLength,
   selectProfilePostsStatus,
-
   selectProfilePostsCurrentUserId,
-  setCurrentUser
+  setCurrentUser,
 } from "./profilePostsSlice.js";
+
+import {
+  subscribeToUser,
+  unsubscribeFromUser,
+  selectFollowedUsersIds,
+} from "./usersSlice.js";
 
 import { ExploreWrapped } from "../explore/ExploreWrapped.jsx";
 
-
-
 export const Profile = ({ match }) => {
   console.log("match.params ", match.params);
+
+  const dispatch = useDispatch();
 
   const { userId } = match.params;
 
   const user = useUserIdToSelectOrFetchUser({ userId });
 
+  const followedUserIds = useSelector(selectFollowedUsersIds);
+
+  const isUserIsFollowed = followedUserIds.includes(userId);
+
   useEffect(() => {
     showVisible("Profile");
-    
   }, [userId]);
 
   if (!user) {
@@ -46,6 +54,34 @@ export const Profile = ({ match }) => {
       <div className="mt-5 fs-1">
         <b>user with {userId} not found</b>
       </div>
+    );
+  }
+
+  let renderedActionSubscriptionButton;
+  if (!isUserIsFollowed) {
+    renderedActionSubscriptionButton = (
+      <Button
+        onClick={() => {
+          console.log(`user with id ${userId} is following`);
+          dispatch(subscribeToUser({ userId }));
+        }}
+        variant="contained"
+        color="secondary"
+      >
+        subscribe
+      </Button>
+    );
+  } else {
+    renderedActionSubscriptionButton = (
+      <Button
+        onClick={() => {
+          console.log(`unsubscribe from  ${userId}`);
+          dispatch(unsubscribeFromUser({ userId }));
+        }}
+        variant="outlined"
+      >
+        unsubscribe
+      </Button>
     );
   }
 
@@ -72,15 +108,8 @@ export const Profile = ({ match }) => {
 
               <div className="d-flex justify-content-between">
                 <p className="small">{user.userName}</p>
-                <Button
-                  onClick={() =>
-                    console.log(`user with id ${userId} is following`)
-                  }
-                  variant="contained"
-                  color="secondary"
-                >
-                  follow
-                </Button>
+
+                {renderedActionSubscriptionButton}
               </div>
             </div>
           </div>
@@ -97,18 +126,15 @@ export const ExploreUserProfilePosts = ({ userId }) => {
 
   const currentUserId = useSelector(selectProfilePostsCurrentUserId);
 
-  useEffect(()=>{
-    dispatch(setCurrentUser({userId}))
-  },[userId, dispatch]);
+  useEffect(() => {
+    dispatch(setCurrentUser({ userId }));
+  }, [userId, dispatch]);
 
   useEffect(() => {
-
-    if(currentUserId !== null && userId!==currentUserId){
+    if (currentUserId !== null && userId !== currentUserId) {
       dispatch(resetAllEntities());
     }
-    
-  }, [userId,currentUserId, dispatch]);
-
+  }, [userId, currentUserId, dispatch]);
 
   const exploreUserProfilePostsDataMethods = {
     selectItemsIds: selectProfilePostIds,
@@ -126,16 +152,14 @@ export const ExploreUserProfilePosts = ({ userId }) => {
     userId,
   };
 
-
-
   return (
     // <div className="container">
 
-      <div className="main-content">
-        <ExploreWrapped
-          explorePageDataMethods={exploreUserProfilePostsDataMethods}
-        ></ExploreWrapped>
-      </div>
+    <div className="main-content">
+      <ExploreWrapped
+        explorePageDataMethods={exploreUserProfilePostsDataMethods}
+      ></ExploreWrapped>
+    </div>
 
     // </div>
   );

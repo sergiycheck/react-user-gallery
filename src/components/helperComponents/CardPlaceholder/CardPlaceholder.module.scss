@@ -56,14 +56,14 @@
 
   .card {
     margin: 20px;
-    height: 260px;
+    max-height: 260px;
     width: 400px;
     position: relative;
   }
 
   .card-image {
     height: 200px;
-    width: 400px;
+    max-width: 400px;
     position: relative;
   }
   .card-content {
