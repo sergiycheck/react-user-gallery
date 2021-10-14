@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import SvgIcon from "@material-ui/core/SvgIcon";
+import SvgIcon from '@mui/material/SvgIcon';
 
 import {
   // searchUsersPostsByUserName,

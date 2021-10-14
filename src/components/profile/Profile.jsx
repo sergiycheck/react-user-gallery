@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import Button from "@material-ui/core/Button";
+import Button from '@mui/material/Button';
 
 import { showVisible } from "../../helpers/imgLazyLoading";
 

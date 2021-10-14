@@ -1,5 +1,7 @@
 
-import FavoriteBorderIcon from "@material-ui/icons/FavoriteBorder";
+
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+
 import { useDispatch } from "react-redux";
 import { addLikeToPost } from "./postSlice";
 import classNames from "classnames";
