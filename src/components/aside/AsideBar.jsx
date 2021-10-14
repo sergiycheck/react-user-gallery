@@ -1,11 +1,14 @@
+import asideStyles from './AsideBar.module.scss';
 
+import classNames from 'classnames';
 
 const AsideBar = (props) => {
 
 	return (
 
-		<aside className=" bd-aside text-muted align-self-start mb-3 mb-xl-5 px-2 bg-light">
-			<h2 className="h6 pt-4 pb-3 mb-4 border-bottom">right aside bar</h2>
+		<aside className={
+			classNames('bd-aside text-muted align-self-start mb-3 mb-xl-5 px-2 bg-light',asideStyles.stickyAside)}>
+			{/* <h2 className="h6 pt-4 pb-3 mb-4 border-bottom">right aside bar</h2> */}
 			<nav className="small" id="toc">
 				<ul className="list-unstyled fs-4 fw-bold">
 

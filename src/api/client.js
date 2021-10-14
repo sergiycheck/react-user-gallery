@@ -1,60 +1,40 @@
+export async function client(endpoint, { body, ...customConfig } = {}) {
+  const headers = { "Content-Type": "application/json" };
+	
+  const config = {
+    method: body ? "POST" : "GET",
+		...customConfig,
+    headers: {
+      ...headers,
+      ...customConfig.headers,
+    },
+  };
 
-export function ClientBuilder(endpoint, {body,customHeaders}={}){
+  if (body) {
+    config.body = JSON.stringify(body);
+  }
 
-	this.setEndPoint(endpoint);
-	this.setBodyAndHeaders({body,customHeaders})
+	console.log('client config', config);
+	console.log('client endpoint', endpoint);
 
+  let fetchedData;
+  try {
+    const resp = await fetch(endpoint, config);
+    fetchedData = await resp.json();
+    if (resp.ok) {
+      return fetchedData;
+    }
+    throw new Error(resp.statusText);
+  } catch (error) {
+    return Promise.reject(error.message ? error.message : fetchedData);
+  }
 }
 
-ClientBuilder.prototype.setEndPoint = function(endpoint){
+client.get = function (endpoint, customConfig = {}) {
 
-	if(endpoint){
-		this.endpoint = endpoint;
-	}
-}
+  return client(endpoint, {...customConfig, method:'GET'});
+};
+client.post = function (endpoint, body, customConfig = {}) {
 
-ClientBuilder.prototype.setBodyAndHeaders = function({body,customHeaders}={}){
-
-	const headers = { 'Content-Type': 'application/json' }
-
-	this.config = {
-		method:body?'POST':'GET',
-		headers:{
-			...headers,
-			...customHeaders
-		}
-	}
-
-	if(body){
-		this.config.body = JSON.stringify(body);
-	}
-
-}
-
-ClientBuilder.prototype.fetchWithConfig = async function(endpoint, {body,customHeaders}={}){
-
-	if(endpoint)
-		this.setEndPoint(endpoint);
-	if(body || customHeaders)
-		this.setBodyAndHeaders({body,customHeaders})
-
-	let fetchedData;
-	try {
-		const resp = await fetch(this.endpoint,this.config);
-		fetchedData = await resp.json();
-		if(resp.ok){
-			return fetchedData;
-		}
-		throw new Error(resp.statusText)
-	} catch (error) {
-		return Promise.reject(error.message?error.message:fetchedData);
-	}
-
-}
-
-ClientBuilder.prototype.get = function(endpoint, headers={}){
-	return this.fetchWithConfig(endpoint,{customHeaders:headers})
-}
-ClientBuilder.prototype.post = function(endpoint,body, headers={}){
-	return this.fetchWithConfig(endpoint,{body:body,customHeaders:headers})
-}
+	return client(endpoint, {body, ...customConfig});
+};

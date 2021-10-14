@@ -1,157 +1,142 @@
-import React, { Component } from "react";
+import React, { useEffect } from "react";
 
 import Button from "@material-ui/core/Button";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
 
-export default class Profile extends Component {
-  constructor(props) {
-    super(props);
+// import { logPositionScroll } from "../../helpers/atTheBottom"; //testing
 
-    this.state = {
-      showMap: false,
-      btnShowUserLocationTxt: "show user location",
-    };
-    this.showMapHandler = this.showMapHandler.bind(this);
-  }
-  showMapHandler(event) {
-    if (this.state.btnShowUserLocationTxt == "show user location") {
-      this.setState((state) => ({
-        btnShowUserLocationTxt: "hide user location",
-      }));
-    } else {
-      this.setState((state) => ({
-        btnShowUserLocationTxt: "show user location",
-      }));
-    }
+import { useUserIdToSelectOrFetchUser } from "../PostList/PostDataHelpers.js";
 
-    this.setState((state) => ({
-      showMap: !state.showMap,
-    }));
-  }
+import { useDispatch, useSelector } from "react-redux";
 
-  componentDidMount() {
+import {
+  fetchUserProfilePosts, //{ from, to, userId }
+  // fetchSingleUserProfilePost, //{userId, postId}
+  changeProfilePostsStatusToStartFetching,
+  resetAllEntities,
+  // selectAllProfilePosts,
+  selectProfilePostById,
+  selectProfilePostIds,
+  selectFetchedAllProfilePostsLength,
+  selectProfilePostsStatus,
+
+  selectProfilePostsCurrentUserId,
+  setCurrentUser
+} from "./profilePostsSlice.js";
+
+import { ExploreWrapped } from "../explore/ExploreWrapped.jsx";
+
+
+
+export const Profile = ({ match }) => {
+  console.log("match.params ", match.params);
+
+  const { userId } = match.params;
+
+  const user = useUserIdToSelectOrFetchUser({ userId });
+
+  useEffect(() => {
     showVisible("Profile");
-  }
+    
+  }, [userId]);
 
-  render() {
+  if (!user) {
     return (
-      <div className="w-100">
-        <main>
-          <section className="py-5 text-center container">
-            <div className="row py-lg-5">
-              <div className="col-lg-3 col-md-2">
-                <img
-                  className=" img-fluid "
-                  src="./assets/img/placeholder.svg"
-                  data-src="http://simpleicon.com/wp-content/uploads/user1.png"
-                  alt="user photo"
-                  height="300"
-                />
-              </div>
-
-              <div className="col-lg-6 col-md-8 mx-auto">
-                <h1 className="fw-light">First Last</h1>
-                <p className="lead text-muted">
-                  Something short and leading about the collection below—its
-                  contents, the creator, etc. Make it short and sweet, but not
-                  too short so folks don’t simply skip over it entirely.
-                </p>
-
-                <div className="d-flex justify-content-between">
-                  <p className="small">@username</p>
-                  <Button
-                    onClick={this.showMapHandler}
-                    variant="contained"
-                    color="secondary"
-                  >
-                    {this.state.btnShowUserLocationTxt}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <div className="py-5 bg-light">
-            <div className="container">
-              <div className="row  g-2">
-                <div className="col-sm-4">
-                  <div className="card shadow-sm">
-                    <img
-                      className="img-fluid p-2"
-                      src="./assets/img/placeholder.svg"
-                      data-src="https://source.unsplash.com/user/solase/300x400"
-                      height="400"
-                    />
-
-                    <div className="card-body">
-                      <p className="card-text">
-                        This is a wider card with supporting text below as a
-                        natural lead-in to additional content. This content is a
-                        little bit longer.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-sm-4">
-                  <div className="card shadow-sm p-2">
-                    <img
-                      className="img-fluid"
-                      src="./assets/img/placeholder.svg"
-                      data-src="https://source.unsplash.com/user/tom/300x400"
-                      height="400"
-                    />
-
-                    <div className="card-body">
-                      <p className="card-text">
-                        This is a wider card with supporting text below as a
-                        natural lead-in to additional content. This content is a
-                        little bit longer.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-sm-4">
-                  <div className="card shadow-sm p-2">
-                    <img
-                      className="img-fluid"
-                      src="./assets/img/placeholder.svg"
-                      data-src="https://source.unsplash.com/user/mike/300x400"
-                      height="400"
-                    />
-
-                    <div className="card-body">
-                      <p className="card-text">
-                        This is a wider card with supporting text below as a
-                        natural lead-in to additional content. This content is a
-                        little bit longer.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-sm-4">
-                  <div className="card shadow-sm p-2">
-                    <img
-                      className="img-fluid"
-                      src="./assets/img/placeholder.svg"
-                      data-src="https://source.unsplash.com/user/anna/300x400"
-                      height="400"
-                    />
-
-                    <div className="card-body">
-                      <p className="card-text">
-                        This is a wider card with supporting text below as a
-                        natural lead-in to additional content. This content is a
-                        little bit longer.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
+      <div className="mt-5 fs-1">
+        <b>user with {userId} not found</b>
       </div>
     );
   }
-}
+
+  return (
+    <div className="w-100">
+      <main>
+        <section className="py-5 text-center container">
+          <div className="row py-lg-5">
+            <div className="col-lg-3 col-md-2">
+              <img
+                className="img-fluid rounded"
+                src="/assets/img/img-placeholder.gif"
+                data-src={user.image}
+                height="300"
+                alt="user profile"
+              />
+            </div>
+
+            <div className="col-lg-6 col-md-8 mx-auto">
+              <h1 className="fw-light">
+                {user.firstName} {user.lastName}
+              </h1>
+              <p className="lead text-muted">{user.bio}</p>
+
+              <div className="d-flex justify-content-between">
+                <p className="small">{user.userName}</p>
+                <Button
+                  onClick={() =>
+                    console.log(`user with id ${userId} is following`)
+                  }
+                  variant="contained"
+                  color="secondary"
+                >
+                  follow
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <ExploreUserProfilePosts userId={userId}></ExploreUserProfilePosts>
+      </main>
+    </div>
+  );
+};
+
+export const ExploreUserProfilePosts = ({ userId }) => {
+  const dispatch = useDispatch();
+
+  const currentUserId = useSelector(selectProfilePostsCurrentUserId);
+
+  useEffect(()=>{
+    dispatch(setCurrentUser({userId}))
+  },[userId, dispatch]);
+
+  useEffect(() => {
+
+    if(currentUserId !== null && userId!==currentUserId){
+      dispatch(resetAllEntities());
+    }
+    
+  }, [userId,currentUserId, dispatch]);
+
+
+  const exploreUserProfilePostsDataMethods = {
+    selectItemsIds: selectProfilePostIds,
+
+    selectItemById: selectProfilePostById,
+
+    selectItemsStatus: selectProfilePostsStatus,
+
+    selectFetchedAllItemsLength: selectFetchedAllProfilePostsLength,
+
+    changeItemsStatusToStartFetching: changeProfilePostsStatusToStartFetching,
+
+    fetchItems: fetchUserProfilePosts,
+
+    userId,
+  };
+
+
+
+  return (
+    // <div className="container">
+
+      <div className="main-content">
+        <ExploreWrapped
+          explorePageDataMethods={exploreUserProfilePostsDataMethods}
+        ></ExploreWrapped>
+      </div>
+
+    // </div>
+  );
+};

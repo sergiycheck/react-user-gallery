@@ -8,12 +8,13 @@ import {
 
 import {
 	StatusData,
-	postsRoute
-} from '../../../api/ApiRoutes';
+	postsRoute,
+	commentsRoute
+} from '../../api/ApiRoutes';
 
 import {
-	ClientBuilder
-} from '../../../api/client'
+	client
+} from '../../api/client'
 
 
 const commentsAdapter = createEntityAdapter({});
@@ -26,21 +27,29 @@ const initialState = commentsAdapter.getInitialState({
 
 
 export const fetchPostComments = createAsyncThunk(
-	'FETCH_POST_COMMENTS',
+	'comments/fetchCommentsForPost',
 	async( {postId, from, to} )=>{
+
 		// console.log('fetchPostComments postId, {from to}', postId, {from, to});
-		const client = new ClientBuilder(`${postsRoute}/${postId}/comments`);
-		const response = await client
-			.fetchWithConfig(null,{
-				body:null,
-				customHeaders:{
-					from:from,
-					to:to
-				}
-			});
+
+		const response = await client.get(`${postsRoute}/${postId}/comments`,{
+			headers:{
+				from:from,
+				to:to
+			}
+		});
 
 		// console.log('got response',response);
 		return response.comments;
+	}
+)
+
+export const addNewComment = createAsyncThunk(
+	'comments/addNewComment',
+	async({ postId, text }) => {
+
+		const response = await client.post(`${commentsRoute}/addNew`, {postId, text});
+		return response.addedComment;
 	}
 )
 
@@ -61,6 +70,20 @@ const commentsSlice = createSlice({
 
 			// console.log('got comments', action.payload);
 			commentsAdapter.upsertMany(state, action.payload);
+		},
+		[addNewComment.pending]: (state, action)=>{
+			state.status = StatusData.loading;
+		},
+		[addNewComment.fulfilled]: (state, action)=>{
+			state.status = StatusData.succeeded;
+			const fetchedComment = action.payload;
+			const {postId} = fetchedComment;
+			// delete fetchedComment.postId;
+			const comment = {
+				...fetchedComment,
+				post:postId
+			};
+			commentsAdapter.addOne(state, comment);
 		}
 	}
 
@@ -77,6 +100,7 @@ export const {
 	 selectIds: selectCommentsIds
 } = commentsAdapter.getSelectors(state=>state.comments);
 
+export const selectCommentsStatus = (state) => state.comments.status;
 
 export const selectCommentsByPostId = createSelector(
 	[selectAllComments, (state,postId)=>{

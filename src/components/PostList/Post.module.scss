@@ -1,0 +1,47 @@
+
+.post-section{
+	max-width: 660px !important;
+	overflow: hidden;
+	padding:0 !important;
+}
+
+.post-card{
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	border: 1px solid rgb(209, 209, 209);
+	border-radius: 4px;
+
+}
+
+
+.postAvatarImg{
+	max-height: 60px;
+	border-radius: 50%;
+}
+
+.avatarAndNick {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	margin: 4px 0 4px 0;
+}
+
+.bd-placeholder-img{
+	flex: 1 1 auto;
+	display: flex;
+	justify-content: center;
+
+}
+
+
+.user-img{
+	flex-grow: 1;
+}
+
+.user-img:hover{
+	cursor: pointer;
+}
+
+
+
