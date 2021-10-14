@@ -273,8 +273,6 @@ const SearchForm = (props) => {
     requestForUserNames(e.target.value);
   };
 
-  
-
   const handleKeyDown = (e) => {
 
     handleEnterPress(e);
