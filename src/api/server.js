@@ -15,7 +15,7 @@ import { nanoid } from "@reduxjs/toolkit";
 import faker from "faker";
 import {
   sentence,
-  paragraph,
+  // paragraph,
   article,
   // setRandom
 } from "txtgen";
@@ -42,9 +42,7 @@ export default function makeServer(environment = "development") {
       this.resource("comments");
       this.resource("videos");
 
-      this.get(
-        "/users",
-        (schema, req) => {
+      this.get("/users",(schema, req) => {
           const { from, to } = req.requestHeaders;
 
           let allUsers = schema.users.all();
@@ -56,7 +54,7 @@ export default function makeServer(environment = "development") {
             allUsersLength: allUsers.length,
           };
         },
-        { timing: 2000 }
+        // { timing: 2000 }
       );
 
       this.get("/posts/:postId/comments", (schema, req) => {
@@ -142,6 +140,14 @@ export default function makeServer(environment = "development") {
         };
       });
 
+      this.get('/hashTags/all',(schema, req)=>{
+        const allHashTags = schema.hashTags.all();
+        return {
+          hashTags:allHashTags,
+          serverHashTagsLength: allHashTags.length
+        }
+      })
+
       this.get("/posts/:postId/hashTags", (schema, req) => {
         const postId = req.params["postId"];
         const post = schema.posts.find(postId);
@@ -170,6 +176,29 @@ export default function makeServer(environment = "development") {
         }
 
         return { result };
+      });
+
+      this.post('/users/followUser', function(schema, req){
+        const {currentUserId, userIdToFollow} = JSON.parse(req.requestBody);
+        const currentUser = schema.users.find(currentUserId);
+        if (!currentUser) throw new Error(`can not find user with ${currentUserId}`);
+
+        const userToFollow = schema.users.find(userIdToFollow);
+        if (!userToFollow) throw new Error(`can not find user with id ${userIdToFollow}`);
+        debugger;
+        let subscription = server.create('subscription');
+        currentUser.followings.add(subscription);
+        currentUser.update({followings:currentUser.followings});
+
+        let follower = server.create('follower');
+        userToFollow.followers.add(follower);
+        userToFollow.update({followers:userToFollow.followers});
+
+        return {
+          currentUser: currentUser, 
+          userFollowed: userToFollow
+        }
+
       });
 
       this.get("/users/:userId", (schema, req) => {
@@ -410,19 +439,26 @@ export default function makeServer(environment = "development") {
           filteredPostsByHashTagsLength: filteredPostsByHashTags.length,
         };
       });
-    },
 
+    },
+    //TODO: user with follow/unfollow relationship
     models: {
-      currentUser: Model.extend({
-        subscribedUsers: hasMany('users'),
-        posts: hasMany()
-      }),
+
       user: Model.extend({
+        followings: hasMany('subscription'),
+        followers: hasMany(),
         posts: hasMany(),
         // comments: hasMany()
       }),
+      subscription: Model.extend({
+        users: hasMany()
+      }),
+      follower:Model.extend({
+        users: hasMany()
+      }),
       post: Model.extend({
         user: belongsTo(),
+
         comments: hasMany(),
         hashTags: hasMany(),
       }),
@@ -430,9 +466,7 @@ export default function makeServer(environment = "development") {
         posts: hasMany(),
       }),
       comment: Model.extend({
-        // commentable: belongsTo({ polymorphic: true }),
-
-        // user: belongsTo(),
+        // user: belongsTo(), // TODO: can it be fixed with inverse option ?
         post: belongsTo(),
       }),
       notification: Model.extend({}),
@@ -443,12 +477,15 @@ export default function makeServer(environment = "development") {
     },
 
     factories: {
-      currentUser: Factory.extend({
-        ...userConfigObject,
 
-      }),
       user: Factory.extend({
         ...userConfigObject
+      }),
+      subscription: Factory.extend({
+        ...subscriptionConfigObject
+      }),
+      follower: Factory.extend({
+        ...subscriptionConfigObject
       }),
 
       post: Factory.extend({
@@ -523,7 +560,7 @@ export default function makeServer(environment = "development") {
         user: association(),
       }),
 
-      //no user, post, comment properties in ressponse
+      //no user, post, comment properties in response
       // without that serializers
     },
 
@@ -535,26 +572,25 @@ export default function makeServer(environment = "development") {
     },
 
     seeds(server) {
-      // server.createList("user", 6);//6 //100
+      let subscriptionList = server.createList('subscription', 2);
+      let followersList = server.createList('follower', 2);
 
-      server.createList("user", 50).forEach((user) => {
-        let postA = server.create("post", { user });
-        let postB = server.create("post", { user });
-        let postC = server.create("post", { user });
-
-        let postsCreated = [postA, postB, postC];
-
-        postsCreated.forEach((post) => {
-          server.createList("comment", 3, { post });
-        });
-
-        server.create("hashTag", { posts: [postA, postB] });
-        server.create("hashTag", { posts: [postA] });
-        server.create("hashTag", { posts: [postB, postC] });
-        server.create("hashTag", { posts: [postC, postA] });
+      let usersList = server.createList("user", 4);
+      usersList.forEach((user) => {
+        createPostsForUser(server,'user', user);
+        user.followings = [subscriptionList[0], subscriptionList[1]];
+        user.followers = [followersList[0]];
       });
 
-      let knownIdUser = server.create("user", { id: "knownId" });
+      let knownIdUser = server.create("user", { 
+        id: "knownId", 
+        firstName:'mock', 
+        lastName:'user', 
+        image:faker.internet.avatar() 
+      });
+      knownIdUser.followings = [subscriptionList[0]];
+      knownIdUser.followers = [followersList[0]];
+
       let knownPost = server.create("post", {
         id: "knownPostId",
         user: knownIdUser,
@@ -596,6 +632,9 @@ export default function makeServer(environment = "development") {
         link: videoDataStoredArr[2].link,
         user: userForVideos,
       });
+
+
+
     },
   });
 }
@@ -658,3 +697,32 @@ const userConfigObject = {
     return faker.image.avatar();
   },
 };
+
+const subscriptionConfigObject = {
+  id() {
+    return nanoid();
+  },
+  date() {
+    return new Date().toISOString();
+  },
+}
+
+
+function createPostsForUser(server, userPropertyName, user){
+  
+  let postA = server.create("post", { [`${userPropertyName}`]:user });
+  let postB = server.create("post", { [`${userPropertyName}`]:user });
+  let postC = server.create("post", { [`${userPropertyName}`]:user });
+
+  let postsCreated = [postA, postB, postC];
+
+  postsCreated.forEach((post) => {
+    server.createList("comment", 3, { post });
+  });
+
+  server.create("hashTag", { posts: [postA, postB] });
+  server.create("hashTag", { posts: [postA] });
+  server.create("hashTag", { posts: [postB, postC] });
+  server.create("hashTag", { posts: [postC, postA] });
+
+}

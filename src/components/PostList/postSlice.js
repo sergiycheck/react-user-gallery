@@ -127,7 +127,7 @@ const postsSlice = createSlice({
       // console.log(`updatedPost id ${updatedPost.id}, updatedPost likes ${updatedPost.likeCount}`);
 
       Object.assign(oldPost, updatedPost);
-
+      //TODO: refactor with updateOne
       // postsAdapter.updateOne(state, updatedPost)
     },
   },
