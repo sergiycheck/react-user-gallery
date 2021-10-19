@@ -9,7 +9,7 @@ import {
   usersRoute,
   StatusData,
   singleUserPageRoute,
-  currentUserForAppRoute
+
 } from "../../api/ApiRoutes";
 
 import { client } from "../../api/client";
@@ -68,21 +68,7 @@ async function requestForSingleUser(userId){
     return {user, allUsersLength};
 }
 
-export const followUserFetchPost = createAsyncThunk(
-  `${usersName}/followUser`,
-  async ({userIdToFollow} ,{getState}) =>{
 
-    const { currentUserForApp } = getState().users;
-    const response = await client.post(`${usersRoute}/followUser`,{
-      currentUserId: currentUserForApp.id,
-      userIdToFollow: userIdToFollow
-    });
-
-    const { currentUser, userFollowed } = response;
-    return {currentUser, userFollowed};
-  }
-);
-export const unfollowUserFetchPost = createAsyncThunk();
 
 const usersSlice = createSlice({
   name: "users",
@@ -129,28 +115,6 @@ const usersSlice = createSlice({
       const {user} = action.payload;
       state.currentUserForApp = user;
     },
-
-    [followUserFetchPost.fulfilled]:(state,action) => {
-      //current user following +=1
-      //userFollowed followers +=1
-      const {currentUser, userFollowed} = action.payload;
-      debugger;
-      state.currentUserForApp.followingIds = [
-        ...state.currentUserForApp.followingIds,
-        ...currentUser.followingIds
-      ];
-      
-      const updateFollowedUser = {
-        id:userFollowed.id, 
-        changes:{
-          followerIds:[...userFollowed.followerIds]
-        }
-      };
-
-      usersAdapter.updateOne(state, updateFollowedUser)
-
-    }
-
   },
 });
 
@@ -168,7 +132,6 @@ export const {
 
 export const selectGlobalUsers = state => state.users;
 
-
 export const selectFetchedAllUsersLength = createSelector(
   selectGlobalUsers,
   (users) => users.fetchedAllUsersLength
@@ -177,11 +140,6 @@ export const selectFetchedAllUsersLength = createSelector(
 export const selectUsersStatus = createSelector(
   selectGlobalUsers,
   users => users.status
-);
-
-export const selectFollowedUsersIds= createSelector(
-  selectGlobalUsers,
-  users => users.followedUsersIds
 );
 
 export const selectSingleUserForApp = createSelector(
@@ -194,21 +152,6 @@ export const selectSingleUserForAppStatus = createSelector(
   users => users.currentUserForAppStatus
 );
 
-export const selectUserFollowersLength = (state, userId) => {
-  let user = selectUserById(state, userId);
-  if(!user){
-    user = selectSingleUserForApp(state);
-  }
-  return user.followerIds.length;
-};
-
-export const selectUserFollowingsLength = (state, userId) => {
-  let user = selectUserById(state, userId);
-  if(!user){
-    user = selectSingleUserForApp(state);
-  }
-  return user.followingIds.length;
-};
 
 
 

@@ -9,6 +9,8 @@ import { TimeAgo } from "../helperComponents/TimeAgo";
 import { ReadMoreText } from "../helperComponents/ReadMoreText.jsx";
 import { fetchPostComments } from "./commentSlice";
 
+import { Link } from "react-router-dom";
+
 import "./commentList.scss";
 // import classNames from "classnames";
 
@@ -72,12 +74,12 @@ export const CommentExcerpt = (props) => {
     <React.Fragment>
       <div className="row">
         <div className="row">
-
           <div className="comment-content">
-          
             <div className="comment-single">
               <span className="author">
-                <b>{comment.author} </b>
+                <Link to={`/profile/${comment.userId}`} style={{color:'black'}}>
+                  <b>{comment.author} </b>
+                </Link>
               </span>
 
               <span>
@@ -92,7 +94,6 @@ export const CommentExcerpt = (props) => {
               <TimeAgo timeStamp={comment.date}></TimeAgo>
             </div>
           </div>
-
         </div>
       </div>
     </React.Fragment>

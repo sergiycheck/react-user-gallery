@@ -189,7 +189,7 @@ describe("Home", () => {
 
   test("fetchs hash tags", async () => {
 
-		debugger;
+		// debugger;
 		const response = await client.get(`${apiName}/hashTags/all`);
 		const { hashTags,serverHashTagsLength } = response;
 
@@ -198,4 +198,28 @@ describe("Home", () => {
 		expect(serverHashTagsLength).toBeGreaterThan(0);
 
 	});
+
+  test("fetchs subscribe relations", async () => {
+
+		const response = await client.get(`${apiName}/subscribeRelations`);
+
+		expect(response).not.toBeNull();
+
+	});
+
+  test("fetchs subscribe relations for user", async () => {
+
+		const response = await client.get(`${apiName}/subscribeRelations/getUserSubscribeRelations/knownId`);
+		debugger;
+
+    const {
+      userFollowingRelations,
+      userFollowersRelations
+    } = response;
+
+		expect(response).not.toBeNull();
+		expect(userFollowingRelations).not.toBeNull();
+		expect(userFollowersRelations).not.toBeNull();
+	});
+
 });

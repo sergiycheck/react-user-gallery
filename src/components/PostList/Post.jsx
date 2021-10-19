@@ -82,7 +82,6 @@ export const PostView = ({ post, hashTags, user, render }) => {
               <div>
                 <img
                   className={classNames(
-                    "img-fluid mx-auto",
                     postS.postAvatarImg
                   )}
                   src="/assets/img/img-placeholder.gif"

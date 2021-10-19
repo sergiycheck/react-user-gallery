@@ -20,6 +20,9 @@ import Carousel from "./Carousel/Carousel.jsx";
 
 import {VideoComponent} from './VideoComponent/VideoComponent.jsx';
 
+import {selectSingleUserForAppStatus} from '../profile/usersSlice';
+import { Loader } from "../helperComponents/Loader";
+
 
 export const Home = () => {
   const dispatch = useDispatch();
@@ -27,6 +30,8 @@ export const Home = () => {
   const videosIds = useSelector((state) => selectVideosIds(state));
   const [areHomeHandlersSet, setHomeHandlers] = useState(false);
   const postsStatus = useSelector((state) => state.posts.status);
+
+  const userForTheAppStatus = useSelector(selectSingleUserForAppStatus);
 
   useEffect(() => {
     if (videosStatus === StatusData.idle) {
@@ -66,6 +71,13 @@ export const Home = () => {
     loadVideoData = "";
   }
 
+  let postListRenderedContent;
+  if(userForTheAppStatus === StatusData.idle || userForTheAppStatus === StatusData.loading){
+    postListRenderedContent = <Loader></Loader>
+  }else{
+    postListRenderedContent = <PostsList></PostsList>
+  }
+
   return (
     <div className="home-content">
       <AsideBar></AsideBar>
@@ -78,7 +90,7 @@ export const Home = () => {
           )}
         </div>
 
-        <PostsList></PostsList>
+        {postListRenderedContent}
       </div>
     </div>
   );

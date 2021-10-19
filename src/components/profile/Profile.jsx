@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo,useRef } from "react";
 
 import Button from "@mui/material/Button";
 
@@ -22,6 +22,14 @@ import {
   selectProfilePostsStatus,
   selectProfilePostsCurrentUserId,
   setCurrentUser,
+
+  fetchSubscribeRelationsForUser,
+  followUserFetchPost,
+  unFollowUserFetchPost,
+  selectFollowingRelationsStatus,
+  selectUserFollowersAndFollowingRelations,
+  selectFollowAndUnFollowRequestsStatus,
+
 } from "./profilePostsSlice.js";
 
 import { ExploreWrapped } from "../explore/ExploreWrapped.jsx";
@@ -33,46 +41,75 @@ import { StatusData } from "../../api/ApiRoutes";
 import {
   selectSingleUserForApp,
   selectSingleUserForAppStatus,
-  followUserFetchPost,
-  selectUserFollowersLength,
-  selectUserFollowingsLength,
 } from "./usersSlice";
 
 export const Profile = ({ match }) => {
   console.log("match.params ", match.params);
+
   const { userId } = match.params;
+  const dispatch = useDispatch();
+
+  const userIdRef = useRef(userId);
+
+  useEffect(()=>{
+    userIdRef.current = userId;
+
+  },[userId])
+
 
   const currentUserApp = useSelector(selectSingleUserForApp);
   const currentUserAppStatus = useSelector(selectSingleUserForAppStatus);
+  const followingRelationsStatus = useSelector(selectFollowingRelationsStatus);
+
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchSubscribeRelationsForUser({ userId: userIdRef.current }));
+    }
+    return ()=>{
+      dispatch(resetAllEntities());
+    }
+  }, [userId, dispatch]);
 
   if (
     currentUserAppStatus === StatusData.loading ||
-    currentUserAppStatus === StatusData.idle
+    currentUserAppStatus === StatusData.idle ||
+    followingRelationsStatus === StatusData.loading ||
+    followingRelationsStatus === StatusData.idle
   ) {
     return <div>loading...</div>;
   }
 
   if (
     currentUserAppStatus === StatusData.succeeded &&
-    currentUserApp.id !== userId
+    currentUserApp.id !== userIdRef.current
   ) {
     // return other user profile
-    return <OtherUserProfile userId={userId} currentUserApp={currentUserApp}></OtherUserProfile>;
+    return (
+      <OtherUserProfile
+        userId={userIdRef.current}
+        currentUserApp={currentUserApp}
+      ></OtherUserProfile>
+    );
   }
 
   // return current user profile
   return <CurrentUserProfile user={currentUserApp}></CurrentUserProfile>;
 };
-export const OtherUserProfile = ({ userId, currentUserApp}) => {
-
+export const OtherUserProfile = ({ userId, currentUserApp }) => {
   const dispatch = useDispatch();
   const user = useUserIdToSelectOrFetchUser({ userId });
-  
-  const isUserIsFollowedByCurrentUser = () => {
 
-    let isFollowed = currentUserApp.followingIds.includes(userId);
+  const { userFollowersRelations } = useSelector(
+    selectUserFollowersAndFollowingRelations
+  );
+
+  const followAndUnFollowRequestsStatus = useSelector(selectFollowAndUnFollowRequestsStatus);
+
+  const isUserIsFollowedByCurrentUser = () => {
+    //TODO: dispatch request to know whether currentUserForTheApp follows currentUser 
+    let isFollowed = userFollowersRelations.map(relation=>relation.followerId).includes(currentUserApp.id);
     return isFollowed;
-  } 
+  };
 
   if (!user) {
     return (
@@ -84,21 +121,26 @@ export const OtherUserProfile = ({ userId, currentUserApp}) => {
   const followUserHandler = () => {
     console.log(`user with id ${userId} is following`);
     dispatch(followUserFetchPost({ userIdToFollow: userId }));
-  }
+  };
 
   const unFollowUserHandler = () => {
     console.log(`unfollow from user with id ${userId}`);
-
-  }
+    dispatch(unFollowUserFetchPost({ userIdToUnFollow: userId }));
+    //TODO: delete user posts from postsSlice that current users just unfollow
+  };
 
   let renderedActionSubscriptionButton;
   if (!isUserIsFollowedByCurrentUser()) {
     renderedActionSubscriptionButton = (
-      <Button onClick={followUserHandler} variant="contained" color="secondary"> subscribe</Button>
+      <Button onClick={followUserHandler} variant="contained" color="secondary">
+        subscribe
+      </Button>
     );
   } else {
     renderedActionSubscriptionButton = (
-      <Button onClick={unFollowUserHandler} variant="outlined"> unsubscribe </Button>
+      <Button onClick={unFollowUserHandler} variant="outlined">
+        unsubscribe
+      </Button>
     );
   }
 
@@ -106,7 +148,7 @@ export const OtherUserProfile = ({ userId, currentUserApp}) => {
     <ProfileWrapped
       user={user}
       render={() => {
-        return (renderedActionSubscriptionButton);
+        return renderedActionSubscriptionButton;
       }}
     ></ProfileWrapped>
   );
@@ -127,12 +169,18 @@ export const ProfileWrapped = ({ user, render }) => {
     renderedFollowButtonContent = renderedFollowButtonResult;
   }
 
-  const followersLength = useSelector((state) =>
-    selectUserFollowersLength(state, user.id)
+  const { userFollowersRelations, userFollowingRelations } = useSelector(
+    selectUserFollowersAndFollowingRelations
   );
-  const followingLength = useSelector((state) =>
-    selectUserFollowingsLength(state, user.id)
-  );
+
+  const followersLength = useMemo(()=>{
+    return userFollowersRelations.length
+  },[userFollowersRelations]);
+
+  const followingLength = useMemo(()=>{
+    return userFollowingRelations.length
+  },[userFollowingRelations])
+
 
   return (
     <div className="w-100">
@@ -157,8 +205,8 @@ export const ProfileWrapped = ({ user, render }) => {
 
               <div className="d-flex justify-content-between">
                 <p className="small">{user.userName}</p>
-                <p className='fs-5'>followers {followersLength}</p>
-                <p className='fs-5'>following {followingLength}</p>
+                <p className="fs-5">followers {followersLength}</p>
+                <p className="fs-5">following {followingLength}</p>
                 {renderedFollowButtonContent}
               </div>
             </div>
@@ -176,15 +224,12 @@ export const ExploreUserProfilePosts = ({ userId }) => {
 
   const currentUserId = useSelector(selectProfilePostsCurrentUserId);
 
+  //TODO: setCurrentUser refactor with useState
   useEffect(() => {
     dispatch(setCurrentUser({ userId }));
   }, [userId, dispatch]);
 
-  useEffect(() => {
-    if (currentUserId !== null && userId !== currentUserId) {
-      dispatch(resetAllEntities());
-    }
-  }, [userId, currentUserId, dispatch]);
+
 
   const exploreUserProfilePostsDataMethods = {
     selectItemsIds: selectProfilePostIds,
