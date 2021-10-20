@@ -1,5 +1,5 @@
 import {
-  createServer,
+  // createServer,
   Server,
   Model,
   Factory,
@@ -7,18 +7,25 @@ import {
   hasMany,
   association,
   RestSerializer,
-  JSONAPISerializer,
+  // JSONAPISerializer,
 } from "miragejs";
 
 import { nanoid } from "@reduxjs/toolkit";
 
 import faker from "faker";
-import { sentence, paragraph, article, setRandom } from "txtgen";
-import { parseISO } from "date-fns";
-import seedrandom from "seedrandom";
-import { randomInt } from "crypto";
+import {
+  sentence,
+  // paragraph,
+  article,
+  // setRandom
+} from "txtgen";
+// import { parseISO } from "date-fns";
+// import seedrandom from "seedrandom";
+// import { randomInt } from "crypto";
 
+import _ from "lodash";
 
+import {getArrOfPostsForUser, getRandomInt, getRandomArrIndex } from './serverHelpers/helpers.js';
 
 // to understand mirage better go -> node_modules -> miragejs -> lib -> orm model.js
 
@@ -27,77 +34,145 @@ export default function makeServer(environment = "development") {
     environment: environment,
 
     routes() {
-      // this.timing = 3000;
+      // this.timing = 2000;
 
-      this.namespace = "fakeApi";
+      this.namespace = "/fakeApi";
       const server = this;
 
-      this.resource("users");
+      // this.resource("users");
       // this.resource('posts')
       this.resource("comments");
       this.resource("videos");
+      this.resource("subscribeRelations");
 
-      // this.get('/users',(schema,req)=>{
-      // 	return schema.users.all();
-      // })
-      // this.get('/videos',(schema,req)=>{
-      // 	return schema.videos.all();
-      // })
+      this.get( "/users", (schema, req) => {
+          const { from, to } = req.requestHeaders;
 
-      this.get("/posts", (schema, req) => {
-        const { from, to } = req.requestHeaders;
-        // console.log(`server got from ${from}, and to ${to}`);
-        const allPosts = schema.posts.all();
+          let allUsers = schema.users.all();
 
-        // console.log('allPosts length ', allPosts.models.length);
-        const resultPosts = allPosts.models.slice(from, to);
-        // console.log(resultPosts);
-        // return resultPosts;
-        return {
-          posts: resultPosts,
-          allPostsLength: allPosts.length,
-        };
+          const resultUsers = allUsers.models.slice(from, to);
+
+          return {
+            users: resultUsers,
+            allUsersLength: allUsers.length,
+          };
+        }
+        // { timing: 2000 }
+      );
+      this.get("/subscribeRelations", (schema, req) => {
+
+        let subscribeRelations = schema.subscribeRelations.all();
+        
+        return subscribeRelations;
       });
 
       this.get("/posts/:postId/comments", (schema, req) => {
-        // console.log(`Server /posts/:postId/comments `);
+
         const postId = req.params["postId"];
-        // console.log('server got postId ', postId);
         const post = schema.posts.find(postId);
-        const comments = post.comments;
+        if (!post)
+          throw new Error(`can not find post with id:${postId}`);
+
+        // const comments = post.comments;
+        const comments = schema.db.comments.where({postId:postId});
 
         const { from, to } = req.requestHeaders;
-        // console.log(`server got from ${from}, and to ${to}`);
-        let commentsSliced = comments.slice(from, to);
-        commentsSliced = commentsSliced.sort((a, b) => {
+
+        let commentsSliced = comments.slice(from, to).sort((a, b) => {
           const aDate = new Date(a.date);
           const bDate = new Date(b.date);
-
-          // console.log('aDate.toLocaleString() ', aDate.toLocaleString());
-          // console.log('bDate.toLocaleString() ',bDate.toLocaleString());
-          // const res = aDate.toLocaleString().localeCompare(bDate.toLocaleString());
-          // console.log('res', res);
-
           return aDate.toLocaleString().localeCompare(bDate.toLocaleString());
+        }).map(comment=>{
+          const userForComment = schema.db.users.findBy({id:comment.userId});
+          const {image, userName} = userForComment;
+          const mappedComment = {
+            ...comment,
+            commentatorAvatar:image,
+            author:userName
+          };
+          return mappedComment;
+          
         });
-        // console.log('sorted comments ', commentsSliced);
-        return commentsSliced;
+
+        return {
+          comments:commentsSliced
+        };
       });
 
       this.get("/users/:userId/posts", (schema, req) => {
         const userId = req.params["userId"];
         // console.log('server got userId ', userId);
         const user = schema.users.find(userId);
-        return user.posts;
+
+        if (!user) throw new Error(`can not find user with ${userId}`);
+
+        let resultPosts;
+        let allUserPosts = user.posts;
+
+        if (
+          Object.keys(req.requestHeaders).includes("from") &&
+          Object.keys(req.requestHeaders).includes("to")
+        ) {
+          const { from, to } = req.requestHeaders;
+          resultPosts = allUserPosts.models.slice(from, to);
+        } else {
+          resultPosts = allUserPosts;
+        }
+
+        return {
+          posts: resultPosts,
+          allPostsLength: allUserPosts.length,
+        };
       });
 
-      this.get("/posts/:postId", (schema, req) => {
+      this.get("/users/:userId/posts/single/:postId", (schema, req) => {
+        const userId = req.params["userId"];
+        const user = schema.users.find(userId);
+        if (!user) throw new Error(`can not find user with ${userId}`);
+
+        const postId = req.params["postId"];
+        const post = user.posts.find(postId);
+        if (!post) throw new Error(`can not find post with ${postId}`);
+
+        let allUserPosts = user.posts;
+
+        return {
+          fetchedPost: post,
+          allPostsLength: allUserPosts.length,
+        };
+      });
+
+      this.get("/posts/single/:postId", (schema, req) => {
         const postId = req.params["postId"];
         // console.log('server got postId ', postId);
+        const allPosts = schema.posts.all();
+
         const post = schema.posts.find(postId);
-        return post;
+        if (!post) throw new Error(`can not find post with ${postId}`);
+
+        return {
+          fetchedPost: post,
+          allPostsLength: allPosts.length,
+        };
       });
 
+      this.get("/hashTags/all", (schema, req) => {
+        const allHashTags = schema.hashTags.all();
+        return {
+          hashTags: allHashTags,
+          serverHashTagsLength: allHashTags.length,
+        };
+      });
+
+      this.get("/posts/:postId/hashTags", (schema, req) => {
+        const postId = req.params["postId"];
+        const post = schema.posts.find(postId);
+        if (!post) throw new Error(`can not find post with ${postId}`);
+
+        return post.hashTags;
+      });
+
+      //TODO: unit userId with post likes
       this.post("/posts/addLikeToPost", function (schema, req) {
         // const postId = req.params['postId'];
         // console.log('request \n',req);
@@ -110,46 +185,289 @@ export default function makeServer(environment = "development") {
           return {};
         }
         const result = schema.posts.find(postId);
-        let { likeCount } = result;
-        let newLikes = ++likeCount;
+        let { likeCount, postLiked } = result;
+        let newLikes = !postLiked ? ++likeCount : --likeCount;
         if (result) {
           result.update("likeCount", newLikes);
+          result.update("postLiked", !postLiked);
         }
 
         return { result };
       });
 
+      this.post("/users/followUser", function (schema, req) {
+        // debugger;
+
+        const { currentUserId, userIdToFollow } = JSON.parse(req.requestBody);
+        const currentUser = schema.users.find(currentUserId);
+        if (!currentUser)
+          throw new Error(`can not find user with ${currentUserId}`);
+
+        const userToFollow = schema.users.find(userIdToFollow);
+        if (!userToFollow)
+          throw new Error(`can not find user with id ${userIdToFollow}`);
+        
+
+        server.create("subscribeRelation",{
+          follower:currentUser,
+          following:userToFollow
+        });
+
+        const userFollowersRelations =  schema.db.subscribeRelations.where({
+          followingId:userIdToFollow,
+        });
+
+        return {
+          userFollowersRelations
+        }
+      });
+
+      this.post("/users/unFollowUser", function (schema, req) {
+        // debugger;
+        const { currentUserId, userIdToUnFollow } = JSON.parse(req.requestBody);
+
+        const currentUser = schema.users.find(currentUserId);
+        if (!currentUser)
+          throw new Error(`can not find user with ${currentUserId}`);
+
+        const userToFollow = schema.users.find(userIdToUnFollow);
+        if (!userToFollow)
+          throw new Error(`can not find user with id ${userIdToUnFollow}`);
+        
+        //we find subscribeRelation and remove it from db table and user subscribeRelationField Array
+        const subscribeRelation = schema.subscribeRelations.findBy({
+          followerId:currentUserId,
+          followingId:userIdToUnFollow
+        })
+        subscribeRelation.destroy();
+
+        const userFollowersRelations =  schema.db.subscribeRelations.where({
+          followingId:userToFollow,
+        });
+
+        return {
+          userFollowersRelations
+        }
+      });
+
+      this.get('/subscribeRelations/getUserSubscribeRelations/:userId', (schema, req)=>{
+        // debugger;
+
+        const userId = req.params["userId"];
+        const currentUser = schema.users.find(userId);
+
+        if (!currentUser)
+          throw new Error(`can not find user with ${userId}`);
+    
+        // date:'2021-10-17T17:09:27.887Z'
+        // followerId:'NgEFtRTXUHXUt6Aczog-f'
+        // followingId:'WUCP9msaKkjyV-o7v_NeJ'
+        // id:'kSAYuuRkn0m36WnMWzCmL'
+
+        const userFollowingRelations =  schema.db.subscribeRelations.where({
+          followerId:userId,
+        });
+        const userFollowersRelations =  schema.db.subscribeRelations.where({
+          followingId:userId,
+        });
+
+        return {
+          userFollowingRelations,
+          userFollowersRelations
+        }
+
+      })
+
       this.get("/users/:userId", (schema, req) => {
         const userId = req.params["userId"];
-        // console.log('server got userId ', userId);
+        let allUsers = schema.users.all();
         const user = schema.users.find(userId);
-        return user;
+        if (!user) throw new Error(`can not find user with ${userId}`);
+
+        return {
+          user: user,
+          allUsersLength: allUsers.length,
+        };
+      });
+
+      this.get("/posts", (schema, req) => {
+        const { from, to } = req.requestHeaders;
+
+        let allPosts = schema.posts.all().models;
+
+        const resultPosts = allPosts.slice(from, to);
+
+        return {
+          posts: resultPosts,
+          allPostsLength: allPosts.length,
+        };
+
+      });
+
+      this.post("/posts/postsForCurrentUserForTheApp", (schema, req) => {
+        // debugger;
+        const { from, to } = req.requestHeaders;
+
+        const allPostsForUser = getArrOfPostsForUser(schema,req);
+
+        const resultPosts = allPostsForUser.slice(from, to);
+        
+        return {
+          posts: resultPosts,
+          allPostsLength: allPostsForUser.length,
+        };
+      });
+
+      this.post('/posts/getNewAllPostsLengthForUser',(schema, req)=>{
+
+        const allPostsForUser = getArrOfPostsForUser(schema,req);
+        return {
+          allPostsLength: allPostsForUser.length,
+        };
       });
 
       this.post("/users/searchForUsersPosts", (schema, req) => {
         const { searchUserName } = JSON.parse(req.requestBody);
 
-        // console.log(`searchUserName)`, searchUserName);
+        const { from, to } = req.requestHeaders;
+
+        console.log(`searchUserName from, to `, searchUserName, from, to);
 
         const allUsers = schema.users.all().models;
-				// console.log(`allUsers`, allUsers);
+        // console.log(`allUsers`, allUsers);
 
-				const filteredUsers = allUsers.filter((user) => {
-					const normalizedUserName = user.userName.toLocaleLowerCase();
-					const normalizedSearchName = searchUserName.toLocaleLowerCase();
-					return normalizedUserName.includes(normalizedSearchName);
-				});
-				// console.log("filteredUsers ", filteredUsers);
-		
-				const reducedPosts = filteredUsers.reduce(
-					(previousArr, currentUser) => {
-						return previousArr.concat(currentUser.posts);
-					},
-					[]
-				);
-				// console.log("reducedPosts.models ", reducedPosts);
-				
-        return { posts: reducedPosts };
+        let filteredUsers = allUsers.filter((user) => {
+          const normalizedUserName = user.userName.toLocaleLowerCase();
+          const normalizedSearchName = searchUserName.toLocaleLowerCase();
+          return normalizedUserName.includes(normalizedSearchName);
+        });
+
+        if (!filteredUsers || filteredUsers.length === 0) {
+          const normQuery = searchUserName.toLocaleLowerCase();
+          const queryChars = normQuery.split("");
+
+          filteredUsers = allUsers
+            .reduce((previousArr, currentUser) => {
+              // console.log("currentUser", currentUser.userName);
+
+              const charsName = currentUser.userName
+                .toLocaleLowerCase()
+                .split("");
+
+              const intersectedArr = _.intersectionWith(
+                charsName,
+                queryChars,
+                _.isEqual
+              );
+
+              if (intersectedArr.length > 0) {
+                return previousArr.concat(currentUser);
+              }
+              return previousArr;
+            }, [])
+            .sort((first, second) => {
+              return (
+                _.intersectionWith(
+                  second.userName.split(""),
+                  queryChars,
+                  _.isEqual
+                ).length -
+                _.intersectionWith(
+                  first.userName.split(""),
+                  queryChars,
+                  _.isEqual
+                ).length
+              );
+            })
+            .sort((first, second) => {
+              return (
+                second.userName.toLocaleLowerCase().indexOf(normQuery) -
+                first.userName.toLocaleLowerCase().indexOf(normQuery)
+              );
+            });
+        }
+
+        const reducedPosts = filteredUsers.reduce(
+          (previousArr, currentUser) => {
+            return previousArr.concat(currentUser.posts);
+          },
+          []
+        );
+        // console.log("reducedPosts.models ", reducedPosts);
+
+        const mappedPosts = reducedPosts
+          .map((collection) => collection.models)
+          .flat();
+
+        console.log("mappedPosts ", mappedPosts);
+
+        let sliceTo = to;
+        if (to >= mappedPosts.length) {
+          sliceTo = mappedPosts.length;
+        }
+        const slicedPosts = mappedPosts.slice(from, sliceTo);
+
+        console.log("slicedPosts ", slicedPosts);
+
+        return { posts: slicedPosts, allPostsLength: mappedPosts.length };
+      });
+
+      this.get("/users/searchForNames/:query", (schema, req) => {
+        const query = req.params["query"];
+
+        console.log("query", query);
+
+        const allUsers = schema.users.all().models;
+
+        const normQuery = query.toLocaleLowerCase();
+
+        const queryChars = normQuery.split("");
+
+        const resultArr = allUsers
+          .reduce((previousArr, currentName) => {
+            // console.log("currentName", currentName);
+
+            const charsName = currentName.userName
+              .toLocaleLowerCase()
+              .split("");
+
+            const intersectedArr = _.intersectionWith(
+              charsName,
+              queryChars,
+              _.isEqual
+            );
+
+            if (intersectedArr.length > 0) {
+              return previousArr.concat({
+                userName: currentName.userName,
+                id: currentName.id,
+              });
+            }
+            return previousArr;
+          }, [])
+          .sort((first, second) => {
+            return (
+              _.intersectionWith(
+                second.userName.split(""),
+                queryChars,
+                _.isEqual
+              ).length -
+              _.intersectionWith(
+                first.userName.split(""),
+                queryChars,
+                _.isEqual
+              ).length
+            );
+          })
+          .sort((first, second) => {
+            return (
+              second.userName.toLocaleLowerCase().indexOf(normQuery) -
+              first.userName.toLocaleLowerCase().indexOf(normQuery)
+            );
+          })
+          .slice(0, 5);
+
+        return { userNamesArr: resultArr };
       });
 
       this.get("/comments/:commentId", (schema, req) => {
@@ -158,21 +476,101 @@ export default function makeServer(environment = "development") {
         const comment = schema.comments.find(commentId);
         return comment;
       });
+
+      this.post("/comments/addNew", (schema, req) => {
+        const parsedBody = JSON.parse(req.requestBody);
+        const { postId, text, userId } = parsedBody;
+
+        const post = schema.posts.find(postId);
+        if (!post) throw new Error(`can not find post with ${postId}`);
+
+        const user = schema.users.find(userId);
+        if (!user) throw new Error(`can not find user with ${userId}`);
+
+        const commentToAdd = { post: post, content: text, user:user, date:new Date().toISOString() };
+        const addedComment = server.create("comment", commentToAdd);
+        let comment = addedComment.attrs;
+
+        const userForComment = schema.db.users.findBy({id:comment.userId});
+        const {image, userName} = userForComment;
+        const mappedComment = {
+          ...comment,
+          commentatorAvatar:image,
+          author:userName
+        };
+
+        return { addedComment:mappedComment };
+      });
+
+      // /posts/postIdToFindSameHashTags=postId&other=params&other1=params1
+      //or
+      // /posts/postIdToFindSameHashTags=postId
+      this.get("/posts/:filters", (schema, req) => {
+        // const postId = req.params["postId"];
+
+        let filters = req.params["filters"];
+
+        const paramObject = filters.split("&").reduce((prev, curr) => {
+          let keyValArr = curr.split("=");
+          prev[`${keyValArr[0]}`] = keyValArr[1];
+          return prev;
+        }, {});
+
+        if (!Object.keys(paramObject).includes("postIdToFindSameHashTags"))
+          return;
+
+        const postId = paramObject["postIdToFindSameHashTags"];
+
+        const foundPost = schema.posts.find(postId);
+        if (!foundPost) throw new Error(`can not find post with ${postId}`);
+
+        const { from, to } = req.requestHeaders;
+
+        const allPosts = schema.posts.all();
+
+        const filteredPostsByHashTags = allPosts.filter((post) => {
+          const hashTagIntersection = _.intersectionBy(
+            post.hashTags.models,
+            foundPost.hashTags.models,
+            "name"
+          );
+          const hasIntersection = Array.from(hashTagIntersection).length > 0;
+          return hasIntersection;
+        });
+
+        const resultPosts = filteredPostsByHashTags.models.slice(from, to);
+
+        return {
+          posts: resultPosts,
+          filteredPostsByHashTagsLength: filteredPostsByHashTags.length,
+        };
+      });
     },
 
     models: {
       user: Model.extend({
+        subscribeRelations: hasMany(),
         posts: hasMany(),
-        // comments: hasMany()
+
+        comments:hasMany(),
+
       }),
+      subscribeRelation: Model.extend({
+        follower: belongsTo("user", { inverse: null }), // users that follow current user
+        following: belongsTo("user", { inverse: null }), // users that current user follow
+      }),
+
       post: Model.extend({
         user: belongsTo(),
+
         comments: hasMany(),
+        hashTags: hasMany(),
+      }),
+      hashTag: Model.extend({
+        posts: hasMany(),
       }),
       comment: Model.extend({
-        // commentable: belongsTo({ polymorphic: true }),
-
-        // user: belongsTo(),
+        user: belongsTo('user',{inverse:null}), 
         post: belongsTo(),
       }),
       notification: Model.extend({}),
@@ -184,35 +582,10 @@ export default function makeServer(environment = "development") {
 
     factories: {
       user: Factory.extend({
-        id() {
-          return nanoid();
-        },
-        allData() {
-          return faker.name;
-        },
-        firstName() {
-          return this.allData.firstName();
-        },
-        lastName() {
-          return this.allData.lastName();
-        },
-        userName() {
-          return faker.internet.userName(this.firstName, this.lastName);
-        },
-
-        gender() {
-          return this.allData.gender();
-        },
-        phoneNumber() {
-          return faker.phone.phoneNumber();
-        },
-        image() {
-          return faker.image.avatar();
-        },
-
-        afterCreate(user, server) {
-          server.createList("post", 3, { user });
-        },
+        ...userConfigObject,
+      }),
+      subscribeRelation: Factory.extend({
+        ...subscriptionConfigObject,
       }),
 
       post: Factory.extend({
@@ -234,12 +607,23 @@ export default function makeServer(environment = "development") {
         likeCount() {
           return getRandomInt(3, 17);
         },
-
-        afterCreate(post, server) {
-          server.createList("comment", 9, { post });
+        postLiked() {
+          return false;
         },
+        // afterCreate(post, server) {
+        //   server.createList("comment", 3, { post });
+        // },
 
         user: association(),
+      }),
+
+      hashTag: Factory.extend({
+        id() {
+          return nanoid();
+        },
+        name() {
+          return `#`.concat(faker.lorem.word());
+        },
       }),
       comment: Factory.extend({
         id() {
@@ -249,18 +633,15 @@ export default function makeServer(environment = "development") {
           return faker.date.recent(2);
         },
         content() {
-          return paragraph();
+          return faker.lorem.sentence();
         },
-        commentatorAvatar() {
-          return faker.image.avatar();
-        },
-        //to much recursion
-        // user:association(),
-        post: association(),
 
-        // ofPost:trait({
-        // post:association(),
-        // })
+
+        //to much recursion error
+         //helper hook for creation
+        // user:association(),
+        // post: association(),
+
       }),
 
       video: Factory.extend({
@@ -269,9 +650,6 @@ export default function makeServer(environment = "development") {
         },
         user: association(),
       }),
-
-      //no user, post, comment properties in ressponse
-      // without that serializers
     },
 
     serializers: {
@@ -282,7 +660,67 @@ export default function makeServer(environment = "development") {
     },
 
     seeds(server) {
-      server.createList("user", 6);
+      let usersList = server.createList("user", 4);
+      usersList.forEach((user) => {
+        createPostsForUser(server, "user", user);
+      });
+
+      let knownIdUser = server.create("user", {
+        id: "knownId",
+        firstName: "mock",
+        lastName: "user",
+        image: faker.internet.avatar(),
+      });
+
+      let allUsersList = [...usersList, knownIdUser]; //length 5
+
+      server.create("subscribeRelation", {
+        follower: allUsersList[0],
+        following: allUsersList[1],
+      });
+
+      server.create("subscribeRelation", {
+        follower: allUsersList[4],
+        following: allUsersList[2],
+      });
+      server.create("subscribeRelation", {
+        follower: allUsersList[4],
+        following: allUsersList[1],
+      });
+      server.create("subscribeRelation", {
+        follower: allUsersList[2],
+        following: allUsersList[4],
+      });
+
+      let knownPost = server.create("post", {
+        id: "knownPostId",
+        user: knownIdUser,
+      });
+
+      let postList = server.createList("post", 10, { user: knownIdUser });
+      postList = [...postList, knownPost];
+
+      postList.forEach((post) => {
+
+        let randomUser = allUsersList[getRandomInt(0,allUsersList.length-1)];
+
+        server.create("comment", { post:post, user: randomUser});
+
+      });
+
+      server.create("hashTag", {
+        posts: postList,
+      });
+      server.create("hashTag", {
+        posts: postList,
+      });
+      server.create("hashTag", {
+        posts: postList,
+      });
+      server.create("hashTag", {
+        posts: postList,
+      });
+
       let userForVideos = server.create("user");
       server.create("video", {
         name: videoDataStoredArr[0].name,
@@ -303,20 +741,9 @@ export default function makeServer(environment = "development") {
   });
 }
 
-
-const IdSerializer = RestSerializer.extend({
-  serializeIds: "always",
-});
-
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-const getRandomArrIndex = (arr) => {
-  return getRandomInt(0, arr.length - 1);
-};
+// const IdSerializer = RestSerializer.extend({
+//   serializeIds: "always",
+// });
 
 let videoDataStoredArr = [
   {
@@ -333,41 +760,66 @@ let videoDataStoredArr = [
   },
 ];
 
-let usersData = [
-  {
-    id: nanoid(),
-    name: "Stephanie",
-    isOnline: true,
-    img: "https://randomuser.me/api/portraits/med/women/5.jpg",
+const userConfigObject = {
+  id() {
+    return nanoid();
   },
-  {
-    id: nanoid(),
-    name: "Julie",
-    isOnline: true,
-    img: "https://randomuser.me/api/portraits/med/women/6.jpg",
+  allData() {
+    return faker.name;
   },
-  {
-    id: nanoid(),
-    name: "Terrence ",
-    isOnline: true,
-    img: "https://randomuser.me/api/portraits/med/women/7.jpg",
+  firstName() {
+    return this.allData.firstName();
   },
-  {
-    id: nanoid(),
-    name: "Bradley ",
-    isOnline: false,
-    img: "https://randomuser.me/api/portraits/med/men/5.jpg",
+  lastName() {
+    return this.allData.lastName();
   },
-  {
-    id: nanoid(),
-    name: "Regina ",
-    isOnline: true,
-    img: "https://randomuser.me/api/portraits/med/women/8.jpg",
+  userName() {
+    return faker.internet.userName(this.firstName, this.lastName);
   },
-  {
-    id: nanoid(),
-    name: "Dana ",
-    isOnline: false,
-    img: "https://randomuser.me/api/portraits/med/women/9.jpg",
+  bio() {
+    return faker.lorem.paragraph();
   },
-];
+  gender() {
+    return this.allData.gender();
+  },
+  phoneNumber() {
+    return faker.phone.phoneNumber();
+  },
+  image() {
+    return faker.image.avatar();
+  },
+};
+
+const subscriptionConfigObject = {
+  id() {
+    return nanoid();
+  },
+  date() {
+    return new Date().toISOString();
+  },
+};
+
+function createPostsForUser(server, userPropertyName, user) {
+  let postA = server.create("post", { [`${userPropertyName}`]: user });
+  let postB = server.create("post", { [`${userPropertyName}`]: user });
+  let postC = server.create("post", { [`${userPropertyName}`]: user });
+
+  let postsCreated = [postA, postB, postC];
+
+  let allUsersModels = server.schema.users.all().models;
+
+  postsCreated.forEach((post) => {
+    server.create("comment",{ post, user:allUsersModels[getRandomArrIndex(allUsersModels)] });
+    server.create("comment",{ post, user:allUsersModels[getRandomArrIndex(allUsersModels)] });
+  });
+
+  server.create("hashTag", { posts: [postA, postB] });
+  server.create("hashTag", { posts: [postA] });
+  server.create("hashTag", { posts: [postB, postC] });
+  server.create("hashTag", { posts: [postC, postA] });
+}
+
+
+
+
+

@@ -2,6 +2,8 @@ import React from 'react';
 
 import { parseISO, formatDistanceToNow } from 'date-fns';
 
+import timeAgoStyles from './TimeAgo.module.scss';
+
 export const TimeAgo =({timeStamp})=>{
 	let timeAgo = '';
 	if(timeStamp){
@@ -10,7 +12,7 @@ export const TimeAgo =({timeStamp})=>{
 		timeAgo = `${timeDistance} ago`
 	}
 	return (
-		<span title={timeStamp}>
+		<span className={timeAgoStyles.timeAgo} title={timeStamp}>
 			&nbsp; <i>{timeAgo}</i>
 		</span>
 	);

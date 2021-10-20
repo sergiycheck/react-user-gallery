@@ -1,157 +1,267 @@
-import React, { Component } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 
-import Button from "@material-ui/core/Button";
+import Button from "@mui/material/Button";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
 
-export default class Profile extends Component {
-  constructor(props) {
-    super(props);
+import { useUserIdToSelectOrFetchUser } from "../PostList/PostDataHelpers.js";
 
-    this.state = {
-      showMap: false,
-      btnShowUserLocationTxt: "show user location",
-    };
-    this.showMapHandler = this.showMapHandler.bind(this);
-  }
-  showMapHandler(event) {
-    if (this.state.btnShowUserLocationTxt == "show user location") {
-      this.setState((state) => ({
-        btnShowUserLocationTxt: "hide user location",
-      }));
-    } else {
-      this.setState((state) => ({
-        btnShowUserLocationTxt: "show user location",
-      }));
+import { useDispatch, useSelector } from "react-redux";
+
+import {
+  fetchUserProfilePosts, //{ from, to, userId }
+  // fetchSingleUserProfilePost, //{userId, postId}
+  changeProfilePostsStatusToStartFetching,
+  resetAllEntities,
+  // selectAllProfilePosts,
+  selectProfilePostById,
+  selectProfilePostIds,
+  selectFetchedAllProfilePostsLength,
+  selectProfilePostsStatus,
+  selectProfilePostsCurrentUserId,
+  setCurrentUser,
+  fetchSubscribeRelationsForUser,
+  followUserFetchPost,
+  unFollowUserFetchPost,
+  selectFollowingRelationsStatus,
+  selectUserFollowersAndFollowingRelations,
+  selectFollowAndUnFollowRequestsStatus,
+} from "./profilePostsSlice.js";
+
+import {
+  deleteUnfollowedUserPostsFromSlice,
+  fetchAllPostsLengthForUser,
+  selectFetchedAllPostsLength,
+  changePostStatusToStartFetching,
+} from "../PostList/postSlice.js";
+
+import { ExploreWrapped } from "../explore/ExploreWrapped.jsx";
+
+import { StatusData } from "../../api/ApiRoutes";
+
+// import {useUserIdToSelectOrFetchUserForTheApp} from '../PostList/PostDataHelpers';
+
+import {
+  selectSingleUserForApp,
+  selectSingleUserForAppStatus,
+} from "./usersSlice";
+
+export const Profile = ({ match }) => {
+  console.log("match.params ", match.params);
+
+  const { userId } = match.params;
+  const dispatch = useDispatch();
+
+  const userIdRef = useRef(userId);
+
+  useEffect(() => {
+    userIdRef.current = userId;
+  }, [userId]);
+
+  const currentUserApp = useSelector(selectSingleUserForApp);
+  const currentUserAppStatus = useSelector(selectSingleUserForAppStatus);
+  const followingRelationsStatus = useSelector(selectFollowingRelationsStatus);
+
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchSubscribeRelationsForUser({ userId: userIdRef.current }));
     }
+    return () => {
+      dispatch(resetAllEntities());
+    };
+  }, [userId, dispatch]);
 
-    this.setState((state) => ({
-      showMap: !state.showMap,
-    }));
+  if (
+    currentUserAppStatus === StatusData.loading ||
+    currentUserAppStatus === StatusData.idle ||
+    followingRelationsStatus === StatusData.loading ||
+    followingRelationsStatus === StatusData.idle
+  ) {
+    return <div>loading...</div>;
   }
 
-  componentDidMount() {
-    showVisible("Profile");
-  }
-
-  render() {
+  if (
+    currentUserAppStatus === StatusData.succeeded &&
+    currentUserApp.id !== userIdRef.current
+  ) {
+    // return other user profile
     return (
-      <div className="w-100">
-        <main>
-          <section className="py-5 text-center container">
-            <div className="row py-lg-5">
-              <div className="col-lg-3 col-md-2">
-                <img
-                  className=" img-fluid "
-                  src="./assets/img/placeholder.svg"
-                  data-src="http://simpleicon.com/wp-content/uploads/user1.png"
-                  alt="user photo"
-                  height="300"
-                />
-              </div>
+      <OtherUserProfile
+        userId={userIdRef.current}
+        currentUserApp={currentUserApp}
+      ></OtherUserProfile>
+    );
+  }
 
-              <div className="col-lg-6 col-md-8 mx-auto">
-                <h1 className="fw-light">First Last</h1>
-                <p className="lead text-muted">
-                  Something short and leading about the collection below—its
-                  contents, the creator, etc. Make it short and sweet, but not
-                  too short so folks don’t simply skip over it entirely.
-                </p>
+  // return current user profile
+  return <CurrentUserProfile user={currentUserApp}></CurrentUserProfile>;
+};
+export const OtherUserProfile = ({ userId, currentUserApp }) => {
+  const dispatch = useDispatch();
+  const user = useUserIdToSelectOrFetchUser({ userId });
 
-                <div className="d-flex justify-content-between">
-                  <p className="small">@username</p>
-                  <Button
-                    onClick={this.showMapHandler}
-                    variant="contained"
-                    color="secondary"
-                  >
-                    {this.state.btnShowUserLocationTxt}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </section>
+  const { userFollowersRelations } = useSelector(
+    selectUserFollowersAndFollowingRelations
+  );
+  const allFetchedPostsLength = useSelector(selectFetchedAllPostsLength);
 
-          <div className="py-5 bg-light">
-            <div className="container">
-              <div className="row  g-2">
-                <div className="col-sm-4">
-                  <div className="card shadow-sm">
-                    <img
-                      className="img-fluid p-2"
-                      src="./assets/img/placeholder.svg"
-                      data-src="https://source.unsplash.com/user/solase/300x400"
-                      height="400"
-                    />
+  const followAndUnFollowRequestsStatus = useSelector(
+    selectFollowAndUnFollowRequestsStatus
+  );
 
-                    <div className="card-body">
-                      <p className="card-text">
-                        This is a wider card with supporting text below as a
-                        natural lead-in to additional content. This content is a
-                        little bit longer.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-sm-4">
-                  <div className="card shadow-sm p-2">
-                    <img
-                      className="img-fluid"
-                      src="./assets/img/placeholder.svg"
-                      data-src="https://source.unsplash.com/user/tom/300x400"
-                      height="400"
-                    />
+  const isUserIsFollowedByCurrentUser = () => {
+    //TODO: dispatch request to know whether currentUserForTheApp follows currentUser
+    let isFollowed = userFollowersRelations
+      .map((relation) => relation.followerId)
+      .includes(currentUserApp.id);
+    return isFollowed;
+  };
 
-                    <div className="card-body">
-                      <p className="card-text">
-                        This is a wider card with supporting text below as a
-                        natural lead-in to additional content. This content is a
-                        little bit longer.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-sm-4">
-                  <div className="card shadow-sm p-2">
-                    <img
-                      className="img-fluid"
-                      src="./assets/img/placeholder.svg"
-                      data-src="https://source.unsplash.com/user/mike/300x400"
-                      height="400"
-                    />
-
-                    <div className="card-body">
-                      <p className="card-text">
-                        This is a wider card with supporting text below as a
-                        natural lead-in to additional content. This content is a
-                        little bit longer.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="col-sm-4">
-                  <div className="card shadow-sm p-2">
-                    <img
-                      className="img-fluid"
-                      src="./assets/img/placeholder.svg"
-                      data-src="https://source.unsplash.com/user/anna/300x400"
-                      height="400"
-                    />
-
-                    <div className="card-body">
-                      <p className="card-text">
-                        This is a wider card with supporting text below as a
-                        natural lead-in to additional content. This content is a
-                        little bit longer.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
+  if (!user) {
+    return (
+      <div className="mt-5 fs-1">
+        <b>user with {userId} not found</b>
       </div>
     );
   }
-}
+  const followUserHandler = () => {
+    console.log(`user with id ${userId} is following`);
+    dispatch(followUserFetchPost({ userIdToFollow: userId }));
+    dispatch(changePostStatusToStartFetching({ newStatus: StatusData.idle }));
+  };
+
+  const unFollowUserHandler = () => {
+    console.log(`unfollow from user with id ${userId}`);
+    dispatch(unFollowUserFetchPost({ userIdToUnFollow: userId }));
+    //TODO: delete user posts from postsSlice that current users just unfollow
+
+    dispatch(deleteUnfollowedUserPostsFromSlice({ unFollowedUserId: userId }));
+    const hasUserFetchedSomePosts = allFetchedPostsLength !== 0;
+    if (hasUserFetchedSomePosts) {
+      dispatch(fetchAllPostsLengthForUser());
+    }
+  };
+
+  let renderedActionSubscriptionButton;
+  if (!isUserIsFollowedByCurrentUser()) {
+    renderedActionSubscriptionButton = (
+      <Button onClick={followUserHandler} variant="contained" color="secondary">
+        subscribe
+      </Button>
+    );
+  } else {
+    renderedActionSubscriptionButton = (
+      <Button onClick={unFollowUserHandler} variant="outlined">
+        unsubscribe
+      </Button>
+    );
+  }
+
+  return (
+    <ProfileWrapped
+      user={user}
+      render={() => {
+        return renderedActionSubscriptionButton;
+      }}
+    ></ProfileWrapped>
+  );
+};
+
+export const CurrentUserProfile = ({ user }) => {
+  return <ProfileWrapped user={user} render={() => null}></ProfileWrapped>;
+};
+
+export const ProfileWrapped = ({ user, render }) => {
+  useEffect(() => {
+    showVisible("Profile");
+  }, [user]);
+
+  let renderedFollowButtonContent;
+  let renderedFollowButtonResult = render();
+  if (renderedFollowButtonResult !== null) {
+    renderedFollowButtonContent = renderedFollowButtonResult;
+  }
+
+  const { userFollowersRelations, userFollowingRelations } = useSelector(
+    selectUserFollowersAndFollowingRelations
+  );
+
+  const followersLength = useMemo(() => {
+    return userFollowersRelations.length;
+  }, [userFollowersRelations]);
+
+  const followingLength = useMemo(() => {
+    return userFollowingRelations.length;
+  }, [userFollowingRelations]);
+
+  return (
+    <div className="w-100">
+      <main>
+        <section className="py-5 text-center container">
+          <div className="row py-lg-5">
+            <div className="col-lg-3 col-md-2">
+              <img
+                className="img-fluid rounded"
+                src="/assets/img/img-placeholder.gif"
+                data-src={user.image}
+                height="300"
+                alt="user profile"
+              />
+            </div>
+
+            <div className="col-lg-6 col-md-8 mx-auto">
+              <h1 className="fw-light">
+                {user.firstName} {user.lastName}
+              </h1>
+              <p className="lead text-muted">{user.bio}</p>
+
+              <div className="d-flex justify-content-between">
+                <p className="small">{user.userName}</p>
+                <p className="fs-5">followers {followersLength}</p>
+                <p className="fs-5">following {followingLength}</p>
+                {renderedFollowButtonContent}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <ExploreUserProfilePosts userId={user.id}></ExploreUserProfilePosts>
+      </main>
+    </div>
+  );
+};
+
+export const ExploreUserProfilePosts = ({ userId }) => {
+  const dispatch = useDispatch();
+
+  const currentUserId = useSelector(selectProfilePostsCurrentUserId);
+
+  //TODO: setCurrentUser refactor with useState
+  useEffect(() => {
+    dispatch(setCurrentUser({ userId }));
+  }, [userId, dispatch]);
+
+  const exploreUserProfilePostsDataMethods = {
+    selectItemsIds: selectProfilePostIds,
+
+    selectItemById: selectProfilePostById,
+
+    selectItemsStatus: selectProfilePostsStatus,
+
+    selectFetchedAllItemsLength: selectFetchedAllProfilePostsLength,
+
+    changeItemsStatusToStartFetching: changeProfilePostsStatusToStartFetching,
+
+    fetchItems: fetchUserProfilePosts,
+
+    userId,
+  };
+
+  return (
+    <div className="main-content">
+      <ExploreWrapped
+        explorePageDataMethods={exploreUserProfilePostsDataMethods}
+      ></ExploreWrapped>
+    </div>
+  );
+};

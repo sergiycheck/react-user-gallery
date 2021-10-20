@@ -9,7 +9,7 @@ import {
 	videosRoute
 } from '../../../api/ApiRoutes';
 import {
-	ClientBuilder
+	client
 } from '../../../api/client';
 
 
@@ -22,12 +22,13 @@ const initialState = videosAdapter.getInitialState({
 })
 
 export const fetchVideos = createAsyncThunk(
-	'FETCH_VIDEOS',
+	'videos/fetchVideos',
 	async()=>{
 		// console.log('video fetch ', videosRoute);
-		const client = new ClientBuilder(videosRoute);
-		let videoFetched = await client.fetchWithConfig();
-		return videoFetched.videos
+
+		const response = await client.get(videosRoute,{});
+
+		return response.videos
 	}
 )
 

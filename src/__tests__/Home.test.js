@@ -1,170 +1,225 @@
-import React from 'react';
-import {render, screen,waitForElementToBeRemoved,fireEvent } from '@testing-library/react';
-import Home from '../components/home/Home';
-import {Provider} from 'react-redux';
-import store from '../components/redux_components/store';
-import makeServer from '../api/server';
-import { nanoid } from '@reduxjs/toolkit';
-
+import React from "react";
 import {
-	ClientBuilder
-} from '../api/client';
+  render,
+  screen,
+  waitForElementToBeRemoved,
+  fireEvent,
+} from "@testing-library/react";
+import Home from "../components/home/Home";
+import { Provider } from "react-redux";
+import store from "../App/store";
+import makeServer from "../api/server";
+// import { nanoid } from '@reduxjs/toolkit';
+
+import { client } from "../api/client";
 import {
-	postsRoute,
-	usersRoute
-} from '../api/ApiRoutes'
-import { Collection } from 'miragejs';
+  postsRoute,
+  usersRoute,
+  userPostsRoute,
+  apiName,
+} from "../api/ApiRoutes";
 
-describe('Home',()=>{
+import { jest } from "@jest/globals";
 
-	let server;
+// import {
+// 	Collection
+// } from 'miragejs';
 
-	beforeEach(()=>{
-		//if environment of makeServer is test 
-		// it skips the seed hook
-		// server = makeServer('test');
-		server = makeServer();
-		renderHome();
-	})
-	
-	afterEach(()=>{
-		server.shutdown();
-	})
+describe("Home", () => {
+  let server;
 
-	function renderHome(){
-		render(
-			<Provider store={store}>
+  beforeEach(() => {
+    //if environment of makeServer is test
+    // it skips the seed hook
+    // server = makeServer('test');
+    server = makeServer();
+    renderHome();
+  });
 
-				<Home></Home>
+  afterEach(() => {
+    server.shutdown();
+  });
 
-			</Provider>
-		);
-	}
+  function renderHome() {
+    render(
+      <Provider store={store}>
+        <Home></Home>
+      </Provider>
+    );
+  }
 
-	test('renders home component with initial loading videos, posts text', ()=>{
+  test("renders home component with initial loading videos, posts text", () => {
+    const textVid = screen.getByAltText(/video placeholder/i);
+    expect(textVid).toBeInTheDocument();
 
-		const textVid = screen.getByText(/loading videos/i);
-		expect(textVid).toBeInTheDocument();
+    const textPost = screen.getByAltText(/img loader/i);
+    expect(textPost).toBeInTheDocument();
+  });
 
-		const textPost = screen.getByAltText(/loader image/i);
-		expect(textPost).toBeInTheDocument();
-	})
+  test("renders Home component, fetches videos with test server", async () => {
+    await waitForElementToBeRemoved(() =>
+      screen.getByAltText(/video placeholder/i)
+    );
 
+    expect(screen.getAllByTestId("video-source-element")).not.toBeNull();
+  });
 
-	test('renders Home component, fetches videos with test server',async ()=>{
+  test("renders Home component, fetches posts", async () => {
+    // await waitForElementToBeRemoved(()=>screen.getByAltText(/img loader/i));
+    //post alt text: "user post"
+    expect(
+      await screen.findAllByTestId(/post-card-placeholder/i)
+    ).not.toBeNull();
+  });
+  test("carousel video change on button click", async () => {
+    expect(
+      await screen.findAllByTestId(/video-source-element/i)
+    ).not.toBeNull();
+    const btns = screen.queryAllByRole("button");
+    const btn = btns.find((btn) =>
+      btn.classList.contains("carsl-control-prev")
+    );
+    expect(btn).toBeInTheDocument();
+    fireEvent.click(btn);
+  });
 
-		await waitForElementToBeRemoved(()=>screen.getByText('loading videos'));
+  test("load posts with users", async () => {
+    console.log("getting posts");
+    // expect.assertions(1);
+    const response = await client.get(postsRoute, {
+      headers: {
+        from: 0,
+        to: 5,
+      },
+    });
+    const { posts } = response;
+    expect(posts.every((p) => p.userId !== null)).toBeTruthy();
+  });
 
-		expect(screen.getAllByTestId('video-source-element')).not.toBeNull();
-	})
+  test("load posts with comments", async () => {
+    console.log("getting posts");
+    expect.assertions(1);
 
-	
-	test('renders Home component, fetches posts', async()=>{
-		
-		//await waitForElementToBeRemoved(()=>screen.getByText('loading posts'));
-		//post alt text: "user post"
-		expect(screen.getAllByAltText(/user post/i)).not.toBeNull()
-		
-	})
-	test('carousel video change on button click', async ()=>{
+    const response = await client.get(postsRoute, {
+      headers: {
+        from: 0,
+        to: 5,
+      },
+    });
+    const { posts } = response;
 
-		expect(await screen.findAllByTestId(/video-source-element/i)).not.toBeNull();
-		const btns = screen.queryAllByRole('button');
-		const btn  = btns.find(btn=>btn.classList.contains('carsl-control-prev'));
-		expect(btn).toBeInTheDocument();
-		fireEvent.click(btn);
+    expect(posts.every((p) => p.commentIds.length > 0)).toBeTruthy();
+  });
 
-	})
+  test("fetch single post with user and commetns", async () => {
+    expect.assertions(1);
 
-	test('load posts with users', async()=>{
-		console.log('getting posts');
-		expect.assertions(1);
-		const client = new ClientBuilder(postsRoute)
-		const response = await client.fetchWithConfig();
-		const posts = response;
-		expect(posts.every(p=>p.userId!==null)).toBeTruthy();
-	})
+    let response = await client.get(postsRoute, {
+      headers: {
+        from: 0,
+        to: 5,
+      },
+    });
 
-	test('load posts with comments', async()=>{
-		console.log('getting posts');
-		expect.assertions(1);
-		const client = new ClientBuilder(postsRoute)
-		const response = await client.fetchWithConfig();
-		const posts = response;
-		expect(posts.every(p=>p.commentIds.length>0)).toBeTruthy()
-	})
+    const { posts } = response;
+    const postId = posts[0].id;
 
-	test('fetch single post with user and commetns', async()=>{
+    response = await client.get(`/fakeApi/posts/${postId}`);
+    const post = response.post;
 
-		expect.assertions(1);
-		const client = new ClientBuilder(postsRoute)
-		let response = await client.fetchWithConfig();
-		const posts = response;
-		const postId = posts[0].id;
+    expect(post).not.toBeNull();
+    console.log(post);
+  });
 
-		response = await client.fetchWithConfig(`fakeApi/posts/${postId}`);
-		const post = response.post;
+  test("fetch post comments", async () => {
+    console.log("getting comments");
+    expect.assertions(2);
 
-		expect(post).not.toBeNull();
-		console.log(post);
+    let response = await client.get(postsRoute, {
+      headers: {
+        from: 0,
+        to: 5,
+      },
+    });
+    const { posts } = response;
 
-	})
+    const postId = posts[0].id;
 
-	test('fetch post comments', async()=>{
-		console.log('getting comments');
-		expect.assertions(2);
-		const client = new ClientBuilder(postsRoute)
-		let response = await client.fetchWithConfig();
-		const posts = response;
-		const postId = posts[0].id;
+    response = await client.get(`${postsRoute}/${postId}/comments`, {
+      headers: {
+        from: 0,
+        to: 5,
+      },
+    });
 
-		response = await client.fetchWithConfig(`fakeApi/posts/${postId}/comments`);
-		const comments = response.comments;
-		expect(comments).toBeInstanceOf(Array);
-		expect(comments.length>0).toBe(true);
+    const comments = response.comments;
+    expect(comments).toBeInstanceOf(Array);
+    expect(comments.length > 0).toBe(true);
+  });
 
-	})
+  test("creates users and gets users posts", async () => {
+    jest.setTimeout(10000);
+    console.log("getting users");
 
+    let from = 0;
+    let to = 5;
 
-	test('creates users ', async()=>{
-		console.log('getting users');
-		expect.assertions(3);
-		const client = new ClientBuilder(usersRoute)
-		let response = await client.fetchWithConfig();
-		const users = response.users
-		expect(users.length).toBeGreaterThan(0)
-		const userId = users[0].id;
+    let response = await client.get(usersRoute, {
+      headers: { from, to },
+    });
 
-		response = await client.fetchWithConfig(`fakeApi/users/${userId}/posts`);
-		const posts = response.posts;
-		expect(posts).toBeInstanceOf(Array);
-		expect(posts.length>0).toBe(true);
+		//TODO: error with jest here on fetching users posts
+    const { users } = response;
 
-	})
+    expect(users.length).toBeGreaterThan(0);
+    const userId = users[0].id;
 
+    let url = userPostsRoute.replace(":userId", userId);
+    response = await client.get(url, {
+      headers: { from, to },
+    });
 
-	function seedVideos(server){
+    const { posts } = response;
 
-		server.create('video',{
-			id:nanoid(),
-			name:"FMJ Widebody 370z [4K].mp4",
-			link:"https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-1080p.mp4"
-		});
+    expect(posts).toBeInstanceOf(Array);
+    expect(posts.length > 0).toBe(true);
 
-		server.create('video',{
-			id:nanoid(),
-			name:"PDX Evo X _ Rowena Point [4K].mp4",
-			link:"http://vjs.zencdn.net/v/oceans.mp4"
-		});
+    expect.assertions(3);
+  });
 
-		server.create('video',{
-			id:nanoid(),
-			name:"Super Trofeo [4K].mp4",
-			link:"http://vjs.zencdn.net/v/oceans.mp4"
-		});
+  test("fetchs hash tags", async () => {
 
-	}
-	
+		// debugger;
+		const response = await client.get(`${apiName}/hashTags/all`);
+		const { hashTags,serverHashTagsLength } = response;
 
+		expect(hashTags).toBeInstanceOf(Array);
+		expect(hashTags.length).toBeGreaterThan(0);
+		expect(serverHashTagsLength).toBeGreaterThan(0);
 
-})
+	});
+
+  test("fetchs subscribe relations", async () => {
+
+		const response = await client.get(`${apiName}/subscribeRelations`);
+
+		expect(response).not.toBeNull();
+
+	});
+
+  test("fetchs subscribe relations for user", async () => {
+
+		const response = await client.get(`${apiName}/subscribeRelations/getUserSubscribeRelations/knownId`);
+		debugger;
+
+    const {
+      userFollowingRelations,
+      userFollowersRelations
+    } = response;
+
+		expect(response).not.toBeNull();
+		expect(userFollowingRelations).not.toBeNull();
+		expect(userFollowersRelations).not.toBeNull();
+	});
+
+});
