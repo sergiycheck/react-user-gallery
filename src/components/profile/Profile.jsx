@@ -180,7 +180,11 @@ export const ProfileWrapped = ({ user, render }) => {
   let renderedFollowButtonContent;
   let renderedFollowButtonResult = render();
   if (renderedFollowButtonResult !== null) {
-    renderedFollowButtonContent = renderedFollowButtonResult;
+    renderedFollowButtonContent = (
+      <div className="col-12 col-sm-3">
+        {renderedFollowButtonResult}
+      </div>
+    );
   }
 
   const { userFollowersRelations, userFollowingRelations } = useSelector(
@@ -211,15 +215,30 @@ export const ProfileWrapped = ({ user, render }) => {
             </div>
 
             <div className="col-lg-6 col-md-8 mx-auto">
-              <h1 className="fw-light">
-                {user.firstName} {user.lastName}
-              </h1>
-              <p className="lead text-muted">{user.bio}</p>
+              <div className="row">
+                <div className="col">
+                  <h1 className="fw-light">
+                    {user.firstName} {user.lastName}
+                  </h1>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col">
+                  <p className="lead text-muted">{user.bio}</p>
+                </div>
+              </div>
 
-              <div className="d-flex justify-content-between">
-                <p className="small">{user.userName}</p>
-                <p className="fs-5">followers {followersLength}</p>
-                <p className="fs-5">following {followingLength}</p>
+              <div className="row justify-content-between">
+                <div className="col-12 col-sm-3">
+                  <p className="fs-5">{user.userName}</p>
+                </div>
+                <div className="col-12 col-sm-3">
+                  <p className="fs-5">followers {followersLength}</p>
+                </div>
+                <div className="col-12 col-sm-3">
+                  <p className="fs-5">following {followingLength}</p>
+                </div>
+
                 {renderedFollowButtonContent}
               </div>
             </div>

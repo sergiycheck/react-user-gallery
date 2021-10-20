@@ -82,32 +82,31 @@ export const ExploreAsideBar = (props) => {
 			aos-init aos-animate"
       data-aos="fade-left"
     >
-      <div className="main-menu">
+      <div className="main-menu w-100">
 
-        <ul className="list-group m-0">
+        <ul className="row m-0 text-center">
 
-          <li className="list-group-item border-0 m-0 p-0">
+          <li className="col-12 col-sm-2 col-lg-12  border-0 m-0 p-0">
             <Link to={url}>all posts</Link>
           </li>
 
-          <li className="list-group-item border-0 m-0 p-0 ">
+          <li className="col-12 col-sm-2 col-lg-12  border-0 m-0 p-0 ">
             <Link to={`${url}/users`}>users</Link>
           </li>
 
-          <li className="list-group-item border-0 disabled m-0 p-0">
+          <li className="col-12 col-sm-2 col-lg-12  border-0 disabled m-0 p-0">
             <span className='mx-2'>photos</span>
           </li>
-          <li className="list-group-item border-0 disabled m-0 p-0">
+
+          <li className="col-12 col-sm-2 col-lg-12  border-0 disabled m-0 p-0">
             <span className='mx-2' >videos</span>
           </li>
 
-          <li className="list-group-item border-0 disabled m-0 p-0">
-            <span className='mx-2' >groups</span>
-          </li>
-          <li className="list-group-item border-0 disabled m-0 p-0">
+          <li className="col-12 col-sm-2 col-lg-12  border-0 disabled m-0 p-0">
             <span className='mx-2'>channels</span>
           </li>
-          <li className="list-group-item border-0 disabled m-0 p-0">
+
+          <li className="col-12 col-sm-2 col-lg-12  border-0 disabled m-0 p-0">
             <span className='mx-2'>live</span>
           </li>
         </ul>

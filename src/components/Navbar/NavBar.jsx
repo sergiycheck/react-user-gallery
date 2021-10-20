@@ -123,9 +123,11 @@ const NavBar = (props) => {
 
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <div className="row width-100-media align-items-center justify-content-center">
-            <div className="col-md-8 col-sm-8">
+            <div className="col-sm-12 col-md-8">
+
               <div className="row justify-content-between">
-                <div className="col-md-2 col-sm-3 justify-content-center d-flex">
+
+                <div className="col-12 col-sm-12 col-md-4 justify-content-center d-flex">
                   <ul className="nav navbar-nav">
                     <li className="p-2">
                       <Link className="nav-link" to="/explore">
@@ -135,14 +137,15 @@ const NavBar = (props) => {
                   </ul>
                 </div>
 
-                <div className="col-md-7 col-sm-8">
+                <div className="col-12 col-sm-12 col-md-8">
                   <SearchForm></SearchForm>
                 </div>
               </div>
             </div>
 
-            <div className="col-md-4 col-sm-8">
-              <div className="nav navbar-nav">
+            <div className="col-sm-12 col-md-4">
+              <div className="nav navbar-nav text-center flex-nowrap">
+
                 <Link to="/messages" className="nav-link">
                   Messages
                 </Link>
