@@ -119,6 +119,7 @@ describe("Home", () => {
         from: 0,
         to: 5,
       },
+      
     });
 
     const { posts } = response;

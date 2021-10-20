@@ -48,7 +48,6 @@ export const CommentsList = (props) => {
   const setPaginationProperties = (from, to) => {
     setPaginationFromProp(from);
     setPaginationToProp(to);
-    // console.log("pagination properties set", " from ", from, " to ", to);
   };
 
   const contentComments = comments.map((comment) => {

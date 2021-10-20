@@ -6,6 +6,7 @@
 //   return Math.floor(Math.random() * (max - min + 1)) + min;
 // }
 
+import {logm} from './custom-logger';
 
 export const atTheBottom = () => {
   
@@ -19,7 +20,7 @@ export const atTheBottom = () => {
   }
 
   if (heightAndOffset >= bodyOffsetHeight - 5) {
-    // console.log("At the bottom!");
+    // logm("At the bottom!");
     return true;
   }
   return false;

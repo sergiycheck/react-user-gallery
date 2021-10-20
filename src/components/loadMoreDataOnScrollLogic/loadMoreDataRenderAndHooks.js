@@ -2,7 +2,7 @@
 import { StatusData } from "../../api/ApiRoutes";
 import { Loader } from "../helperComponents/Loader";
 import { useEffect } from "react";
-
+import { logm } from "../../helpers/custom-logger";
 
 export const useLoadingStatusToRenderLoader = (trackingStatus) => {
 	
@@ -24,7 +24,7 @@ export const useStatusAndArrOfIdsToFetchData = (
   useEffect(() => {
     const requestProcessing = itemsStatus === StatusData.loading;
     if (requestProcessing) {
-      console.log("requestProcessing");
+      logm("requestProcessing");
       return;
     }
 
@@ -32,7 +32,7 @@ export const useStatusAndArrOfIdsToFetchData = (
     const somePostsFetched = idsArr.length > 0;
 
     if (allPostsFetched && somePostsFetched) {
-      console.log("allPostsFetched && somePostsFetched");
+      logm("allPostsFetched && somePostsFetched");
 
       window.removeEventListener("scroll", scrollHandler);
       return;
@@ -40,13 +40,13 @@ export const useStatusAndArrOfIdsToFetchData = (
 
     const statusChangedToFetchMorePosts = itemsStatus === StatusData.idle;
     if (statusChangedToFetchMorePosts) {
-      console.log("statusChangedToFetchMorePosts");
+      logm("statusChangedToFetchMorePosts");
 
       fetchCallBack();
     }
 
     return ()=>{
-      console.log('reset callback');
+      logm('reset callback');
     }
   }, [
     itemsStatus,
@@ -74,7 +74,7 @@ export const useLoadingStatusToAddOrRemoveScrollListeners = ({itemIdsArr, allIte
     const fetchedSomeSearchPosts = itemIdsArr.length > 0;
 
     if (allSearchedPostsNotFetched && fetchedSomeSearchPosts) {
-      console.log(
+      logm(
         "allSearchedPostsNotFetched && fetchedSomeSearchPosts setting handleScroll"
       );
 
@@ -82,7 +82,7 @@ export const useLoadingStatusToAddOrRemoveScrollListeners = ({itemIdsArr, allIte
     }
 
     return function removeScrollListener() {
-      console.log("removeScrollListener");
+      logm("removeScrollListener");
 
       window.removeEventListener("scroll", handler);
     };

@@ -17,6 +17,8 @@ import {
 
 import { client } from "../../../api/client";
 
+import { logm } from "../../../helpers/custom-logger";
+
 const searchDataAdapter = createEntityAdapter({});
 
 const FetchIncrement = 5;
@@ -38,12 +40,10 @@ const initialState = searchDataAdapter.getInitialState({
 export const searchUsersPostsByUserName = createAsyncThunk(
   `searchData/${usersName}/searchForUsersPosts`,
   async ({from, to}, { getState }) => {
-
-    // console.log(`from ${from}, to ${to}, query ${query} `);
     
     const { searchQuery } = getState().searchData;
 
-    console.log(`searchQuery ${searchQuery}, from ${from}, to ${to} state`,getState());
+    logm(`searchQuery ${searchQuery}, from ${from}, to ${to} state`,getState());
 
     const response = await client.post(
       `${usersRoute}/searchForUsersPosts`,
@@ -55,20 +55,18 @@ export const searchUsersPostsByUserName = createAsyncThunk(
         },
       }
     );
-    console.log("response", response);
+    logm("response", response);
 
     const { posts, allPostsLength } = response;
     return { posts, allPostsLength };
   }
 );
 
-//TODO: separate slice for searches because of pagination ?
 export const searchForUsersNames = createAsyncThunk(
   `${usersName}/searchForUsersNames`,
   async ({ query }) => {
     const response = await client.get(`${usersRoute}/searchForNames/${query}`);
 
-    // console.log('response', response);
     if (response) return response.userNamesArr;
     return [];
   }

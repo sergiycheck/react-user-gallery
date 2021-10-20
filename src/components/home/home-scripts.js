@@ -13,9 +13,6 @@ export default function activateHomeHandlers(){
 
 
 function skipVideoOnEnd(){
-  // console.log('user-script skipVideoOnEnd');
-
-  //setTimeout(()=>{
 
     const carouselInner = document.querySelector(".carousel-inner");
     if(carouselInner){
@@ -53,11 +50,6 @@ function skipVideoOnEnd(){
       });
 
     },100);//animation time?
-
-
-  //},10);
-
-
 
 }
 
@@ -131,9 +123,7 @@ function playNextVideo(vid){
 
 
 function showBigPostWithClassName(){
-  // console.log('user-script showBigPostWithClassName');
 
-  //setTimeout(()=>{
 
     let posts = document.querySelectorAll(".click-big-post");
     posts.forEach(p=>{
@@ -141,9 +131,6 @@ function showBigPostWithClassName(){
         showBigPostViewFromClass(event.target);
       })
     });
-
-  //},10);
-
 
 }
 
@@ -200,9 +187,6 @@ function setPostSource(sourceName){
 }
 
 export function commentReadMoreWithClassName(){
-  // console.log('user-script commentReadMoreWithClassName');
-  //todo: uncomment
-  //setTimeout(()=>{
 
     let posts = document.querySelectorAll(".readmore");
     if(posts){
@@ -212,10 +196,6 @@ export function commentReadMoreWithClassName(){
         })
       });
     }
-
-
-  //},10)
-
 
 }
 

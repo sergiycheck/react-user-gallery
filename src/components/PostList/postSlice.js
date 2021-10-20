@@ -96,16 +96,13 @@ const postsSlice = createSlice({
   initialState,
   reducers: {
     changePostStatusToStartFetching(state, action) {
-      // console.log('changePostStatusToStartFetching old status ', state.status);
 
       if (state.status === StatusData.loading) return;
 
       const { newStatus } = action.payload;
       state.status = newStatus;
-      // console.log('changePostStatusToStartFetching post status changed ', state.status);
     },
     postAdded(state, action) {
-      // console.log('adding post ', action.payload);
 
       postsAdapter.addOne(state, action.payload);
     },
@@ -150,17 +147,11 @@ const postsSlice = createSlice({
     },
 
     [addLikeToPost.fulfilled]: (state, action) => {
-      // state.status = StatusData.succeeded;
-
-      // console.log('addLikeToPost.fulfilled action.payload.id', action.payload.id);
 
       const updatedPost = action.payload;
       const { id } = updatedPost;
-      // const oldPost = selectPostById(state, id);//state is undefined
-      const oldPost = state.entities[id];
 
-      // console.log(`oldPost id ${oldPost.id}, oldPost likes ${oldPost.likeCount}`);
-      // console.log(`updatedPost id ${updatedPost.id}, updatedPost likes ${updatedPost.likeCount}`);
+      const oldPost = state.entities[id];
 
       Object.assign(oldPost, updatedPost);
       //TODO: refactor with updateOne

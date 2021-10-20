@@ -11,6 +11,8 @@ import {
 
 import { client } from "../../api/client";
 
+import { logm } from "../../helpers/custom-logger";
+
 const postsSameHashTagsAdapter = createEntityAdapter({});
 
 const initialState = postsSameHashTagsAdapter.getInitialState({
@@ -33,7 +35,7 @@ export const fetchPostsWithSameHashTags = createAsyncThunk(
       },
     });
 
-    console.log('response ', response);
+    logm('response ', response);
 
     const {posts, filteredPostsByHashTagsLength} = response;
 

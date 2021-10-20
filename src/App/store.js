@@ -15,15 +15,18 @@ import postsSameHashTagsReducer from '../components/PostList/postsWithSameHashTa
 
 import profilePostsReducer from '../components/profile/profilePostsSlice.js';
 
+import { logm } from '../helpers/custom-logger';
+
 
 const loggerMiddleware = storeAPI => next => action =>{
 
-  console.log('dispatching', action);
+  logm('dispatching', action);
   let result = next(action);
-  console.log('next state', storeAPI.getState());
+  logm('next state', storeAPI.getState());
   return result;
-
 }
+
+
 
 export default configureStore({
 	reducer:{

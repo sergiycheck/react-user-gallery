@@ -2,12 +2,14 @@
 
 import { useRef } from "react";
 
+import { logm } from "../../helpers/custom-logger";
+
 export function DismissibleAlert() {
 
   const alertComponent = useRef(null);
 
 	const handleButtonClick = (e) => {
-		console.log('clicking button remove alert');
+		logm('clicking button remove alert');
 
 		alertComponent.current.remove();
 	}

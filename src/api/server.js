@@ -25,6 +25,8 @@ import {
 
 import _ from "lodash";
 
+import {logm} from '../helpers/custom-logger';
+
 import {getArrOfPostsForUser, getRandomInt, getRandomArrIndex } from './serverHelpers/helpers.js';
 
 // to understand mirage better go -> node_modules -> miragejs -> lib -> orm model.js
@@ -101,7 +103,6 @@ export default function makeServer(environment = "development") {
 
       this.get("/users/:userId/posts", (schema, req) => {
         const userId = req.params["userId"];
-        // console.log('server got userId ', userId);
         const user = schema.users.find(userId);
 
         if (!user) throw new Error(`can not find user with ${userId}`);
@@ -144,7 +145,6 @@ export default function makeServer(environment = "development") {
 
       this.get("/posts/single/:postId", (schema, req) => {
         const postId = req.params["postId"];
-        // console.log('server got postId ', postId);
         const allPosts = schema.posts.all();
 
         const post = schema.posts.find(postId);
@@ -174,14 +174,11 @@ export default function makeServer(environment = "development") {
 
       //TODO: unit userId with post likes
       this.post("/posts/addLikeToPost", function (schema, req) {
-        // const postId = req.params['postId'];
-        // console.log('request \n',req);
-        // const postId = this.normalizedRequestAttrs()//addLikeToPost model does not exist
+
         const { postId } = JSON.parse(req.requestBody);
-        // console.log('postId ', postId);
 
         if (!postId) {
-          console.log(" no postId provided ");
+          logm(" no postId provided ");
           return {};
         }
         const result = schema.posts.find(postId);
@@ -331,10 +328,9 @@ export default function makeServer(environment = "development") {
 
         const { from, to } = req.requestHeaders;
 
-        console.log(`searchUserName from, to `, searchUserName, from, to);
+        logm(`searchUserName from, to `, searchUserName, from, to);
 
         const allUsers = schema.users.all().models;
-        // console.log(`allUsers`, allUsers);
 
         let filteredUsers = allUsers.filter((user) => {
           const normalizedUserName = user.userName.toLocaleLowerCase();
@@ -348,7 +344,6 @@ export default function makeServer(environment = "development") {
 
           filteredUsers = allUsers
             .reduce((previousArr, currentUser) => {
-              // console.log("currentUser", currentUser.userName);
 
               const charsName = currentUser.userName
                 .toLocaleLowerCase()
@@ -393,13 +388,12 @@ export default function makeServer(environment = "development") {
           },
           []
         );
-        // console.log("reducedPosts.models ", reducedPosts);
 
         const mappedPosts = reducedPosts
           .map((collection) => collection.models)
           .flat();
 
-        console.log("mappedPosts ", mappedPosts);
+          logm("mappedPosts ", mappedPosts);
 
         let sliceTo = to;
         if (to >= mappedPosts.length) {
@@ -407,7 +401,7 @@ export default function makeServer(environment = "development") {
         }
         const slicedPosts = mappedPosts.slice(from, sliceTo);
 
-        console.log("slicedPosts ", slicedPosts);
+        logm("slicedPosts ", slicedPosts);
 
         return { posts: slicedPosts, allPostsLength: mappedPosts.length };
       });
@@ -415,7 +409,7 @@ export default function makeServer(environment = "development") {
       this.get("/users/searchForNames/:query", (schema, req) => {
         const query = req.params["query"];
 
-        console.log("query", query);
+        logm("query", query);
 
         const allUsers = schema.users.all().models;
 
@@ -425,7 +419,6 @@ export default function makeServer(environment = "development") {
 
         const resultArr = allUsers
           .reduce((previousArr, currentName) => {
-            // console.log("currentName", currentName);
 
             const charsName = currentName.userName
               .toLocaleLowerCase()
@@ -472,7 +465,6 @@ export default function makeServer(environment = "development") {
 
       this.get("/comments/:commentId", (schema, req) => {
         const commentId = req.params["commentId"];
-        // console.log('server got comment id ', commentId);
         const comment = schema.comments.find(commentId);
         return comment;
       });

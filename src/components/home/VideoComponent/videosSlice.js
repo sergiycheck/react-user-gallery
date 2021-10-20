@@ -24,7 +24,6 @@ const initialState = videosAdapter.getInitialState({
 export const fetchVideos = createAsyncThunk(
 	'videos/fetchVideos',
 	async()=>{
-		// console.log('video fetch ', videosRoute);
 
 		const response = await client.get(videosRoute,{});
 
@@ -44,7 +43,6 @@ const videosSlice = createSlice({
 		},
 		[fetchVideos.fulfilled]:(state,action)=>{
 			state.status = StatusData.succeeded;
-			// console.log('fetchVideos.fulfilled action.payload',action.payload);
 			videosAdapter.upsertMany(state,action.payload);
 		}
 	}

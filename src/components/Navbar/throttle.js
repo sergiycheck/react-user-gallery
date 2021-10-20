@@ -1,4 +1,5 @@
 
+import { logm } from "../../helpers/custom-logger";
 
 export const throttle = (func,time) =>{
 	let allowedToCall = true;
@@ -8,7 +9,7 @@ export const throttle = (func,time) =>{
 		if(!allowedToCall){
 			wrapper.savedArgs = arguments;
 			wrapper.savedThis = this;
-			// console.log(`func, args `, func,args)
+			// logm(`func, args `, func,args)
 			return;
 		}
 

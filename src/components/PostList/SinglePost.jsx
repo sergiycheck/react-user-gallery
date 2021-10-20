@@ -16,9 +16,10 @@ import { fetchSinglePost, selectPostById } from "./postSlice";
 import { ExploreSameHashTags } from "./ExploreSameHashTags.jsx";
 
 import { PostView } from "./Post.jsx";
+import {logm} from '../../helpers/custom-logger';
 
 export const SinglePost = ({ match }) => {
-  console.log("match.params ", match.params);
+  logm("match.params ", match.params);
 
   const { postId } = match.params;
 

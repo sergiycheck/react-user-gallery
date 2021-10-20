@@ -99,12 +99,9 @@ export const selectCommentsStatus = (state) => state.comments.status;
 
 export const selectCommentsByPostId = createSelector(
 	[selectAllComments, (state,postId)=>{
-		// console.log('calling selectCommentsByPostId input selector. commentId ', postId);
 		return postId;
 	}],
 	(comments, postId) => {
-		// console.log('calling selectCommentsByPostId second output selector. postId: ', postId)
-		// console.log('posts ',[comments])
 		return comments.filter(cmt=>cmt.postId === postId);
 	}
 )

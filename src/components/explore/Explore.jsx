@@ -22,7 +22,6 @@ import { UsersList } from "../profile/UsersList.jsx";
 export const ExploreForExplorePage = () => {
 
   const match = useRouteMatch();
-  // console.log(``)
 
   return (
     <div className="site-wrap">

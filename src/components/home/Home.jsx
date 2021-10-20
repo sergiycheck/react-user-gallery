@@ -45,7 +45,6 @@ export const Home = () => {
       postsStatus === StatusData.succeeded
     ) {
       if (!areHomeHandlersSet) {
-        // console.log('activating home handlers');
 
         activateHomeHandlers();
         setHomeHandlers(true);

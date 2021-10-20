@@ -46,8 +46,10 @@ import {
   selectSingleUserForAppStatus,
 } from "./usersSlice";
 
+import { logm } from "../../helpers/custom-logger";
+
 export const Profile = ({ match }) => {
-  console.log("match.params ", match.params);
+  logm("match.params ", match.params);
 
   const { userId } = match.params;
   const dispatch = useDispatch();
@@ -125,15 +127,14 @@ export const OtherUserProfile = ({ userId, currentUserApp }) => {
     );
   }
   const followUserHandler = () => {
-    console.log(`user with id ${userId} is following`);
+    logm(`user with id ${userId} is following`);
     dispatch(followUserFetchPost({ userIdToFollow: userId }));
     dispatch(changePostStatusToStartFetching({ newStatus: StatusData.idle }));
   };
 
   const unFollowUserHandler = () => {
-    console.log(`unfollow from user with id ${userId}`);
+    logm(`unfollow from user with id ${userId}`);
     dispatch(unFollowUserFetchPost({ userIdToUnFollow: userId }));
-    //TODO: delete user posts from postsSlice that current users just unfollow
 
     dispatch(deleteUnfollowedUserPostsFromSlice({ unFollowedUserId: userId }));
     const hasUserFetchedSomePosts = allFetchedPostsLength !== 0;

@@ -69,7 +69,6 @@ const PostsList = () => {
   const setPaginationProperties = (from, to) => {
     setFromPaginationProp(from);
     setToPaginationProp(to);
-    // console.log("pagination properties set", " from ", from, " to ", to);
   };
 
 

@@ -27,6 +27,8 @@ import { useHistory } from "react-router-dom";
 
 import { useUserIdToSelectOrFetchUserForTheApp } from "../PostList/PostDataHelpers";
 
+import { logm } from "../../helpers/custom-logger";
+
 const NavBar = (props) => {
   const navbarelem = useRef(null);
 
@@ -57,11 +59,6 @@ const NavBar = (props) => {
     }
 
     docScrollTopPrevVal.current = docElScrollTop;
-
-    // console.log("docElScrollTop ", docElScrollTop);
-    // console.log("docScrollTopPrevVal ", docScrollTopPrevVal);
-
-    // console.log("docElclientHeight ", docElclientHeight);
 
     if (docElScrollTop <= initialNavBarTopRef.current) {
       navbarelem.current.classList.remove("fixed-top");
@@ -199,13 +196,11 @@ async function dispatchSearchRequest(trimmedText, dispatch) {
     const arrNamesResult = await dispatch(
       searchForUsersNames({ query: trimmedText })
     );
-    // console.log(`arrNamesResult`, arrNamesResult);
     const unwrappedResult = unwrapResult(arrNamesResult);
-    console.log(`unwrappedResult`, unwrappedResult);
-    // setSearchedArrName(unwrappedResult.slice());
+    logm(`unwrappedResult`, unwrappedResult);
     return unwrappedResult;
   } catch (error) {
-    console.log(error.message);
+    logm(error.message);
   }
 }
 const TIME_AFTER_WHICH_TO_DISPATCH = 500;
@@ -266,9 +261,9 @@ const SearchForm = (props) => {
     const unwrappedResultPromise = throttledRequest(value.trim(), dispatch);
 
     if (unwrappedResultPromise) {
-      console.log("setting promise result");
+      logm("setting promise result");
       unwrappedResultPromise.then((result) => {
-        console.log("result of resolved promise", result);
+        logm("result of resolved promise", result);
 
         // setSearchedArrName(result.slice());
         focusedElemIndex.current = -1;
@@ -303,7 +298,6 @@ const SearchForm = (props) => {
       setLoadingStatus(StatusData.loading);
       setListHidden(true);
 
-      // console.log(`searching for posts with query ${trimmedText}...`);
 
       dispatch(removeAllEntities());
 

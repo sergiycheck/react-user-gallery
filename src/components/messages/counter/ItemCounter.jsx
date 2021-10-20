@@ -17,20 +17,10 @@ from './itemCounterSlice';
 
 export default function ItemCounter(props){
 
-	//console.log('MessageCounter',props.msgCount);
-
 	const itemCounter = useSelector(selectItemCount);
 	const dispatch = useDispatch();
 
 	const [incrementItemsAmount,setIncrementAmount] = useState(0);
-
-//error prone behaviour
-	// useEffect(()=>{
-	// 	//console.log('MessageCounter useEffect',props.msgCount);
-	// 	setIncrementAmount(props.msgCount);
-	// 	dispatch(incrementByAmount(incrementItemsAmount));
-	
-	//  },[props.msgCount]);
 
 	return(
 		<div className="d-flex">			

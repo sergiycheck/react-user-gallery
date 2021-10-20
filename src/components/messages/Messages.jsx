@@ -131,7 +131,6 @@ export default class Messages extends Component {
   }
 
   componentDidMount() {
-    // console.log("componentDidMount");
     activateMessageHandlers();
 
     this.updateMessageCount();
@@ -153,7 +152,6 @@ export default class Messages extends Component {
     this.setState({
       friend: friend,
     });
-    //console.log(friend);
   }
 
   sendMessage(msg) {

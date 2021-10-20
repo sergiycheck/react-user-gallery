@@ -1,3 +1,5 @@
+import {logm} from '../helpers/custom-logger';
+
 export async function client(endpoint, { body, ...customConfig } = {}) {
   const headers = { "Content-Type": "application/json" };
 	
@@ -14,8 +16,8 @@ export async function client(endpoint, { body, ...customConfig } = {}) {
     config.body = JSON.stringify(body);
   }
 
-	console.log('client config', config);
-	console.log('client endpoint', endpoint);
+	logm('client config', config);
+	logm('client endpoint', endpoint);
 
   let fetchedData;
   try {

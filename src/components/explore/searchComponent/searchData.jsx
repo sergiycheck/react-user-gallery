@@ -33,9 +33,10 @@ import {
 
 } from '../../loadMoreDataOnScrollLogic/loadMoreDataRenderAndHooks.js';
 
+import { logm } from "../../../helpers/custom-logger";
 
 export const SearchDataComponent = ({ match }) => {
-  console.log("match.params ", match.params);
+  logm("match.params ", match.params);
 
   const { query } = match.params; // bug. Dispatching action for previous query
 
@@ -79,7 +80,7 @@ export const SearchDataComponent = ({ match }) => {
       scrollHandler: handleScroll,
     },
     async function fetchPostAndSetPagination() {
-      console.log("fetching posts for query", query);
+      logm("fetching posts for query", query);
 
       await dispatch(searchUsersPostsByUserName({ ...fromAndTo }));
 
