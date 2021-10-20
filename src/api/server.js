@@ -25,6 +25,8 @@ import {
 
 import _ from "lodash";
 
+import {getArrOfPostsForUser, getRandomInt, getRandomArrIndex } from './serverHelpers/helpers.js';
+
 // to understand mirage better go -> node_modules -> miragejs -> lib -> orm model.js
 
 export default function makeServer(environment = "development") {
@@ -306,32 +308,20 @@ export default function makeServer(environment = "development") {
         // debugger;
         const { from, to } = req.requestHeaders;
 
-        const { currentUserId } = JSON.parse(req.requestBody);
-        const currentUser = schema.users.find(currentUserId);
-
-        if (!currentUser)
-          throw new Error(`can not find user with ${currentUserId}`);
-
-        // let allPosts = schema.posts.all();
-
-        const userFollowingRelations =  schema.db.subscribeRelations.where({
-          followerId:currentUserId,
-        });
-
-        let allPostsForUser = userFollowingRelations.reduce((prevArr,current)=>{
-
-          let currentUserFollowingRelation = current;
-          let userFollowingId = currentUserFollowingRelation.followingId;
-          let user = schema.users.find(userFollowingId);
-          if(!user) return prevArr;
-          prevArr = prevArr.concat(user.posts.models);
-          return prevArr
-        },[])
+        const allPostsForUser = getArrOfPostsForUser(schema,req);
 
         const resultPosts = allPostsForUser.slice(from, to);
         
         return {
           posts: resultPosts,
+          allPostsLength: allPostsForUser.length,
+        };
+      });
+
+      this.post('/posts/getNewAllPostsLengthForUser',(schema, req)=>{
+
+        const allPostsForUser = getArrOfPostsForUser(schema,req);
+        return {
           allPostsLength: allPostsForUser.length,
         };
       });
@@ -830,12 +820,6 @@ function createPostsForUser(server, userPropertyName, user) {
 }
 
 
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
 
-const getRandomArrIndex = (arr) => {
-  return getRandomInt(0, arr.length - 1);
-};
+
+

@@ -62,6 +62,23 @@ export const fetchPosts = createAsyncThunk(
   }
 );
 
+export const fetchAllPostsLengthForUser = createAsyncThunk(
+  "posts/fetchAllPostsLengthForUser",
+  async (_, { getState }) => {
+    
+    const { currentUserForApp } = getState().users;
+
+    const response = await client.post(
+      `${postsRoute}/getNewAllPostsLengthForUser`,
+      { currentUserId: currentUserForApp.id }
+    );
+
+    const { allPostsLength } = response;
+
+    return { allPostsLength };
+  }
+);
+
 export const fetchSinglePost = createAsyncThunk(
   `posts/fetchSinglePost`,
   async ({ postId }) => {
@@ -92,19 +109,35 @@ const postsSlice = createSlice({
 
       postsAdapter.addOne(state, action.payload);
     },
+    deleteUnfollowedUserPostsFromSlice(state, action){
+
+      const {unFollowedUserId} = action.payload;
+
+      const arrOfEntitiesIdToRemove = Object.values(state.entities)
+      .filter(entity=>{
+        return entity.userId === unFollowedUserId
+      }).map(entity=>entity.id);
+
+      postsAdapter.removeMany(state, arrOfEntitiesIdToRemove);
+    }
   },
   extraReducers: {
     [fetchPosts.pending]: (state, action) => {
       state.status = StatusData.loading;
     },
-
     [fetchPosts.fulfilled]: (state, action) => {
       state.status = StatusData.succeeded;
       const { posts, allPostsLength } = action.payload;
-      // console.log('fetchPosts.fulfilled action.payload',action.payload);
       state.fetchedAllEntitiesLength = allPostsLength;
-
       postsAdapter.upsertMany(state, posts);
+    },
+    [fetchAllPostsLengthForUser.pending]: (state, action) => {
+      state.status = StatusData.loading;
+    },
+    [fetchAllPostsLengthForUser.fulfilled]: (state, action) => {
+      state.status = StatusData.succeeded;
+      const { allPostsLength } = action.payload;
+      state.fetchedAllEntitiesLength = allPostsLength;
     },
 
     [fetchSinglePost.rejected]: (state, action) => {
@@ -112,10 +145,7 @@ const postsSlice = createSlice({
     },
     [fetchSinglePost.fulfilled]: (state, action) => {
       const { fetchedPost, allPostsLength } = action.payload;
-
       state.fetchedAllEntitiesLength = allPostsLength;
-
-      // const post = {...fetchedPost, userId:fetchedPost.user }
       postsAdapter.upsertOne(state, fetchedPost);
     },
 
@@ -141,7 +171,7 @@ const postsSlice = createSlice({
 
 export default postsSlice.reducer;
 
-export const { changePostStatusToStartFetching, postAdded } =
+export const { changePostStatusToStartFetching, postAdded,deleteUnfollowedUserPostsFromSlice } =
   postsSlice.actions;
 
 export const {

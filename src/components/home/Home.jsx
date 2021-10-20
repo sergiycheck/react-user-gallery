@@ -80,7 +80,7 @@ export const Home = () => {
 
   return (
     <div className="home-content">
-      <AsideBar></AsideBar>
+      {/* <AsideBar></AsideBar> */}
 
       <div className="bd-container container-xxl">
         <div id="hm-heading" className="text-center p-3">
