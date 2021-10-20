@@ -15,7 +15,7 @@ import { nanoid } from "@reduxjs/toolkit";
 import faker from "faker";
 import {
   sentence,
-  paragraph,
+  // paragraph,
   article,
   // setRandom
 } from "txtgen";
@@ -24,6 +24,8 @@ import {
 // import { randomInt } from "crypto";
 
 import _ from "lodash";
+
+import {getArrOfPostsForUser, getRandomInt, getRandomArrIndex } from './serverHelpers/helpers.js';
 
 // to understand mirage better go -> node_modules -> miragejs -> lib -> orm model.js
 
@@ -41,10 +43,9 @@ export default function makeServer(environment = "development") {
       // this.resource('posts')
       this.resource("comments");
       this.resource("videos");
+      this.resource("subscribeRelations");
 
-      this.get(
-        "/users",
-        (schema, req) => {
+      this.get( "/users", (schema, req) => {
           const { from, to } = req.requestHeaders;
 
           let allUsers = schema.users.all();
@@ -55,34 +56,47 @@ export default function makeServer(environment = "development") {
             users: resultUsers,
             allUsersLength: allUsers.length,
           };
-        },
-        { timing: 2000 }
+        }
+        // { timing: 2000 }
       );
+      this.get("/subscribeRelations", (schema, req) => {
+
+        let subscribeRelations = schema.subscribeRelations.all();
+        
+        return subscribeRelations;
+      });
 
       this.get("/posts/:postId/comments", (schema, req) => {
-        // console.log(`Server /posts/:postId/comments `);
+
         const postId = req.params["postId"];
-        // console.log('server got postId ', postId);
         const post = schema.posts.find(postId);
-        const comments = post.comments;
+        if (!post)
+          throw new Error(`can not find post with id:${postId}`);
+
+        // const comments = post.comments;
+        const comments = schema.db.comments.where({postId:postId});
 
         const { from, to } = req.requestHeaders;
-        // console.log(`server got from ${from}, and to ${to}`);
+
         let commentsSliced = comments.slice(from, to).sort((a, b) => {
           const aDate = new Date(a.date);
           const bDate = new Date(b.date);
-
-          // console.log('aDate.toLocaleString() ', aDate.toLocaleString());
-          // console.log('bDate.toLocaleString() ',bDate.toLocaleString());
-          // const res = aDate.toLocaleString().localeCompare(bDate.toLocaleString());
-          // console.log('res', res);
-
           return aDate.toLocaleString().localeCompare(bDate.toLocaleString());
+        }).map(comment=>{
+          const userForComment = schema.db.users.findBy({id:comment.userId});
+          const {image, userName} = userForComment;
+          const mappedComment = {
+            ...comment,
+            commentatorAvatar:image,
+            author:userName
+          };
+          return mappedComment;
+          
         });
 
-        // console.log("sorted comments ", commentsSliced);
-
-        return commentsSliced;
+        return {
+          comments:commentsSliced
+        };
       });
 
       this.get("/users/:userId/posts", (schema, req) => {
@@ -142,6 +156,14 @@ export default function makeServer(environment = "development") {
         };
       });
 
+      this.get("/hashTags/all", (schema, req) => {
+        const allHashTags = schema.hashTags.all();
+        return {
+          hashTags: allHashTags,
+          serverHashTagsLength: allHashTags.length,
+        };
+      });
+
       this.get("/posts/:postId/hashTags", (schema, req) => {
         const postId = req.params["postId"];
         const post = schema.posts.find(postId);
@@ -150,6 +172,7 @@ export default function makeServer(environment = "development") {
         return post.hashTags;
       });
 
+      //TODO: unit userId with post likes
       this.post("/posts/addLikeToPost", function (schema, req) {
         // const postId = req.params['postId'];
         // console.log('request \n',req);
@@ -172,6 +195,89 @@ export default function makeServer(environment = "development") {
         return { result };
       });
 
+      this.post("/users/followUser", function (schema, req) {
+        // debugger;
+
+        const { currentUserId, userIdToFollow } = JSON.parse(req.requestBody);
+        const currentUser = schema.users.find(currentUserId);
+        if (!currentUser)
+          throw new Error(`can not find user with ${currentUserId}`);
+
+        const userToFollow = schema.users.find(userIdToFollow);
+        if (!userToFollow)
+          throw new Error(`can not find user with id ${userIdToFollow}`);
+        
+
+        server.create("subscribeRelation",{
+          follower:currentUser,
+          following:userToFollow
+        });
+
+        const userFollowersRelations =  schema.db.subscribeRelations.where({
+          followingId:userIdToFollow,
+        });
+
+        return {
+          userFollowersRelations
+        }
+      });
+
+      this.post("/users/unFollowUser", function (schema, req) {
+        // debugger;
+        const { currentUserId, userIdToUnFollow } = JSON.parse(req.requestBody);
+
+        const currentUser = schema.users.find(currentUserId);
+        if (!currentUser)
+          throw new Error(`can not find user with ${currentUserId}`);
+
+        const userToFollow = schema.users.find(userIdToUnFollow);
+        if (!userToFollow)
+          throw new Error(`can not find user with id ${userIdToUnFollow}`);
+        
+        //we find subscribeRelation and remove it from db table and user subscribeRelationField Array
+        const subscribeRelation = schema.subscribeRelations.findBy({
+          followerId:currentUserId,
+          followingId:userIdToUnFollow
+        })
+        subscribeRelation.destroy();
+
+        const userFollowersRelations =  schema.db.subscribeRelations.where({
+          followingId:userToFollow,
+        });
+
+        return {
+          userFollowersRelations
+        }
+      });
+
+      this.get('/subscribeRelations/getUserSubscribeRelations/:userId', (schema, req)=>{
+        // debugger;
+
+        const userId = req.params["userId"];
+        const currentUser = schema.users.find(userId);
+
+        if (!currentUser)
+          throw new Error(`can not find user with ${userId}`);
+    
+        // date:'2021-10-17T17:09:27.887Z'
+        // followerId:'NgEFtRTXUHXUt6Aczog-f'
+        // followingId:'WUCP9msaKkjyV-o7v_NeJ'
+        // id:'kSAYuuRkn0m36WnMWzCmL'
+
+        const userFollowingRelations =  schema.db.subscribeRelations.where({
+          followerId:userId,
+        });
+        const userFollowersRelations =  schema.db.subscribeRelations.where({
+          followingId:userId,
+        });
+
+        return {
+          userFollowingRelations,
+          userFollowersRelations
+        }
+
+      })
+
       this.get("/users/:userId", (schema, req) => {
         const userId = req.params["userId"];
         let allUsers = schema.users.all();
@@ -187,13 +293,36 @@ export default function makeServer(environment = "development") {
       this.get("/posts", (schema, req) => {
         const { from, to } = req.requestHeaders;
 
-        let allPosts = schema.posts.all();
+        let allPosts = schema.posts.all().models;
 
-        const resultPosts = allPosts.models.slice(from, to);
+        const resultPosts = allPosts.slice(from, to);
 
         return {
           posts: resultPosts,
           allPostsLength: allPosts.length,
+        };
+
+      });
+
+      this.post("/posts/postsForCurrentUserForTheApp", (schema, req) => {
+        // debugger;
+        const { from, to } = req.requestHeaders;
+
+        const allPostsForUser = getArrOfPostsForUser(schema,req);
+
+        const resultPosts = allPostsForUser.slice(from, to);
+        
+        return {
+          posts: resultPosts,
+          allPostsLength: allPostsForUser.length,
+        };
+      });
+
+      this.post('/posts/getNewAllPostsLengthForUser',(schema, req)=>{
+
+        const allPostsForUser = getArrOfPostsForUser(schema,req);
+        return {
+          allPostsLength: allPostsForUser.length,
         };
       });
 
@@ -350,21 +479,27 @@ export default function makeServer(environment = "development") {
 
       this.post("/comments/addNew", (schema, req) => {
         const parsedBody = JSON.parse(req.requestBody);
-        const { postId, text } = parsedBody;
-
-        if (text === "error") {
-          throw new Error("Could not add new todo");
-        }
+        const { postId, text, userId } = parsedBody;
 
         const post = schema.posts.find(postId);
+        if (!post) throw new Error(`can not find post with ${postId}`);
 
-        const comment = { post: post, content: text };
+        const user = schema.users.find(userId);
+        if (!user) throw new Error(`can not find user with ${userId}`);
 
-        console.log("comment ", comment);
+        const commentToAdd = { post: post, content: text, user:user, date:new Date().toISOString() };
+        const addedComment = server.create("comment", commentToAdd);
+        let comment = addedComment.attrs;
 
-        const addedComment = server.create("comment", comment);
+        const userForComment = schema.db.users.findBy({id:comment.userId});
+        const {image, userName} = userForComment;
+        const mappedComment = {
+          ...comment,
+          commentatorAvatar:image,
+          author:userName
+        };
 
-        return { addedComment };
+        return { addedComment:mappedComment };
       });
 
       // /posts/postIdToFindSameHashTags=postId&other=params&other1=params1
@@ -413,16 +548,21 @@ export default function makeServer(environment = "development") {
     },
 
     models: {
-      currentUser: Model.extend({
-        subscribedUsers: hasMany('users'),
-        posts: hasMany()
-      }),
       user: Model.extend({
+        subscribeRelations: hasMany(),
         posts: hasMany(),
-        // comments: hasMany()
+
+        comments:hasMany(),
+
       }),
+      subscribeRelation: Model.extend({
+        follower: belongsTo("user", { inverse: null }), // users that follow current user
+        following: belongsTo("user", { inverse: null }), // users that current user follow
+      }),
+
       post: Model.extend({
         user: belongsTo(),
+
         comments: hasMany(),
         hashTags: hasMany(),
       }),
@@ -430,9 +570,7 @@ export default function makeServer(environment = "development") {
         posts: hasMany(),
       }),
       comment: Model.extend({
-        // commentable: belongsTo({ polymorphic: true }),
-
-        // user: belongsTo(),
+        user: belongsTo('user',{inverse:null}), 
         post: belongsTo(),
       }),
       notification: Model.extend({}),
@@ -443,12 +581,11 @@ export default function makeServer(environment = "development") {
     },
 
     factories: {
-      currentUser: Factory.extend({
-        ...userConfigObject,
-
-      }),
       user: Factory.extend({
-        ...userConfigObject
+        ...userConfigObject,
+      }),
+      subscribeRelation: Factory.extend({
+        ...subscriptionConfigObject,
       }),
 
       post: Factory.extend({
@@ -499,21 +636,12 @@ export default function makeServer(environment = "development") {
           return faker.lorem.sentence();
         },
 
-        commentatorAvatar() {
-          return faker.image.avatar();
-        },
 
-        author() {
-          return faker.name.findName();
-        },
-
-        //to much recursion
+        //to much recursion error
+         //helper hook for creation
         // user:association(),
-        post: association(),
+        // post: association(),
 
-        // ofPost:trait({
-        // post:association(),
-        // })
       }),
 
       video: Factory.extend({
@@ -522,9 +650,6 @@ export default function makeServer(environment = "development") {
         },
         user: association(),
       }),
-
-      //no user, post, comment properties in ressponse
-      // without that serializers
     },
 
     serializers: {
@@ -535,26 +660,38 @@ export default function makeServer(environment = "development") {
     },
 
     seeds(server) {
-      // server.createList("user", 6);//6 //100
-
-      server.createList("user", 50).forEach((user) => {
-        let postA = server.create("post", { user });
-        let postB = server.create("post", { user });
-        let postC = server.create("post", { user });
-
-        let postsCreated = [postA, postB, postC];
-
-        postsCreated.forEach((post) => {
-          server.createList("comment", 3, { post });
-        });
-
-        server.create("hashTag", { posts: [postA, postB] });
-        server.create("hashTag", { posts: [postA] });
-        server.create("hashTag", { posts: [postB, postC] });
-        server.create("hashTag", { posts: [postC, postA] });
+      let usersList = server.createList("user", 4);
+      usersList.forEach((user) => {
+        createPostsForUser(server, "user", user);
       });
 
-      let knownIdUser = server.create("user", { id: "knownId" });
+      let knownIdUser = server.create("user", {
+        id: "knownId",
+        firstName: "mock",
+        lastName: "user",
+        image: faker.internet.avatar(),
+      });
+
+      let allUsersList = [...usersList, knownIdUser]; //length 5
+
+      server.create("subscribeRelation", {
+        follower: allUsersList[0],
+        following: allUsersList[1],
+      });
+
+      server.create("subscribeRelation", {
+        follower: allUsersList[4],
+        following: allUsersList[2],
+      });
+      server.create("subscribeRelation", {
+        follower: allUsersList[4],
+        following: allUsersList[1],
+      });
+      server.create("subscribeRelation", {
+        follower: allUsersList[2],
+        following: allUsersList[4],
+      });
+
       let knownPost = server.create("post", {
         id: "knownPostId",
         user: knownIdUser,
@@ -564,7 +701,11 @@ export default function makeServer(environment = "development") {
       postList = [...postList, knownPost];
 
       postList.forEach((post) => {
-        server.createList("comment", 5, { post });
+
+        let randomUser = allUsersList[getRandomInt(0,allUsersList.length-1)];
+
+        server.create("comment", { post:post, user: randomUser});
+
       });
 
       server.create("hashTag", {
@@ -603,16 +744,6 @@ export default function makeServer(environment = "development") {
 // const IdSerializer = RestSerializer.extend({
 //   serializeIds: "always",
 // });
-
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-// const getRandomArrIndex = (arr) => {
-//   return getRandomInt(0, arr.length - 1);
-// };
 
 let videoDataStoredArr = [
   {
@@ -658,3 +789,37 @@ const userConfigObject = {
     return faker.image.avatar();
   },
 };
+
+const subscriptionConfigObject = {
+  id() {
+    return nanoid();
+  },
+  date() {
+    return new Date().toISOString();
+  },
+};
+
+function createPostsForUser(server, userPropertyName, user) {
+  let postA = server.create("post", { [`${userPropertyName}`]: user });
+  let postB = server.create("post", { [`${userPropertyName}`]: user });
+  let postC = server.create("post", { [`${userPropertyName}`]: user });
+
+  let postsCreated = [postA, postB, postC];
+
+  let allUsersModels = server.schema.users.all().models;
+
+  postsCreated.forEach((post) => {
+    server.create("comment",{ post, user:allUsersModels[getRandomArrIndex(allUsersModels)] });
+    server.create("comment",{ post, user:allUsersModels[getRandomArrIndex(allUsersModels)] });
+  });
+
+  server.create("hashTag", { posts: [postA, postB] });
+  server.create("hashTag", { posts: [postA] });
+  server.create("hashTag", { posts: [postB, postC] });
+  server.create("hashTag", { posts: [postC, postA] });
+}
+
+
+
+
+

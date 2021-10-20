@@ -26,6 +26,7 @@ import {
 
 } from '../loadMoreDataOnScrollLogic/loadMoreDataRenderAndHooks.js';
 
+import { Link } from "react-router-dom";
 
 const PostsList = () => {
   const dispatch = useDispatch();
@@ -75,6 +76,16 @@ const PostsList = () => {
   const { statusPostLoadingData } = useLoadingStatusToRenderLoader(
     postsStatus
   );
+
+  let userDoesNotSubscribeToAnybody = orderedPostIds.length === 0;
+  let postsAreFetched = postsStatus === StatusData.succeeded;
+  if(userDoesNotSubscribeToAnybody && postsAreFetched){
+    return (
+      <div>
+        <h2>follow <Link to={`explore/users`}>users</Link> to see their posts</h2>
+      </div>
+    )
+  }
 
   const contentPosts = orderedPostIds.map((postId) => {
     return <Post key={postId} postId={postId}></Post>;

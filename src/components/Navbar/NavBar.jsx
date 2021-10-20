@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import SvgIcon from '@mui/material/SvgIcon';
+import SvgIcon from "@mui/material/SvgIcon";
 
 import {
   // searchUsersPostsByUserName,
@@ -24,6 +24,8 @@ import classNames from "classnames";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { throttle } from "./throttle";
 import { useHistory } from "react-router-dom";
+
+import { useUserIdToSelectOrFetchUserForTheApp } from "../PostList/PostDataHelpers";
 
 const NavBar = (props) => {
   const navbarelem = useRef(null);
@@ -74,6 +76,26 @@ const NavBar = (props) => {
       window.addEventListener("scroll", navbarHandleScrollMemoizedCallback);
     };
   }, [navbarHandleScrollMemoizedCallback]);
+
+  const { currentUserApp, currentUserAppStatus } =
+    useUserIdToSelectOrFetchUserForTheApp();
+  let renderedLinkToProfile;
+  if (
+    currentUserAppStatus === StatusData.loading ||
+    currentUserAppStatus === StatusData.idle
+  ) {
+    renderedLinkToProfile = (
+      <Link to="/profile" className="nav-link disabled">
+        Profile
+      </Link>
+    );
+  } else if (currentUserAppStatus === StatusData.succeeded) {
+    renderedLinkToProfile = (
+      <Link to={`/profile/${currentUserApp.id}`} className="nav-link">
+        Profile
+      </Link>
+    );
+  }
 
   return (
     <nav
@@ -128,9 +150,8 @@ const NavBar = (props) => {
                   Messages
                 </Link>
 
-                <Link to="/profile" className="nav-link disabled">
-                  Profile
-                </Link>
+                {/* link to currentUserForApp profile */}
+                {renderedLinkToProfile}
 
                 <div className="dropdown">
                   <span
@@ -194,7 +215,6 @@ const throttledRequest = throttle(
 );
 
 const SearchForm = (props) => {
-
   const dispatch = useDispatch();
 
   const [text, setText] = useState("");
@@ -209,30 +229,27 @@ const SearchForm = (props) => {
   const focusedElemIndex = useRef(-1);
   const [previouslistItem, setPreviousListItems] = useState(null);
 
-
   const handleListItemClick = (e) => {
     setText(e.target.innerText.trim());
     searchInput.current.focus();
   };
 
-
   const searchedArrNames = useSelector(selectSearchedNamesAndIds);
 
-  const handleListItemsKeyDown = (e) =>{
+  const handleListItemsKeyDown = (e) => {
     e.preventDefault();
 
     arrowsKeysHandler(e);
-  }
+  };
 
   let renderedArrNames = searchedArrNames.map((name, index) => (
-    <li 
-      key={name.id} 
-      onClick={handleListItemClick} 
-      className="list-group-item" 
-      tabIndex={index+1}
+    <li
+      key={name.id}
+      onClick={handleListItemClick}
+      className="list-group-item"
+      tabIndex={index + 1}
       onKeyDown={handleListItemsKeyDown}
-
-      >
+    >
       {name.userName}
     </li>
   ));
@@ -255,13 +272,11 @@ const SearchForm = (props) => {
 
         // setSearchedArrName(result.slice());
         focusedElemIndex.current = -1;
-
       });
     }
   };
 
   const handleInputChange = (e) => {
-    
     setText(e.target.value);
     setListHidden(false);
 
@@ -274,19 +289,15 @@ const SearchForm = (props) => {
   };
 
   const handleKeyDown = (e) => {
-
     handleEnterPress(e);
 
     arrowsKeysHandler(e);
-
   };
 
   const handleEnterPress = (e) => {
-    
     const trimmedText = text.trim();
 
     if (e.key === "Enter" && trimmedText) {
-
       focusedElemIndex.current = -1;
 
       setLoadingStatus(StatusData.loading);
@@ -304,34 +315,29 @@ const SearchForm = (props) => {
 
       return;
     }
+  };
 
-  }
-
-  const arrowsKeysHandler = (e) =>{
-
-    if(e.key === 'ArrowDown'){
-
+  const arrowsKeysHandler = (e) => {
+    if (e.key === "ArrowDown") {
       focusedElemIndex.current++;
-      
-      if(focusedElemIndex.current >= renderedArrNames.length - 1 ){
+
+      if (focusedElemIndex.current >= renderedArrNames.length - 1) {
         focusedElemIndex.current = renderedArrNames.length - 1;
       }
-
-    }else if (e.key === 'ArrowUp'){
-
+    } else if (e.key === "ArrowUp") {
       focusedElemIndex.current--;
 
-      if(focusedElemIndex.current<=0){
+      if (focusedElemIndex.current <= 0) {
         focusedElemIndex.current = 0;
       }
     }
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp' ){
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      const currentListItem =
+        listItems.current.children[focusedElemIndex.current];
+      if (!currentListItem) return;
 
-      const currentListItem = listItems.current.children[focusedElemIndex.current];
-      if(!currentListItem) return;
-      
       setPreviousListItems(currentListItem);
-      if(previouslistItem!== null && previouslistItem['style']){
+      if (previouslistItem !== null && previouslistItem["style"]) {
         previouslistItem.style.background = null;
       }
 
@@ -342,28 +348,25 @@ const SearchForm = (props) => {
 
       searchInput.current.focus();
     }
-  }
-
+  };
 
   const focusoutHandler = (e) => {
-    e.target.style.background = '#e9ecef';
-  }
+    e.target.style.background = "#e9ecef";
+  };
 
   const addFocusListeners = () => {
-    listItems.current.addEventListener('focusout',focusoutHandler);
-  }
+    listItems.current.addEventListener("focusout", focusoutHandler);
+  };
   const removeFocusListeners = () => {
-    listItems.current.removeEventListener('focusout',focusoutHandler);
-  }
+    listItems.current.removeEventListener("focusout", focusoutHandler);
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     addFocusListeners();
     return () => {
       removeFocusListeners();
-    }
-
-  })
-
+    };
+  });
 
   let isLoading = loadingStatus === StatusData.loading;
 
@@ -394,7 +397,9 @@ const SearchForm = (props) => {
 
         <ul
           ref={listItems}
-          className={searchInputClasses} hidden={isListHidden}>
+          className={searchInputClasses}
+          hidden={isListHidden}
+        >
           {renderedArrNames}
         </ul>
       </div>

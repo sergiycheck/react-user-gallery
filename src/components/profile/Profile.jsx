@@ -1,10 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 
-import Button from '@mui/material/Button';
+import Button from "@mui/material/Button";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
-
-// import { logPositionScroll } from "../../helpers/atTheBottom"; //testing
 
 import { useUserIdToSelectOrFetchUser } from "../PostList/PostDataHelpers.js";
 
@@ -22,32 +20,102 @@ import {
   selectProfilePostsStatus,
   selectProfilePostsCurrentUserId,
   setCurrentUser,
+  fetchSubscribeRelationsForUser,
+  followUserFetchPost,
+  unFollowUserFetchPost,
+  selectFollowingRelationsStatus,
+  selectUserFollowersAndFollowingRelations,
+  selectFollowAndUnFollowRequestsStatus,
 } from "./profilePostsSlice.js";
 
 import {
-  subscribeToUser,
-  unsubscribeFromUser,
-  selectFollowedUsersIds,
-} from "./usersSlice.js";
+  deleteUnfollowedUserPostsFromSlice,
+  fetchAllPostsLengthForUser,
+  selectFetchedAllPostsLength,
+  changePostStatusToStartFetching,
+} from "../PostList/postSlice.js";
 
 import { ExploreWrapped } from "../explore/ExploreWrapped.jsx";
+
+import { StatusData } from "../../api/ApiRoutes";
+
+// import {useUserIdToSelectOrFetchUserForTheApp} from '../PostList/PostDataHelpers';
+
+import {
+  selectSingleUserForApp,
+  selectSingleUserForAppStatus,
+} from "./usersSlice";
 
 export const Profile = ({ match }) => {
   console.log("match.params ", match.params);
 
+  const { userId } = match.params;
   const dispatch = useDispatch();
 
-  const { userId } = match.params;
-
-  const user = useUserIdToSelectOrFetchUser({ userId });
-
-  const followedUserIds = useSelector(selectFollowedUsersIds);
-
-  const isUserIsFollowed = followedUserIds.includes(userId);
+  const userIdRef = useRef(userId);
 
   useEffect(() => {
-    showVisible("Profile");
+    userIdRef.current = userId;
   }, [userId]);
+
+  const currentUserApp = useSelector(selectSingleUserForApp);
+  const currentUserAppStatus = useSelector(selectSingleUserForAppStatus);
+  const followingRelationsStatus = useSelector(selectFollowingRelationsStatus);
+
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchSubscribeRelationsForUser({ userId: userIdRef.current }));
+    }
+    return () => {
+      dispatch(resetAllEntities());
+    };
+  }, [userId, dispatch]);
+
+  if (
+    currentUserAppStatus === StatusData.loading ||
+    currentUserAppStatus === StatusData.idle ||
+    followingRelationsStatus === StatusData.loading ||
+    followingRelationsStatus === StatusData.idle
+  ) {
+    return <div>loading...</div>;
+  }
+
+  if (
+    currentUserAppStatus === StatusData.succeeded &&
+    currentUserApp.id !== userIdRef.current
+  ) {
+    // return other user profile
+    return (
+      <OtherUserProfile
+        userId={userIdRef.current}
+        currentUserApp={currentUserApp}
+      ></OtherUserProfile>
+    );
+  }
+
+  // return current user profile
+  return <CurrentUserProfile user={currentUserApp}></CurrentUserProfile>;
+};
+export const OtherUserProfile = ({ userId, currentUserApp }) => {
+  const dispatch = useDispatch();
+  const user = useUserIdToSelectOrFetchUser({ userId });
+
+  const { userFollowersRelations } = useSelector(
+    selectUserFollowersAndFollowingRelations
+  );
+  const allFetchedPostsLength = useSelector(selectFetchedAllPostsLength);
+
+  const followAndUnFollowRequestsStatus = useSelector(
+    selectFollowAndUnFollowRequestsStatus
+  );
+
+  const isUserIsFollowedByCurrentUser = () => {
+    //TODO: dispatch request to know whether currentUserForTheApp follows currentUser
+    let isFollowed = userFollowersRelations
+      .map((relation) => relation.followerId)
+      .includes(currentUserApp.id);
+    return isFollowed;
+  };
 
   if (!user) {
     return (
@@ -56,34 +124,75 @@ export const Profile = ({ match }) => {
       </div>
     );
   }
+  const followUserHandler = () => {
+    console.log(`user with id ${userId} is following`);
+    dispatch(followUserFetchPost({ userIdToFollow: userId }));
+    dispatch(changePostStatusToStartFetching({ newStatus: StatusData.idle }));
+  };
+
+  const unFollowUserHandler = () => {
+    console.log(`unfollow from user with id ${userId}`);
+    dispatch(unFollowUserFetchPost({ userIdToUnFollow: userId }));
+    //TODO: delete user posts from postsSlice that current users just unfollow
+
+    dispatch(deleteUnfollowedUserPostsFromSlice({ unFollowedUserId: userId }));
+    const hasUserFetchedSomePosts = allFetchedPostsLength !== 0;
+    if (hasUserFetchedSomePosts) {
+      dispatch(fetchAllPostsLengthForUser());
+    }
+  };
 
   let renderedActionSubscriptionButton;
-  if (!isUserIsFollowed) {
+  if (!isUserIsFollowedByCurrentUser()) {
     renderedActionSubscriptionButton = (
-      <Button
-        onClick={() => {
-          console.log(`user with id ${userId} is following`);
-          dispatch(subscribeToUser({ userId }));
-        }}
-        variant="contained"
-        color="secondary"
-      >
+      <Button onClick={followUserHandler} variant="contained" color="secondary">
         subscribe
       </Button>
     );
   } else {
     renderedActionSubscriptionButton = (
-      <Button
-        onClick={() => {
-          console.log(`unsubscribe from  ${userId}`);
-          dispatch(unsubscribeFromUser({ userId }));
-        }}
-        variant="outlined"
-      >
+      <Button onClick={unFollowUserHandler} variant="outlined">
         unsubscribe
       </Button>
     );
   }
+
+  return (
+    <ProfileWrapped
+      user={user}
+      render={() => {
+        return renderedActionSubscriptionButton;
+      }}
+    ></ProfileWrapped>
+  );
+};
+
+export const CurrentUserProfile = ({ user }) => {
+  return <ProfileWrapped user={user} render={() => null}></ProfileWrapped>;
+};
+
+export const ProfileWrapped = ({ user, render }) => {
+  useEffect(() => {
+    showVisible("Profile");
+  }, [user]);
+
+  let renderedFollowButtonContent;
+  let renderedFollowButtonResult = render();
+  if (renderedFollowButtonResult !== null) {
+    renderedFollowButtonContent = renderedFollowButtonResult;
+  }
+
+  const { userFollowersRelations, userFollowingRelations } = useSelector(
+    selectUserFollowersAndFollowingRelations
+  );
+
+  const followersLength = useMemo(() => {
+    return userFollowersRelations.length;
+  }, [userFollowersRelations]);
+
+  const followingLength = useMemo(() => {
+    return userFollowingRelations.length;
+  }, [userFollowingRelations]);
 
   return (
     <div className="w-100">
@@ -108,14 +217,15 @@ export const Profile = ({ match }) => {
 
               <div className="d-flex justify-content-between">
                 <p className="small">{user.userName}</p>
-
-                {renderedActionSubscriptionButton}
+                <p className="fs-5">followers {followersLength}</p>
+                <p className="fs-5">following {followingLength}</p>
+                {renderedFollowButtonContent}
               </div>
             </div>
           </div>
         </section>
 
-        <ExploreUserProfilePosts userId={userId}></ExploreUserProfilePosts>
+        <ExploreUserProfilePosts userId={user.id}></ExploreUserProfilePosts>
       </main>
     </div>
   );
@@ -126,15 +236,10 @@ export const ExploreUserProfilePosts = ({ userId }) => {
 
   const currentUserId = useSelector(selectProfilePostsCurrentUserId);
 
+  //TODO: setCurrentUser refactor with useState
   useEffect(() => {
     dispatch(setCurrentUser({ userId }));
   }, [userId, dispatch]);
-
-  useEffect(() => {
-    if (currentUserId !== null && userId !== currentUserId) {
-      dispatch(resetAllEntities());
-    }
-  }, [userId, currentUserId, dispatch]);
 
   const exploreUserProfilePostsDataMethods = {
     selectItemsIds: selectProfilePostIds,
@@ -153,14 +258,10 @@ export const ExploreUserProfilePosts = ({ userId }) => {
   };
 
   return (
-    // <div className="container">
-
     <div className="main-content">
       <ExploreWrapped
         explorePageDataMethods={exploreUserProfilePostsDataMethods}
       ></ExploreWrapped>
     </div>
-
-    // </div>
   );
 };

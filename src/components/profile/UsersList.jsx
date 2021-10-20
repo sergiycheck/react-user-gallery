@@ -80,13 +80,6 @@ export const UsersList = (props) => {
   const { statusPostLoadingData } =
     useLoadingStatusToRenderLoader(usersStatus);
 
-  console.log(
-    "statusUsersLoadingData",
-    statusPostLoadingData,
-    " usersStatus ",
-    usersStatus
-  );
-
   return (
     <div className="container">
       <div

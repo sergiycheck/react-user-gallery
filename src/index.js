@@ -23,7 +23,6 @@ import { QueryParamProvider } from "use-query-params";
 //     makeServer();
 //   }
 
-
 if(typeof makeServer ==='function'){
   makeServer();
 }

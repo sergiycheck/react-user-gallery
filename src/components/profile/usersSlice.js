@@ -9,6 +9,7 @@ import {
   usersRoute,
   StatusData,
   singleUserPageRoute,
+
 } from "../../api/ApiRoutes";
 
 import { client } from "../../api/client";
@@ -17,21 +18,22 @@ import { createSelector } from 'reselect';
 
 const usersAdapter = createEntityAdapter();
 
+const currentUserForAppId = 'knownId';
+
 const initialState = usersAdapter.getInitialState({
   status: StatusData.idle,
   error: null,
   fetchedAllUsersLength: 0,
-  followedUsersIds:[]
+
+  currentUserForAppStatus:StatusData.idle,
+  currentUserForApp:null
 });
 
 
 export const fetchSingleUser = createAsyncThunk(
   `${usersName}/fetchUser`,
   async (userId) => {
-    const fetchUserUrl = singleUserPageRoute.replace(":userId", userId);
-    const response = await client.get(fetchUserUrl);
-    const {user, allUsersLength} = response;
-    return {user, allUsersLength};
+    return await requestForSingleUser(userId);
   }
 );
 
@@ -51,6 +53,23 @@ export const fetchUsers = createAsyncThunk(
   }
 );
 
+export const fetchSingleUserForApp = createAsyncThunk(
+  `${usersName}/fetchSingleUserForApp`,
+  async () =>{  
+    const result =  await requestForSingleUser(currentUserForAppId);
+    return result;
+  }
+)
+
+async function requestForSingleUser(userId){
+  const fetchUserUrl = singleUserPageRoute.replace(":userId", userId);
+    const response = await client.get(fetchUserUrl);
+    const {user, allUsersLength} = response;
+    return {user, allUsersLength};
+}
+
+
+
 const usersSlice = createSlice({
   name: "users",
   initialState,
@@ -59,14 +78,6 @@ const usersSlice = createSlice({
       if (state.status === StatusData.loading) return;
       const { newStatus } = action.payload;
       state.status = newStatus;
-    },
-    subscribeToUser(state, action){
-      const {userId} = action.payload;
-      state.followedUsersIds.push(userId);
-    },
-    unsubscribeFromUser(state, action){
-      const {userId} = action.payload;
-      state.followedUsersIds = state.followedUsersIds.filter(id=> id!==userId);
     }
   },
   extraReducers: {
@@ -93,6 +104,17 @@ const usersSlice = createSlice({
       usersAdapter.upsertOne(state, user);
     },
 
+    [fetchSingleUserForApp.pending]:(state, action) =>{
+      state.currentUserForAppStatus = StatusData.loading;
+    },
+    [fetchSingleUserForApp.rejected]:(state, action) =>{
+      state.currentUserForAppStatus = StatusData.failed;
+    },
+    [fetchSingleUserForApp.fulfilled]:(state, action) =>{
+      state.currentUserForAppStatus = StatusData.succeeded;
+      const {user} = action.payload;
+      state.currentUserForApp = user;
+    },
   },
 });
 
@@ -100,8 +122,6 @@ export default usersSlice.reducer;
 
 export const {
   changeUsersStatusToStartFetching,
-  subscribeToUser,
-  unsubscribeFromUser
 } = usersSlice.actions;
 
 export const {
@@ -111,13 +131,6 @@ export const {
 } = usersAdapter.getSelectors((state) => state.users);
 
 export const selectGlobalUsers = state => state.users;
-
-// export const selectFetchedAllUsersLength = state => 
-//   state.users.fetchedAllUsersLength;
-
-// export const selectUsersStatus = state =>
-//   state.users.status;
-
 
 export const selectFetchedAllUsersLength = createSelector(
   selectGlobalUsers,
@@ -129,9 +142,14 @@ export const selectUsersStatus = createSelector(
   users => users.status
 );
 
-export const selectFollowedUsersIds= createSelector(
+export const selectSingleUserForApp = createSelector(
   selectGlobalUsers,
-  users => users.followedUsersIds
+  users => users.currentUserForApp
+);
+
+export const selectSingleUserForAppStatus = createSelector(
+  selectGlobalUsers,
+  users => users.currentUserForAppStatus
 );
 
 

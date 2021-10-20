@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
@@ -12,12 +11,21 @@ import {
   selectHashTagsByPostId,
 } from "../hashTags/hashTagSlice";
 
+import {
+  selectSingleUserForApp,
+  selectSingleUserForAppStatus,
+  fetchSingleUserForApp,
+} from "../profile/usersSlice";
+import { StatusData } from "../../api/ApiRoutes";
 
 // unneeded fetches from explorePostExcerpt and Post components
 // used only for singlePost
 
-export const usePostIdToSelectOrFetchPost = ({ postId, postSelector, postFetcher }) => {
-
+export const usePostIdToSelectOrFetchPost = ({
+  postId,
+  postSelector,
+  postFetcher,
+}) => {
   const dispatch = useDispatch();
 
   const post = useSelector((state) => postSelector(state, postId));
@@ -26,7 +34,7 @@ export const usePostIdToSelectOrFetchPost = ({ postId, postSelector, postFetcher
     if (!post) {
       dispatch(postFetcher({ postId }));
     }
-  },[postId, dispatch, post, postFetcher]);
+  }, [postId, dispatch, post, postFetcher]);
 
   return post;
 };
@@ -45,8 +53,28 @@ export const useUserIdToSelectOrFetchUser = ({ userId }) => {
   return user;
 };
 
-export const usePostIdToSelectOrFetchHashTags = ({ postId }) => {
+export const useUserIdToSelectOrFetchUserForTheApp = () => {
+  
+  const currentUserApp = useSelector(selectSingleUserForApp);
+  const currentUserAppStatus = useSelector(selectSingleUserForAppStatus);
 
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (
+      !currentUserApp &&
+      currentUserAppStatus !== StatusData.loading &&
+      currentUserAppStatus !== StatusData.failed
+    ) {
+
+      dispatch(fetchSingleUserForApp());
+    }
+  }, [dispatch, currentUserApp, currentUserAppStatus]);
+
+  return { currentUserApp, currentUserAppStatus };
+};
+
+export const usePostIdToSelectOrFetchHashTags = ({ postId }) => {
   const dispatch = useDispatch();
 
   const hashTags = useSelector((state) =>
@@ -60,14 +88,16 @@ export const usePostIdToSelectOrFetchHashTags = ({ postId }) => {
   return hashTags;
 };
 
-
 export const usePostIdToGetItsContent = ({
   postId,
   postSelector,
   postFetcher,
 }) => {
-
-  const post = usePostIdToSelectOrFetchPost({postId, postSelector, postFetcher,});
+  const post = usePostIdToSelectOrFetchPost({
+    postId,
+    postSelector,
+    postFetcher,
+  });
 
   const user = useUserIdToSelectOrFetchUser({ userId: post.userId });
 
