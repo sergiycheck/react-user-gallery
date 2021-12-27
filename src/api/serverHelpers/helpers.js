@@ -1,29 +1,23 @@
-
-
-export function getArrOfPostsForUser(schema, req){
-
+export function getArrOfPostsForUser(schema, req) {
   const { currentUserId } = JSON.parse(req.requestBody);
   const currentUser = schema.users.find(currentUserId);
 
-  if (!currentUser)
-    throw new Error(`can not find user with ${currentUserId}`);
+  if (!currentUser) throw new Error(`can not find user with ${currentUserId}`);
 
-  const userFollowingRelations =  schema.db.subscribeRelations.where({
-    followerId:currentUserId,
+  const userFollowingRelations = schema.db.subscribeRelations.where({
+    followerId: currentUserId,
   });
 
-  let allPostsForUser = userFollowingRelations.reduce((prevArr,current)=>{
-
+  let allPostsForUser = userFollowingRelations.reduce((prevArr, current) => {
     let currentUserFollowingRelation = current;
     let userFollowingId = currentUserFollowingRelation.followingId;
     let user = schema.users.find(userFollowingId);
-    if(!user) return prevArr;
+    if (!user) return prevArr;
     prevArr = prevArr.concat(user.posts.models);
-    return prevArr
-  },[]);
+    return prevArr;
+  }, []);
 
   return allPostsForUser;
-
 }
 
 export function getRandomInt(min, max) {

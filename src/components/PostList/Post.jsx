@@ -23,10 +23,7 @@ import { PostReactions } from "./PostReactioins.jsx";
 
 import { HashTags } from "../hashTags/HashTags.jsx";
 
-import {
-  useUserIdToSelectOrFetchUser,
-  usePostIdToSelectOrFetchHashTags,
-} from "./PostDataHelpers.js";
+import { useUserIdToSelectOrFetchUser, usePostIdToSelectOrFetchHashTags } from "./PostDataHelpers.js";
 
 import { useSelector } from "react-redux";
 
@@ -65,10 +62,9 @@ const Post = ({ postId }) => {
 // Post = React.memo(Post);
 
 export const PostView = ({ post, hashTags, user, render }) => {
-  
   let renderedContent;
   let renderedResult = render();
-  if(renderedResult!==null){
+  if (renderedResult !== null) {
     renderedContent = renderedResult;
   }
 
@@ -81,9 +77,7 @@ export const PostView = ({ post, hashTags, user, render }) => {
             <div className={postS.avatarAndNick}>
               <div>
                 <img
-                  className={classNames(
-                    postS.postAvatarImg
-                  )}
+                  className={classNames(postS.postAvatarImg)}
                   src="/assets/img/img-placeholder.gif"
                   data-src={user.image}
                   alt="user profile"
@@ -111,11 +105,7 @@ export const PostView = ({ post, hashTags, user, render }) => {
           <div className="card-body">
             <div className="row">
               <div className="row mb-1">
-                <PostReactions
-                  postId={post.id}
-                  isLiked={post.postLiked}
-                  likeCount={post.likeCount}
-                ></PostReactions>
+                <PostReactions postId={post.id} isLiked={post.postLiked} likeCount={post.likeCount}></PostReactions>
               </div>
 
               {/* post bio section */}
@@ -130,10 +120,7 @@ export const PostView = ({ post, hashTags, user, render }) => {
 
                 <div className=" col-sm-10 col-md-10 ">
                   <p className="card-text mb-1">
-                    <ReadMoreText
-                      content={post.content}
-                      maxCharCount={120}
-                    ></ReadMoreText>
+                    <ReadMoreText content={post.content} maxCharCount={120}></ReadMoreText>
                   </p>
                 </div>
               </div>

@@ -8,19 +8,19 @@ import {
   // fetchSingleExplorePost
 } from "./exploreSlice.js";
 
-import {   
+import {
   Switch,
   Route,
   Link,
   // useParams,
-  useRouteMatch } from "react-router-dom";
+  useRouteMatch,
+} from "react-router-dom";
 
 import { ExploreWrapped } from "./ExploreWrapped.jsx";
 
 import { UsersList } from "../profile/UsersList.jsx";
 
 export const ExploreForExplorePage = () => {
-
   const match = useRouteMatch();
 
   return (
@@ -31,19 +31,12 @@ export const ExploreForExplorePage = () => {
         <Route exact path={`${match.path}`}>
           <Explore></Explore>
         </Route>
-        <Route
-          exact
-          path={`${match.path}/users`}
-        >
+        <Route exact path={`${match.path}/users`}>
           <UsersList></UsersList>
         </Route>
       </Switch>
-
-
-      
     </div>
   );
-
 };
 
 export const Explore = () => {
@@ -58,22 +51,17 @@ export const Explore = () => {
 
     changeItemsStatusToStartFetching: changeExplorePostStatusToStartFetching,
     fetchItems: fetchExplorePosts,
-
   };
 
   return (
     <div className="main-content">
-      <ExploreWrapped
-        explorePageDataMethods={explorePageDataMethods}
-      ></ExploreWrapped>
-
+      <ExploreWrapped explorePageDataMethods={explorePageDataMethods}></ExploreWrapped>
     </div>
   );
 };
 
 export const ExploreAsideBar = (props) => {
-
-  const {url} = useRouteMatch();
+  const { url } = useRouteMatch();
 
   return (
     <header
@@ -83,9 +71,7 @@ export const ExploreAsideBar = (props) => {
       data-aos="fade-left"
     >
       <div className="main-menu w-100">
-
         <ul className="row m-0 text-center">
-
           <li className="col-12 col-sm-2 col-lg-12  border-0 m-0 p-0">
             <Link to={url}>all posts</Link>
           </li>
@@ -95,26 +81,24 @@ export const ExploreAsideBar = (props) => {
           </li>
 
           <li className="col-12 col-sm-2 col-lg-12  border-0 disabled m-0 p-0">
-            <span className='mx-2'>photos</span>
+            <span className="mx-2">photos</span>
           </li>
 
           <li className="col-12 col-sm-2 col-lg-12  border-0 disabled m-0 p-0">
-            <span className='mx-2' >videos</span>
+            <span className="mx-2">videos</span>
           </li>
 
           <li className="col-12 col-sm-2 col-lg-12  border-0 disabled m-0 p-0">
-            <span className='mx-2'>channels</span>
+            <span className="mx-2">channels</span>
           </li>
 
           <li className="col-12 col-sm-2 col-lg-12  border-0 disabled m-0 p-0">
-            <span className='mx-2'>live</span>
+            <span className="mx-2">live</span>
           </li>
         </ul>
-        
       </div>
     </header>
   );
 };
-
 
 export default ExploreForExplorePage;

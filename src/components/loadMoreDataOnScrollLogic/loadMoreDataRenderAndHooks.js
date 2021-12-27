@@ -1,11 +1,9 @@
-
 import { StatusData } from "../../api/ApiRoutes";
 import { Loader } from "../helperComponents/Loader";
 import { useEffect } from "react";
 import { logm } from "../../helpers/custom-logger";
 
 export const useLoadingStatusToRenderLoader = (trackingStatus) => {
-	
   let statusPostLoadingData = "";
   if (trackingStatus === StatusData.loading) {
     statusPostLoadingData = <Loader></Loader>;
@@ -15,7 +13,6 @@ export const useLoadingStatusToRenderLoader = (trackingStatus) => {
 
   return { statusPostLoadingData };
 };
-
 
 export const useStatusAndArrOfIdsToFetchData = (
   { itemsStatus, idsArr, allItemsLength, scrollHandler },
@@ -45,16 +42,10 @@ export const useStatusAndArrOfIdsToFetchData = (
       fetchCallBack();
     }
 
-    return ()=>{
-      logm('reset callback');
-    }
-  }, [
-    itemsStatus,
-    idsArr.length,
-    allItemsLength,
-    scrollHandler,
-    fetchCallBack,
-  ]);
+    return () => {
+      logm("reset callback");
+    };
+  }, [itemsStatus, idsArr.length, allItemsLength, scrollHandler, fetchCallBack]);
 };
 
 export const scrollHandlerWithCallBack = (checkIfAtTheBottom, callback) => {
@@ -65,18 +56,13 @@ export const scrollHandlerWithCallBack = (checkIfAtTheBottom, callback) => {
   };
 };
 
-
-export const useLoadingStatusToAddOrRemoveScrollListeners = ({itemIdsArr, allItemsLength, handler}) =>{
-
+export const useLoadingStatusToAddOrRemoveScrollListeners = ({ itemIdsArr, allItemsLength, handler }) => {
   useEffect(() => {
-    const allSearchedPostsNotFetched =
-    itemIdsArr.length !== allItemsLength;
+    const allSearchedPostsNotFetched = itemIdsArr.length !== allItemsLength;
     const fetchedSomeSearchPosts = itemIdsArr.length > 0;
 
     if (allSearchedPostsNotFetched && fetchedSomeSearchPosts) {
-      logm(
-        "allSearchedPostsNotFetched && fetchedSomeSearchPosts setting handleScroll"
-      );
+      logm("allSearchedPostsNotFetched && fetchedSomeSearchPosts setting handleScroll");
 
       window.addEventListener("scroll", handler);
     }
@@ -87,4 +73,4 @@ export const useLoadingStatusToAddOrRemoveScrollListeners = ({itemIdsArr, allIte
       window.removeEventListener("scroll", handler);
     };
   });
-}
+};

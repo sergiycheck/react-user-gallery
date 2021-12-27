@@ -1,11 +1,11 @@
-import {logm} from '../helpers/custom-logger';
+import { logm } from "../helpers/custom-logger";
 
 export async function client(endpoint, { body, ...customConfig } = {}) {
   const headers = { "Content-Type": "application/json" };
-	
+
   const config = {
     method: body ? "POST" : "GET",
-		...customConfig,
+    ...customConfig,
     headers: {
       ...headers,
       ...customConfig.headers,
@@ -16,8 +16,8 @@ export async function client(endpoint, { body, ...customConfig } = {}) {
     config.body = JSON.stringify(body);
   }
 
-	logm('client config', config);
-	logm('client endpoint', endpoint);
+  logm("client config", config);
+  logm("client endpoint", endpoint);
 
   let fetchedData;
   try {
@@ -33,10 +33,8 @@ export async function client(endpoint, { body, ...customConfig } = {}) {
 }
 
 client.get = function (endpoint, customConfig = {}) {
-
-  return client(endpoint, {...customConfig, method:'GET'});
+  return client(endpoint, { ...customConfig, method: "GET" });
 };
 client.post = function (endpoint, body, customConfig = {}) {
-
-	return client(endpoint, {body, ...customConfig});
+  return client(endpoint, { body, ...customConfig });
 };

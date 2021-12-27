@@ -10,10 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 import {
   fetchUserProfilePosts, //{ from, to, userId }
-  // fetchSingleUserProfilePost, //{userId, postId}
   changeProfilePostsStatusToStartFetching,
   resetAllEntities,
-  // selectAllProfilePosts,
   selectProfilePostById,
   selectProfilePostIds,
   selectFetchedAllProfilePostsLength,
@@ -39,14 +37,11 @@ import { ExploreWrapped } from "../explore/ExploreWrapped.jsx";
 
 import { StatusData } from "../../api/ApiRoutes";
 
-// import {useUserIdToSelectOrFetchUserForTheApp} from '../PostList/PostDataHelpers';
-
-import {
-  selectSingleUserForApp,
-  selectSingleUserForAppStatus,
-} from "./usersSlice";
+import { selectSingleUserForApp, selectSingleUserForAppStatus } from "./usersSlice";
 
 import { logm } from "../../helpers/custom-logger";
+
+import { CardPlaceholder } from "./../helperComponents/CardPlaceholder/CardPlaceholder";
 
 export const Profile = ({ match }) => {
   logm("match.params ", match.params);
@@ -79,43 +74,30 @@ export const Profile = ({ match }) => {
     followingRelationsStatus === StatusData.loading ||
     followingRelationsStatus === StatusData.idle
   ) {
-    return <div>loading...</div>;
+    return <CardPlaceholder showAvatarContent={true}></CardPlaceholder>;
   }
 
-  if (
-    currentUserAppStatus === StatusData.succeeded &&
-    currentUserApp.id !== userIdRef.current
-  ) {
+  if (currentUserAppStatus === StatusData.succeeded && currentUserApp.id !== userIdRef.current) {
     // return other user profile
-    return (
-      <OtherUserProfile
-        userId={userIdRef.current}
-        currentUserApp={currentUserApp}
-      ></OtherUserProfile>
-    );
+    return <OtherUserProfile userId={userIdRef.current} currentUserApp={currentUserApp}></OtherUserProfile>;
   }
 
   // return current user profile
   return <CurrentUserProfile user={currentUserApp}></CurrentUserProfile>;
 };
+
 export const OtherUserProfile = ({ userId, currentUserApp }) => {
   const dispatch = useDispatch();
   const user = useUserIdToSelectOrFetchUser({ userId });
 
-  const { userFollowersRelations } = useSelector(
-    selectUserFollowersAndFollowingRelations
-  );
+  const { userFollowersRelations } = useSelector(selectUserFollowersAndFollowingRelations);
   const allFetchedPostsLength = useSelector(selectFetchedAllPostsLength);
 
-  const followAndUnFollowRequestsStatus = useSelector(
-    selectFollowAndUnFollowRequestsStatus
-  );
+  const followAndUnFollowRequestsStatus = useSelector(selectFollowAndUnFollowRequestsStatus);
 
   const isUserIsFollowedByCurrentUser = () => {
     //TODO: dispatch request to know whether currentUserForTheApp follows currentUser
-    let isFollowed = userFollowersRelations
-      .map((relation) => relation.followerId)
-      .includes(currentUserApp.id);
+    let isFollowed = userFollowersRelations.map((relation) => relation.followerId).includes(currentUserApp.id);
     return isFollowed;
   };
 
@@ -180,16 +162,10 @@ export const ProfileWrapped = ({ user, render }) => {
   let renderedFollowButtonContent;
   let renderedFollowButtonResult = render();
   if (renderedFollowButtonResult !== null) {
-    renderedFollowButtonContent = (
-      <div className="col-12 col-sm-3">
-        {renderedFollowButtonResult}
-      </div>
-    );
+    renderedFollowButtonContent = <div className="col-12 col-sm-3">{renderedFollowButtonResult}</div>;
   }
 
-  const { userFollowersRelations, userFollowingRelations } = useSelector(
-    selectUserFollowersAndFollowingRelations
-  );
+  const { userFollowersRelations, userFollowingRelations } = useSelector(selectUserFollowersAndFollowingRelations);
 
   const followersLength = useMemo(() => {
     return userFollowersRelations.length;
@@ -279,9 +255,7 @@ export const ExploreUserProfilePosts = ({ userId }) => {
 
   return (
     <div className="main-content">
-      <ExploreWrapped
-        explorePageDataMethods={exploreUserProfilePostsDataMethods}
-      ></ExploreWrapped>
+      <ExploreWrapped explorePageDataMethods={exploreUserProfilePostsDataMethods}></ExploreWrapped>
     </div>
   );
 };

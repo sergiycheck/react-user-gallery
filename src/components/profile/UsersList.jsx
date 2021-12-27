@@ -37,9 +37,7 @@ export const UsersList = (props) => {
   const usersIds = useSelector((state) => selectUsersIds(state));
   const usersStatus = useSelector((state) => selectUsersStatus(state));
 
-  const allFetchedUsersLength = useSelector((state) =>
-    selectFetchedAllUsersLength(state)
-  );
+  const allFetchedUsersLength = useSelector((state) => selectFetchedAllUsersLength(state));
 
   const increment = 10;
   const [from, setFromPaginationProp] = useState(0);
@@ -77,15 +75,11 @@ export const UsersList = (props) => {
     return <UserExcerpt key={userId} userId={userId}></UserExcerpt>;
   });
 
-  const { statusPostLoadingData } =
-    useLoadingStatusToRenderLoader(usersStatus);
+  const { statusPostLoadingData } = useLoadingStatusToRenderLoader(usersStatus);
 
   return (
     <div className="container">
-      <div
-        className={classNames("fs-4 row justify-content-center rounded")}
-        style={{ minHeight: `300px` }}
-      >
+      <div className={classNames("fs-4 row justify-content-center rounded")} style={{ minHeight: `300px` }}>
         {renderedContentUsers}
         {statusPostLoadingData}
       </div>
@@ -104,10 +98,7 @@ export const UserExcerpt = ({ userId }) => {
     return (
       <div className="row">
         <div className="col-md-10">
-          <CardPlaceholder
-            showAvatarContent={true}
-            showCardImage={false}
-          ></CardPlaceholder>
+          <CardPlaceholder showAvatarContent={true} showCardImage={false}></CardPlaceholder>
         </div>
       </div>
     );

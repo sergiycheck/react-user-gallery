@@ -1,7 +1,6 @@
-import {logm} from './custom-logger';
+import { logm } from "./custom-logger";
 
 function isVisible(elem) {
-
   const imgRect = elem.getBoundingClientRect();
   // logm(`imgRect `, imgRect);
 
@@ -18,15 +17,13 @@ function isVisible(elem) {
   // 	document.body.scrollTop ${document.body.scrollTop} <br\>
   // `;
 
-  const isTopVisible =
-    imgRect.top > 0 && imgRect.top <= 2 * document.documentElement.clientHeight;
+  const isTopVisible = imgRect.top > 0 && imgRect.top <= 2 * document.documentElement.clientHeight;
 
   const isBottomVisible =
     imgRect.bottom >= -1 * document.documentElement.clientHeight &&
     imgRect.bottom < document.documentElement.clientHeight;
-	
-	
-	// logm('img ', elem);
+
+  // logm('img ', elem);
   // logm("isTopVisible ", isTopVisible);
   // logm("isBottomVisible ", isBottomVisible);
 
@@ -34,7 +31,6 @@ function isVisible(elem) {
 }
 
 export function showVisible() {
-  
   // console.clear();
   // logm('showVisible', Array.from(arguments).length? Array.from(arguments)[0]: 'empty');
 
@@ -43,11 +39,9 @@ export function showVisible() {
     if (!realSrc) continue;
 
     if (isVisible(img)) {
-
       img.src = realSrc;
 
       img.dataset.src = "";
     }
-
   }
 }

@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -19,7 +18,6 @@ import {
 import { ExplorePostExcerpt } from "./ExplorePostExcerpt.jsx";
 
 export const ExploreWrapped = ({ explorePageDataMethods }) => {
-  
   const {
     selectItemsIds,
 
@@ -31,7 +29,6 @@ export const ExploreWrapped = ({ explorePageDataMethods }) => {
 
     changeItemsStatusToStartFetching,
     fetchItems,
-
   } = explorePageDataMethods;
 
   const dispatch = useDispatch();
@@ -45,13 +42,9 @@ export const ExploreWrapped = ({ explorePageDataMethods }) => {
   const [from, setFromPaginationProp] = useState(0);
   const [to, setToPaginationProp] = useState(increment);
 
-
   const handleScroll = scrollHandlerWithCallBack(atTheBottom, () => {
-    dispatch(
-      changeItemsStatusToStartFetching({ newStatus: StatusData.idle })
-    );
+    dispatch(changeItemsStatusToStartFetching({ newStatus: StatusData.idle }));
   });
-
 
   useLoadingStatusToAddOrRemoveScrollListeners({
     itemIdsArr: orderedExplorePostIds,
@@ -68,19 +61,14 @@ export const ExploreWrapped = ({ explorePageDataMethods }) => {
     },
 
     async function fetchPostAndSetPagination() {
-      
       //debugger //here if from ===5
-      if(Object.keys(explorePageDataMethods).includes('postId')){
-
-        const {postId} = explorePageDataMethods;
+      if (Object.keys(explorePageDataMethods).includes("postId")) {
+        const { postId } = explorePageDataMethods;
         await dispatch(fetchItems({ from, to, postId }));
-      
-      }else if(Object.keys(explorePageDataMethods).includes('userId')){
-        
-        const {userId} = explorePageDataMethods;
+      } else if (Object.keys(explorePageDataMethods).includes("userId")) {
+        const { userId } = explorePageDataMethods;
         await dispatch(fetchItems({ from, to, userId }));
-      }else{
-
+      } else {
         await dispatch(fetchItems({ from, to }));
       }
 
@@ -94,17 +82,10 @@ export const ExploreWrapped = ({ explorePageDataMethods }) => {
     setToPaginationProp(to);
   };
 
-  const { statusPostLoadingData } =
-    useLoadingStatusToRenderLoader(explorePostsStatus);
+  const { statusPostLoadingData } = useLoadingStatusToRenderLoader(explorePostsStatus);
 
   const explorePostsContent = orderedExplorePostIds.map((postId, index) => {
-    return (
-      <ExplorePostExcerpt
-        key={postId}
-        postId={postId}
-        selectDataById={selectItemById}
-      ></ExplorePostExcerpt>
-    );
+    return <ExplorePostExcerpt key={postId} postId={postId} selectDataById={selectItemById}></ExplorePostExcerpt>;
   });
 
   return (

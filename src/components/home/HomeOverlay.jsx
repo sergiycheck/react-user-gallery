@@ -31,21 +31,16 @@ class HomeOverlay extends React.Component {
 
                     <div className="col">
                       <p className="mb-1">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        Recusandae tenetur explicabo fugit exercitationem
-                        voluptate? Doloribus, quae! Tempore temporibus, libero
-                        autem sit, perferendis nostrum velit cum eius maiores
-                        quibusdam, at quam.
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae tenetur explicabo fugit
+                        exercitationem voluptate? Doloribus, quae! Tempore temporibus, libero autem sit, perferendis
+                        nostrum velit cum eius maiores quibusdam, at quam.
                       </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="col-md-4 d-flex flex-column justify-content-between">
-                  <div
-                    className="row overflow-auto"
-                    style={{ maxHeight: "600px" }}
-                  >
+                  <div className="row overflow-auto" style={{ maxHeight: "600px" }}>
                     <div className="col">
                       <div className="row m-2">
                         <div className="col-sm-auto m-2">
@@ -57,11 +52,9 @@ class HomeOverlay extends React.Component {
                           />
                         </div>
                         <div className="col">
-                          Lorem ipsum dolor sit amet consectetur adipisicing
-                          elit. Facere excepturi labore quo nobis ab illo
-                          corrupti. Natus assumenda quisquam asperiores
-                          laboriosam nostrum enim blanditiis, quae quas odio
-                          quod quibusdam voluptates?
+                          Lorem ipsum dolor sit amet consectetur adipisicing elit. Facere excepturi labore quo nobis ab
+                          illo corrupti. Natus assumenda quisquam asperiores laboriosam nostrum enim blanditiis, quae
+                          quas odio quod quibusdam voluptates?
                         </div>
                       </div>
                       <div className="row m-2">
@@ -74,11 +67,9 @@ class HomeOverlay extends React.Component {
                           />
                         </div>
                         <div className="col">
-                          Lorem ipsum dolor sit amet consectetur adipisicing
-                          elit. Facere excepturi labore quo nobis ab illo
-                          corrupti. Natus assumenda quisquam asperiores
-                          laboriosam nostrum enim blanditiis, quae quas odio
-                          quod quibusdam voluptates?
+                          Lorem ipsum dolor sit amet consectetur adipisicing elit. Facere excepturi labore quo nobis ab
+                          illo corrupti. Natus assumenda quisquam asperiores laboriosam nostrum enim blanditiis, quae
+                          quas odio quod quibusdam voluptates?
                         </div>
                       </div>
                       <div className="row m-2">
@@ -91,11 +82,9 @@ class HomeOverlay extends React.Component {
                           />
                         </div>
                         <div className="col">
-                          Lorem ipsum dolor sit amet consectetur adipisicing
-                          elit. Facere excepturi labore quo nobis ab illo
-                          corrupti. Natus assumenda quisquam asperiores
-                          laboriosam nostrum enim blanditiis, quae quas odio
-                          quod quibusdam voluptates?
+                          Lorem ipsum dolor sit amet consectetur adipisicing elit. Facere excepturi labore quo nobis ab
+                          illo corrupti. Natus assumenda quisquam asperiores laboriosam nostrum enim blanditiis, quae
+                          quas odio quod quibusdam voluptates?
                         </div>
                       </div>
                       <div className="row m-2">
@@ -108,11 +97,9 @@ class HomeOverlay extends React.Component {
                           />
                         </div>
                         <div className="col">
-                          Lorem ipsum dolor sit amet consectetur adipisicing
-                          elit. Facere excepturi labore quo nobis ab illo
-                          corrupti. Natus assumenda quisquam asperiores
-                          laboriosam nostrum enim blanditiis, quae quas odio
-                          quod quibusdam voluptates?
+                          Lorem ipsum dolor sit amet consectetur adipisicing elit. Facere excepturi labore quo nobis ab
+                          illo corrupti. Natus assumenda quisquam asperiores laboriosam nostrum enim blanditiis, quae
+                          quas odio quod quibusdam voluptates?
                         </div>
                       </div>
                       <div className="row m-2">
@@ -125,11 +112,9 @@ class HomeOverlay extends React.Component {
                           />
                         </div>
                         <div className="col">
-                          Lorem ipsum dolor sit amet consectetur adipisicing
-                          elit. Facere excepturi labore quo nobis ab illo
-                          corrupti. Natus assumenda quisquam asperiores
-                          laboriosam nostrum enim blanditiis, quae quas odio
-                          quod quibusdam voluptates?
+                          Lorem ipsum dolor sit amet consectetur adipisicing elit. Facere excepturi labore quo nobis ab
+                          illo corrupti. Natus assumenda quisquam asperiores laboriosam nostrum enim blanditiis, quae
+                          quas odio quod quibusdam voluptates?
                         </div>
                       </div>
                     </div>
@@ -147,10 +132,7 @@ class HomeOverlay extends React.Component {
                     </div>
 
                     <div className="col-md-2 d-flex justify-content-start">
-                      <button
-                        id="post-comment-btn-big-view"
-                        className="btn btn-outline-secondary"
-                      >
+                      <button id="post-comment-btn-big-view" className="btn btn-outline-secondary">
                         Post
                       </button>
                     </div>

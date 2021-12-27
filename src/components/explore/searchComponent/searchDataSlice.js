@@ -1,19 +1,9 @@
 // use pagination state from and to here to fetch from NavBar component
 // and additional fetches from searchComponent
 
-import {
-  createSlice,
-  createAsyncThunk,
-  createEntityAdapter,
-  createSelector,
-} from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createEntityAdapter, createSelector } from "@reduxjs/toolkit";
 
-import {
-  StatusData,
-  postsRoute,
-  usersName,
-  usersRoute,
-} from "../../../api/ApiRoutes";
+import { StatusData, postsRoute, usersName, usersRoute } from "../../../api/ApiRoutes";
 
 import { client } from "../../../api/client";
 
@@ -24,7 +14,6 @@ const searchDataAdapter = createEntityAdapter({});
 const FetchIncrement = 5;
 
 const initialState = searchDataAdapter.getInitialState({
-  
   fetchedAllEntitiesLength: 0,
   status: StatusData.idle,
   error: null,
@@ -34,16 +23,14 @@ const initialState = searchDataAdapter.getInitialState({
   fetchTo: FetchIncrement,
 
   searchedNamesAndIds: [],
-  
 });
 
 export const searchUsersPostsByUserName = createAsyncThunk(
   `searchData/${usersName}/searchForUsersPosts`,
-  async ({from, to}, { getState }) => {
-    
+  async ({ from, to }, { getState }) => {
     const { searchQuery } = getState().searchData;
 
-    logm(`searchQuery ${searchQuery}, from ${from}, to ${to} state`,getState());
+    logm(`searchQuery ${searchQuery}, from ${from}, to ${to} state`, getState());
 
     const response = await client.post(
       `${usersRoute}/searchForUsersPosts`,
@@ -62,28 +49,20 @@ export const searchUsersPostsByUserName = createAsyncThunk(
   }
 );
 
-export const searchForUsersNames = createAsyncThunk(
-  `${usersName}/searchForUsersNames`,
-  async ({ query }) => {
-    const response = await client.get(`${usersRoute}/searchForNames/${query}`);
+export const searchForUsersNames = createAsyncThunk(`${usersName}/searchForUsersNames`, async ({ query }) => {
+  const response = await client.get(`${usersRoute}/searchForNames/${query}`);
 
-    if (response) return response.userNamesArr;
-    return [];
-  }
-);
+  if (response) return response.userNamesArr;
+  return [];
+});
 
+export const fetchSingleSearchDataPost = createAsyncThunk(`posts/fetchSingleSearchDataPost`, async ({ postId }) => {
+  const response = await client.get(`${postsRoute}/single/${postId}`);
 
-export const fetchSingleSearchDataPost = createAsyncThunk(
-	`posts/fetchSingleSearchDataPost`,
-	async ({postId}) => {
-		const response = await client.get(`${postsRoute}/single/${postId}`);
+  const { fetchedPost, allPostsLength } = response;
 
-    const { fetchedPost, allPostsLength } = response;
-
-    return { fetchedPost, allPostsLength };
-	}
-);
-
+  return { fetchedPost, allPostsLength };
+});
 
 const searchDataSlice = createSlice({
   name: "searchData",
@@ -92,10 +71,9 @@ const searchDataSlice = createSlice({
     setSearchQuery(state, action) {
       const { query } = action.payload;
 
-      if(query !== state.searchQuery){
-
+      if (query !== state.searchQuery) {
         state.fetchFrom = 0;
-        state.fetchTo = FetchIncrement
+        state.fetchTo = FetchIncrement;
       }
 
       state.searchQuery = query;
@@ -103,19 +81,18 @@ const searchDataSlice = createSlice({
 
     //dispatch this action after searchUsersPostsByUserName
     changePaginationPropsForSearchQuery(state, action) {
-      const {query} = action.payload;
+      const { query } = action.payload;
 
-      if(query !== state.searchQuery){
+      if (query !== state.searchQuery) {
         debugger;
         state.fetchFrom = 0;
-        state.fetchTo = FetchIncrement
+        state.fetchTo = FetchIncrement;
         return;
       }
 
       const { fetchTo } = state;
       state.fetchFrom = fetchTo;
       state.fetchTo = fetchTo + FetchIncrement;
-      
     },
 
     changeSearchDataStatusToStartFetching(state, action) {
@@ -124,17 +101,16 @@ const searchDataSlice = createSlice({
       state.status = newStatus;
     },
     //dispatch this action when searching for other posts
-    removeAllEntities(state, action){
-
+    removeAllEntities(state, action) {
       searchDataAdapter.removeAll(state);
-      state.searchQuery = '';
+      state.searchQuery = "";
       state.fetchedAllEntitiesLength = 0;
       state.fetchFrom = 0;
       state.fetchTo = FetchIncrement;
       state.status = StatusData.idle;
       state.error = null;
       state.searchedNamesAndIds = [];
-    }, 
+    },
   },
   extraReducers: {
     [searchUsersPostsByUserName.pending]: (state, action) => {
@@ -154,16 +130,14 @@ const searchDataSlice = createSlice({
       searchDataAdapter.upsertMany(state, posts);
     },
 
-    
-    [fetchSingleSearchDataPost.pending]: (state, action) =>{
+    [fetchSingleSearchDataPost.pending]: (state, action) => {
       state.status = StatusData.loading;
     },
-    [fetchSingleSearchDataPost.rejected]: (state, action) =>{
+    [fetchSingleSearchDataPost.rejected]: (state, action) => {
       state.status = StatusData.idle;
     },
-    [fetchSingleSearchDataPost.fulfilled]: (state, action) =>{
-
-      const {fetchedPost, allPostsLength} = action.payload;
+    [fetchSingleSearchDataPost.fulfilled]: (state, action) => {
+      const { fetchedPost, allPostsLength } = action.payload;
 
       state.fetchedAllEntitiesLength = allPostsLength;
 
@@ -174,7 +148,6 @@ const searchDataSlice = createSlice({
       const namesAndIdsArr = action.payload;
       state.searchedNamesAndIds = namesAndIdsArr;
     },
-
   },
 });
 
@@ -183,10 +156,9 @@ export default searchDataSlice.reducer;
 export const {
   changePaginationPropsForSearchQuery,
   setSearchQuery,
-  
+
   changeSearchDataStatusToStartFetching,
   removeAllEntities,
-  
 } = searchDataSlice.actions;
 
 export const {
@@ -195,8 +167,7 @@ export const {
   selectIds: selectAllSearchedPostByIds,
 } = searchDataAdapter.getSelectors((state) => state.searchData);
 
-export const selectSearchDataAllEntitiesLength = (state) =>
-  state.searchData.fetchedAllEntitiesLength;
+export const selectSearchDataAllEntitiesLength = (state) => state.searchData.fetchedAllEntitiesLength;
 
 export const selectSearchDataStatus = (state) => state.searchData.status;
 
@@ -210,5 +181,4 @@ export const selectFromAndToForPagination = createSelector(
   }
 );
 
-export const selectSearchedNamesAndIds = (state) =>
-  state.searchData.searchedNamesAndIds;
+export const selectSearchedNamesAndIds = (state) => state.searchData.searchedNamesAndIds;

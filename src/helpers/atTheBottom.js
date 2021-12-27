@@ -1,22 +1,19 @@
-
-
 // function getRandomInt(min, max) {
 //   min = Math.ceil(min);
 //   max = Math.floor(max);
 //   return Math.floor(Math.random() * (max - min + 1)) + min;
 // }
 
-import {logm} from './custom-logger';
+import { logm } from "./custom-logger";
 
 export const atTheBottom = () => {
-  
   // logPositionScroll()
 
   const heightAndOffset = Math.ceil(window.innerHeight + window.pageYOffset);
 
-  let bodyOffsetHeight = Math.floor( document.body.offsetHeight && document.documentElement.offsetHeight );
-  if(bodyOffsetHeight === 0){
-    bodyOffsetHeight = Math.floor( document.body.offsetHeight ||  document.documentElement.offsetHeight );
+  let bodyOffsetHeight = Math.floor(document.body.offsetHeight && document.documentElement.offsetHeight);
+  if (bodyOffsetHeight === 0) {
+    bodyOffsetHeight = Math.floor(document.body.offsetHeight || document.documentElement.offsetHeight);
   }
 
   if (heightAndOffset >= bodyOffsetHeight - 5) {
@@ -26,15 +23,17 @@ export const atTheBottom = () => {
   return false;
 };
 
-
-export const logPositionScroll = _ =>{
+export const logPositionScroll = (_) => {
   const rect = document.documentElement.getBoundingClientRect();
 
-  const bodyAndDocumentElementOffsetHeight = Math.floor( document.body.offsetHeight && document.documentElement.offsetHeight );
-  const bodyOrDocumentElementOffsetHeight = Math.floor( document.body.offsetHeight || document.documentElement.offsetHeight );
+  const bodyAndDocumentElementOffsetHeight = Math.floor(
+    document.body.offsetHeight && document.documentElement.offsetHeight
+  );
+  const bodyOrDocumentElementOffsetHeight = Math.floor(
+    document.body.offsetHeight || document.documentElement.offsetHeight
+  );
 
-
-  document.getElementById('PositionAlertMessage').innerText = `
+  document.getElementById("PositionAlertMessage").innerText = `
 
   heightAndOffset: ${Math.ceil(window.innerHeight + window.pageYOffset)}
   bodyOffsetHeight: ${Math.floor(document.body.offsetHeight)}
@@ -50,4 +49,4 @@ export const logPositionScroll = _ =>{
   rect bottom: ${rect.bottom}
   rect top: ${rect.top}
   `;
-}
+};

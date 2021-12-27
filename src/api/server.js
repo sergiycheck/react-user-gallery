@@ -1,33 +1,15 @@
-import {
-  // createServer,
-  Server,
-  Model,
-  Factory,
-  belongsTo,
-  hasMany,
-  association,
-  RestSerializer,
-  // JSONAPISerializer,
-} from "miragejs";
+import { Server, Model, Factory, belongsTo, hasMany, association, RestSerializer } from "miragejs";
 
 import { nanoid } from "@reduxjs/toolkit";
 
 import faker from "faker";
-import {
-  sentence,
-  // paragraph,
-  article,
-  // setRandom
-} from "txtgen";
-// import { parseISO } from "date-fns";
-// import seedrandom from "seedrandom";
-// import { randomInt } from "crypto";
+import { sentence, article } from "txtgen";
 
 import _ from "lodash";
 
-import {logm} from '../helpers/custom-logger';
+import { logm } from "../helpers/custom-logger";
 
-import {getArrOfPostsForUser, getRandomInt, getRandomArrIndex } from './serverHelpers/helpers.js';
+import { getArrOfPostsForUser, getRandomInt, getRandomArrIndex } from "./serverHelpers/helpers.js";
 
 // to understand mirage better go -> node_modules -> miragejs -> lib -> orm model.js
 
@@ -47,7 +29,9 @@ export default function makeServer(environment = "development") {
       this.resource("videos");
       this.resource("subscribeRelations");
 
-      this.get( "/users", (schema, req) => {
+      this.get(
+        "/users",
+        (schema, req) => {
           const { from, to } = req.requestHeaders;
 
           let allUsers = schema.users.all();
@@ -62,42 +46,41 @@ export default function makeServer(environment = "development") {
         // { timing: 2000 }
       );
       this.get("/subscribeRelations", (schema, req) => {
-
         let subscribeRelations = schema.subscribeRelations.all();
-        
+
         return subscribeRelations;
       });
 
       this.get("/posts/:postId/comments", (schema, req) => {
-
         const postId = req.params["postId"];
         const post = schema.posts.find(postId);
-        if (!post)
-          throw new Error(`can not find post with id:${postId}`);
+        if (!post) throw new Error(`can not find post with id:${postId}`);
 
         // const comments = post.comments;
-        const comments = schema.db.comments.where({postId:postId});
+        const comments = schema.db.comments.where({ postId: postId });
 
         const { from, to } = req.requestHeaders;
 
-        let commentsSliced = comments.slice(from, to).sort((a, b) => {
-          const aDate = new Date(a.date);
-          const bDate = new Date(b.date);
-          return aDate.toLocaleString().localeCompare(bDate.toLocaleString());
-        }).map(comment=>{
-          const userForComment = schema.db.users.findBy({id:comment.userId});
-          const {image, userName} = userForComment;
-          const mappedComment = {
-            ...comment,
-            commentatorAvatar:image,
-            author:userName
-          };
-          return mappedComment;
-          
-        });
+        let commentsSliced = comments
+          .slice(from, to)
+          .sort((a, b) => {
+            const aDate = new Date(a.date);
+            const bDate = new Date(b.date);
+            return aDate.toLocaleString().localeCompare(bDate.toLocaleString());
+          })
+          .map((comment) => {
+            const userForComment = schema.db.users.findBy({ id: comment.userId });
+            const { image, userName } = userForComment;
+            const mappedComment = {
+              ...comment,
+              commentatorAvatar: image,
+              author: userName,
+            };
+            return mappedComment;
+          });
 
         return {
-          comments:commentsSliced
+          comments: commentsSliced,
         };
       });
 
@@ -110,10 +93,7 @@ export default function makeServer(environment = "development") {
         let resultPosts;
         let allUserPosts = user.posts;
 
-        if (
-          Object.keys(req.requestHeaders).includes("from") &&
-          Object.keys(req.requestHeaders).includes("to")
-        ) {
+        if (Object.keys(req.requestHeaders).includes("from") && Object.keys(req.requestHeaders).includes("to")) {
           const { from, to } = req.requestHeaders;
           resultPosts = allUserPosts.models.slice(from, to);
         } else {
@@ -174,7 +154,6 @@ export default function makeServer(environment = "development") {
 
       //TODO: unit userId with post likes
       this.post("/posts/addLikeToPost", function (schema, req) {
-
         const { postId } = JSON.parse(req.requestBody);
 
         if (!postId) {
@@ -197,26 +176,23 @@ export default function makeServer(environment = "development") {
 
         const { currentUserId, userIdToFollow } = JSON.parse(req.requestBody);
         const currentUser = schema.users.find(currentUserId);
-        if (!currentUser)
-          throw new Error(`can not find user with ${currentUserId}`);
+        if (!currentUser) throw new Error(`can not find user with ${currentUserId}`);
 
         const userToFollow = schema.users.find(userIdToFollow);
-        if (!userToFollow)
-          throw new Error(`can not find user with id ${userIdToFollow}`);
-        
+        if (!userToFollow) throw new Error(`can not find user with id ${userIdToFollow}`);
 
-        server.create("subscribeRelation",{
-          follower:currentUser,
-          following:userToFollow
+        server.create("subscribeRelation", {
+          follower: currentUser,
+          following: userToFollow,
         });
 
-        const userFollowersRelations =  schema.db.subscribeRelations.where({
-          followingId:userIdToFollow,
+        const userFollowersRelations = schema.db.subscribeRelations.where({
+          followingId: userIdToFollow,
         });
 
         return {
-          userFollowersRelations
-        }
+          userFollowersRelations,
+        };
       });
 
       this.post("/users/unFollowUser", function (schema, req) {
@@ -224,56 +200,52 @@ export default function makeServer(environment = "development") {
         const { currentUserId, userIdToUnFollow } = JSON.parse(req.requestBody);
 
         const currentUser = schema.users.find(currentUserId);
-        if (!currentUser)
-          throw new Error(`can not find user with ${currentUserId}`);
+        if (!currentUser) throw new Error(`can not find user with ${currentUserId}`);
 
         const userToFollow = schema.users.find(userIdToUnFollow);
-        if (!userToFollow)
-          throw new Error(`can not find user with id ${userIdToUnFollow}`);
-        
+        if (!userToFollow) throw new Error(`can not find user with id ${userIdToUnFollow}`);
+
         //we find subscribeRelation and remove it from db table and user subscribeRelationField Array
         const subscribeRelation = schema.subscribeRelations.findBy({
-          followerId:currentUserId,
-          followingId:userIdToUnFollow
-        })
+          followerId: currentUserId,
+          followingId: userIdToUnFollow,
+        });
         subscribeRelation.destroy();
 
-        const userFollowersRelations =  schema.db.subscribeRelations.where({
-          followingId:userToFollow,
+        const userFollowersRelations = schema.db.subscribeRelations.where({
+          followingId: userToFollow,
         });
 
         return {
-          userFollowersRelations
-        }
+          userFollowersRelations,
+        };
       });
 
-      this.get('/subscribeRelations/getUserSubscribeRelations/:userId', (schema, req)=>{
+      this.get("/subscribeRelations/getUserSubscribeRelations/:userId", (schema, req) => {
         // debugger;
 
         const userId = req.params["userId"];
         const currentUser = schema.users.find(userId);
 
-        if (!currentUser)
-          throw new Error(`can not find user with ${userId}`);
-    
+        if (!currentUser) throw new Error(`can not find user with ${userId}`);
+
         // date:'2021-10-17T17:09:27.887Z'
         // followerId:'NgEFtRTXUHXUt6Aczog-f'
         // followingId:'WUCP9msaKkjyV-o7v_NeJ'
         // id:'kSAYuuRkn0m36WnMWzCmL'
 
-        const userFollowingRelations =  schema.db.subscribeRelations.where({
-          followerId:userId,
+        const userFollowingRelations = schema.db.subscribeRelations.where({
+          followerId: userId,
         });
-        const userFollowersRelations =  schema.db.subscribeRelations.where({
-          followingId:userId,
+        const userFollowersRelations = schema.db.subscribeRelations.where({
+          followingId: userId,
         });
 
         return {
           userFollowingRelations,
-          userFollowersRelations
-        }
-
-      })
+          userFollowersRelations,
+        };
+      });
 
       this.get("/users/:userId", (schema, req) => {
         const userId = req.params["userId"];
@@ -298,26 +270,24 @@ export default function makeServer(environment = "development") {
           posts: resultPosts,
           allPostsLength: allPosts.length,
         };
-
       });
 
       this.post("/posts/postsForCurrentUserForTheApp", (schema, req) => {
         // debugger;
         const { from, to } = req.requestHeaders;
 
-        const allPostsForUser = getArrOfPostsForUser(schema,req);
+        const allPostsForUser = getArrOfPostsForUser(schema, req);
 
         const resultPosts = allPostsForUser.slice(from, to);
-        
+
         return {
           posts: resultPosts,
           allPostsLength: allPostsForUser.length,
         };
       });
 
-      this.post('/posts/getNewAllPostsLengthForUser',(schema, req)=>{
-
-        const allPostsForUser = getArrOfPostsForUser(schema,req);
+      this.post("/posts/getNewAllPostsLengthForUser", (schema, req) => {
+        const allPostsForUser = getArrOfPostsForUser(schema, req);
         return {
           allPostsLength: allPostsForUser.length,
         };
@@ -344,16 +314,9 @@ export default function makeServer(environment = "development") {
 
           filteredUsers = allUsers
             .reduce((previousArr, currentUser) => {
+              const charsName = currentUser.userName.toLocaleLowerCase().split("");
 
-              const charsName = currentUser.userName
-                .toLocaleLowerCase()
-                .split("");
-
-              const intersectedArr = _.intersectionWith(
-                charsName,
-                queryChars,
-                _.isEqual
-              );
+              const intersectedArr = _.intersectionWith(charsName, queryChars, _.isEqual);
 
               if (intersectedArr.length > 0) {
                 return previousArr.concat(currentUser);
@@ -362,16 +325,8 @@ export default function makeServer(environment = "development") {
             }, [])
             .sort((first, second) => {
               return (
-                _.intersectionWith(
-                  second.userName.split(""),
-                  queryChars,
-                  _.isEqual
-                ).length -
-                _.intersectionWith(
-                  first.userName.split(""),
-                  queryChars,
-                  _.isEqual
-                ).length
+                _.intersectionWith(second.userName.split(""), queryChars, _.isEqual).length -
+                _.intersectionWith(first.userName.split(""), queryChars, _.isEqual).length
               );
             })
             .sort((first, second) => {
@@ -382,18 +337,13 @@ export default function makeServer(environment = "development") {
             });
         }
 
-        const reducedPosts = filteredUsers.reduce(
-          (previousArr, currentUser) => {
-            return previousArr.concat(currentUser.posts);
-          },
-          []
-        );
+        const reducedPosts = filteredUsers.reduce((previousArr, currentUser) => {
+          return previousArr.concat(currentUser.posts);
+        }, []);
 
-        const mappedPosts = reducedPosts
-          .map((collection) => collection.models)
-          .flat();
+        const mappedPosts = reducedPosts.map((collection) => collection.models).flat();
 
-          logm("mappedPosts ", mappedPosts);
+        logm("mappedPosts ", mappedPosts);
 
         let sliceTo = to;
         if (to >= mappedPosts.length) {
@@ -419,16 +369,9 @@ export default function makeServer(environment = "development") {
 
         const resultArr = allUsers
           .reduce((previousArr, currentName) => {
+            const charsName = currentName.userName.toLocaleLowerCase().split("");
 
-            const charsName = currentName.userName
-              .toLocaleLowerCase()
-              .split("");
-
-            const intersectedArr = _.intersectionWith(
-              charsName,
-              queryChars,
-              _.isEqual
-            );
+            const intersectedArr = _.intersectionWith(charsName, queryChars, _.isEqual);
 
             if (intersectedArr.length > 0) {
               return previousArr.concat({
@@ -440,16 +383,8 @@ export default function makeServer(environment = "development") {
           }, [])
           .sort((first, second) => {
             return (
-              _.intersectionWith(
-                second.userName.split(""),
-                queryChars,
-                _.isEqual
-              ).length -
-              _.intersectionWith(
-                first.userName.split(""),
-                queryChars,
-                _.isEqual
-              ).length
+              _.intersectionWith(second.userName.split(""), queryChars, _.isEqual).length -
+              _.intersectionWith(first.userName.split(""), queryChars, _.isEqual).length
             );
           })
           .sort((first, second) => {
@@ -479,19 +414,19 @@ export default function makeServer(environment = "development") {
         const user = schema.users.find(userId);
         if (!user) throw new Error(`can not find user with ${userId}`);
 
-        const commentToAdd = { post: post, content: text, user:user, date:new Date().toISOString() };
+        const commentToAdd = { post: post, content: text, user: user, date: new Date().toISOString() };
         const addedComment = server.create("comment", commentToAdd);
         let comment = addedComment.attrs;
 
-        const userForComment = schema.db.users.findBy({id:comment.userId});
-        const {image, userName} = userForComment;
+        const userForComment = schema.db.users.findBy({ id: comment.userId });
+        const { image, userName } = userForComment;
         const mappedComment = {
           ...comment,
-          commentatorAvatar:image,
-          author:userName
+          commentatorAvatar: image,
+          author: userName,
         };
 
-        return { addedComment:mappedComment };
+        return { addedComment: mappedComment };
       });
 
       // /posts/postIdToFindSameHashTags=postId&other=params&other1=params1
@@ -508,8 +443,7 @@ export default function makeServer(environment = "development") {
           return prev;
         }, {});
 
-        if (!Object.keys(paramObject).includes("postIdToFindSameHashTags"))
-          return;
+        if (!Object.keys(paramObject).includes("postIdToFindSameHashTags")) return;
 
         const postId = paramObject["postIdToFindSameHashTags"];
 
@@ -521,11 +455,7 @@ export default function makeServer(environment = "development") {
         const allPosts = schema.posts.all();
 
         const filteredPostsByHashTags = allPosts.filter((post) => {
-          const hashTagIntersection = _.intersectionBy(
-            post.hashTags.models,
-            foundPost.hashTags.models,
-            "name"
-          );
+          const hashTagIntersection = _.intersectionBy(post.hashTags.models, foundPost.hashTags.models, "name");
           const hasIntersection = Array.from(hashTagIntersection).length > 0;
           return hasIntersection;
         });
@@ -544,8 +474,7 @@ export default function makeServer(environment = "development") {
         subscribeRelations: hasMany(),
         posts: hasMany(),
 
-        comments:hasMany(),
-
+        comments: hasMany(),
       }),
       subscribeRelation: Model.extend({
         follower: belongsTo("user", { inverse: null }), // users that follow current user
@@ -562,7 +491,7 @@ export default function makeServer(environment = "development") {
         posts: hasMany(),
       }),
       comment: Model.extend({
-        user: belongsTo('user',{inverse:null}), 
+        user: belongsTo("user", { inverse: null }),
         post: belongsTo(),
       }),
       notification: Model.extend({}),
@@ -628,12 +557,10 @@ export default function makeServer(environment = "development") {
           return faker.lorem.sentence();
         },
 
-
         //to much recursion error
-         //helper hook for creation
+        //helper hook for creation
         // user:association(),
         // post: association(),
-
       }),
 
       video: Factory.extend({
@@ -661,7 +588,7 @@ export default function makeServer(environment = "development") {
         id: "knownId",
         firstName: "mock",
         lastName: "user",
-        image: faker.internet.avatar(),
+        image: faker.random.image(),
       });
 
       let allUsersList = [...usersList, knownIdUser]; //length 5
@@ -693,11 +620,9 @@ export default function makeServer(environment = "development") {
       postList = [...postList, knownPost];
 
       postList.forEach((post) => {
+        let randomUser = allUsersList[getRandomInt(0, allUsersList.length - 1)];
 
-        let randomUser = allUsersList[getRandomInt(0,allUsersList.length-1)];
-
-        server.create("comment", { post:post, user: randomUser});
-
+        server.create("comment", { post: post, user: randomUser });
       });
 
       server.create("hashTag", {
@@ -778,7 +703,7 @@ const userConfigObject = {
     return faker.phone.phoneNumber();
   },
   image() {
-    return faker.image.avatar();
+    return faker.random.image();
   },
 };
 
@@ -801,8 +726,8 @@ function createPostsForUser(server, userPropertyName, user) {
   let allUsersModels = server.schema.users.all().models;
 
   postsCreated.forEach((post) => {
-    server.create("comment",{ post, user:allUsersModels[getRandomArrIndex(allUsersModels)] });
-    server.create("comment",{ post, user:allUsersModels[getRandomArrIndex(allUsersModels)] });
+    server.create("comment", { post, user: allUsersModels[getRandomArrIndex(allUsersModels)] });
+    server.create("comment", { post, user: allUsersModels[getRandomArrIndex(allUsersModels)] });
   });
 
   server.create("hashTag", { posts: [postA, postB] });
@@ -810,8 +735,3 @@ function createPostsForUser(server, userPropertyName, user) {
   server.create("hashTag", { posts: [postB, postC] });
   server.create("hashTag", { posts: [postC, postA] });
 }
-
-
-
-
-

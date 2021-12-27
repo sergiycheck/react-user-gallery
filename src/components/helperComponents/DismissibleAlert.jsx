@@ -1,22 +1,22 @@
-
-
 import { useRef } from "react";
 
 import { logm } from "../../helpers/custom-logger";
 
 export function DismissibleAlert() {
-
   const alertComponent = useRef(null);
 
-	const handleButtonClick = (e) => {
-		logm('clicking button remove alert');
+  const handleButtonClick = (e) => {
+    logm("clicking button remove alert");
 
-		alertComponent.current.remove();
-	}
+    alertComponent.current.remove();
+  };
 
   return (
-    <div ref={alertComponent} className="alert mb-0 alert-warning fade show d-flex justify-content-between" role="alert">
-
+    <div
+      ref={alertComponent}
+      className="alert mb-0 alert-warning fade show d-flex justify-content-between"
+      role="alert"
+    >
       <div className="d-flex align-items-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"

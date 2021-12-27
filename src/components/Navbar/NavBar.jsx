@@ -4,18 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 
 import SvgIcon from "@mui/material/SvgIcon";
 
-import {
-  // searchUsersPostsByUserName,
-  removeAllEntities,
-  setSearchQuery,
-  // selectFromAndToForPagination,
-  // changePaginationPropsForSearchQuery
-} from "../explore/searchComponent/searchDataSlice";
+import { removeAllEntities, setSearchQuery } from "../explore/searchComponent/searchDataSlice";
 
-import {
-  searchForUsersNames,
-  selectSearchedNamesAndIds,
-} from "../explore/searchComponent/searchDataSlice.js";
+import { searchForUsersNames, selectSearchedNamesAndIds } from "../explore/searchComponent/searchDataSlice.js";
 
 import { StatusData } from "../../api/ApiRoutes";
 import navbarStyles from "./NavBar.module.scss";
@@ -74,13 +65,9 @@ const NavBar = (props) => {
     };
   }, [navbarHandleScrollMemoizedCallback]);
 
-  const { currentUserApp, currentUserAppStatus } =
-    useUserIdToSelectOrFetchUserForTheApp();
+  const { currentUserApp, currentUserAppStatus } = useUserIdToSelectOrFetchUserForTheApp();
   let renderedLinkToProfile;
-  if (
-    currentUserAppStatus === StatusData.loading ||
-    currentUserAppStatus === StatusData.idle
-  ) {
+  if (currentUserAppStatus === StatusData.loading || currentUserAppStatus === StatusData.idle) {
     renderedLinkToProfile = (
       <Link to="/profile" className="nav-link disabled">
         Profile
@@ -97,10 +84,7 @@ const NavBar = (props) => {
   return (
     <nav
       ref={navbarelem}
-      className={classNames(
-        "navbar navbar-expand-md navbar-light py-0 shadow bg-light",
-        navbarStyles.navbarTransition
-      )}
+      className={classNames("navbar navbar-expand-md navbar-light py-0 shadow bg-light", navbarStyles.navbarTransition)}
       role="navigation"
     >
       <div className="container  text-dark">
@@ -124,9 +108,7 @@ const NavBar = (props) => {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <div className="row width-100-media align-items-center justify-content-center">
             <div className="col-sm-12 col-md-8">
-
               <div className="row justify-content-between">
-
                 <div className="col-12 col-sm-12 col-md-4 justify-content-center d-flex">
                   <ul className="nav navbar-nav">
                     <li className="p-2">
@@ -145,7 +127,6 @@ const NavBar = (props) => {
 
             <div className="col-sm-12 col-md-4">
               <div className="nav navbar-nav text-center flex-nowrap">
-
                 <Link to="/messages" className="nav-link">
                   Messages
                 </Link>
@@ -164,10 +145,7 @@ const NavBar = (props) => {
                     Manage
                   </span>
 
-                  <ul
-                    className="dropdown-menu"
-                    aria-labelledby="dropdownMenuLink"
-                  >
+                  <ul className="dropdown-menu" aria-labelledby="dropdownMenuLink">
                     <li>
                       <Link to="/options" className="dropdown-item">
                         Options
@@ -196,9 +174,7 @@ const NavBar = (props) => {
 
 async function dispatchSearchRequest(trimmedText, dispatch) {
   try {
-    const arrNamesResult = await dispatch(
-      searchForUsersNames({ query: trimmedText })
-    );
+    const arrNamesResult = await dispatch(searchForUsersNames({ query: trimmedText }));
     const unwrappedResult = unwrapResult(arrNamesResult);
     logm(`unwrappedResult`, unwrappedResult);
     return unwrappedResult;
@@ -207,10 +183,7 @@ async function dispatchSearchRequest(trimmedText, dispatch) {
   }
 }
 const TIME_AFTER_WHICH_TO_DISPATCH = 500;
-const throttledRequest = throttle(
-  dispatchSearchRequest,
-  TIME_AFTER_WHICH_TO_DISPATCH
-);
+const throttledRequest = throttle(dispatchSearchRequest, TIME_AFTER_WHICH_TO_DISPATCH);
 
 const SearchForm = (props) => {
   const dispatch = useDispatch();
@@ -301,7 +274,6 @@ const SearchForm = (props) => {
       setLoadingStatus(StatusData.loading);
       setListHidden(true);
 
-
       dispatch(removeAllEntities());
 
       dispatch(setSearchQuery({ query: trimmedText }));
@@ -329,8 +301,7 @@ const SearchForm = (props) => {
       }
     }
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-      const currentListItem =
-        listItems.current.children[focusedElemIndex.current];
+      const currentListItem = listItems.current.children[focusedElemIndex.current];
       if (!currentListItem) return;
 
       setPreviousListItems(currentListItem);
@@ -367,10 +338,7 @@ const SearchForm = (props) => {
 
   let isLoading = loadingStatus === StatusData.loading;
 
-  const searchInputClasses = classNames(
-    `list-group`,
-    navbarStyles.searchClasses
-  );
+  const searchInputClasses = classNames(`list-group`, navbarStyles.searchClasses);
 
   return (
     <div className="mt-2">
@@ -392,11 +360,7 @@ const SearchForm = (props) => {
           autoComplete="off"
         />
 
-        <ul
-          ref={listItems}
-          className={searchInputClasses}
-          hidden={isListHidden}
-        >
+        <ul ref={listItems} className={searchInputClasses} hidden={isListHidden}>
           {renderedArrNames}
         </ul>
       </div>
