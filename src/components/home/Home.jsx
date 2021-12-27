@@ -6,23 +6,18 @@ import "./Home.scss";
 
 import activateHomeHandlers from "./home-scripts.js";
 
-import {
-  fetchVideos,
-  selectVideosIds,
-} from "./VideoComponent/videosSlice";
+import { fetchVideos, selectVideosIds } from "./VideoComponent/videosSlice";
 
 import { StatusData } from "../../api/ApiRoutes";
 
 import PostsList from "../PostList/PostList.jsx";
 
-import AsideBar from "../aside/AsideBar.jsx";
 import Carousel from "./Carousel/Carousel.jsx";
 
-import {VideoComponent} from './VideoComponent/VideoComponent.jsx';
+import { VideoComponent } from "./VideoComponent/VideoComponent.jsx";
 
-import {selectSingleUserForAppStatus} from '../profile/usersSlice';
+import { selectSingleUserForAppStatus } from "../profile/usersSlice";
 import { Loader } from "../helperComponents/Loader";
-
 
 export const Home = () => {
   const dispatch = useDispatch();
@@ -40,22 +35,15 @@ export const Home = () => {
   }, [videosStatus, dispatch]);
 
   useEffect(() => {
-    if (
-      videosStatus === StatusData.succeeded &&
-      postsStatus === StatusData.succeeded
-    ) {
+    if (videosStatus === StatusData.succeeded && postsStatus === StatusData.succeeded) {
       if (!areHomeHandlersSet) {
-        // console.log('activating home handlers');
-
         activateHomeHandlers();
         setHomeHandlers(true);
       }
     }
   }, [videosStatus, postsStatus, areHomeHandlersSet]);
 
-  const contentVideos = videosIds.map((videoId) => (
-    <VideoComponent key={videoId} videoId={videoId}></VideoComponent>
-  ));
+  const contentVideos = videosIds.map((videoId) => <VideoComponent key={videoId} videoId={videoId}></VideoComponent>);
 
   let loadVideoData;
 
@@ -72,10 +60,10 @@ export const Home = () => {
   }
 
   let postListRenderedContent;
-  if(userForTheAppStatus === StatusData.idle || userForTheAppStatus === StatusData.loading){
-    postListRenderedContent = <Loader></Loader>
-  }else{
-    postListRenderedContent = <PostsList></PostsList>
+  if (userForTheAppStatus === StatusData.idle || userForTheAppStatus === StatusData.loading) {
+    postListRenderedContent = <Loader></Loader>;
+  } else {
+    postListRenderedContent = <PostsList></PostsList>;
   }
 
   return (
@@ -85,9 +73,7 @@ export const Home = () => {
       <div className="bd-container container-xxl">
         <div id="hm-heading" className="text-center p-3">
           {videosStatus === StatusData.loading && loadVideoData}
-          {videosStatus === StatusData.succeeded && (
-            <Carousel contentVideos={contentVideos}></Carousel>
-          )}
+          {videosStatus === StatusData.succeeded && <Carousel contentVideos={contentVideos}></Carousel>}
         </div>
 
         {postListRenderedContent}
@@ -95,7 +81,5 @@ export const Home = () => {
     </div>
   );
 };
-
-
 
 export default Home;

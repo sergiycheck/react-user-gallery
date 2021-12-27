@@ -6,26 +6,15 @@ import { showVisible } from "../../helpers/imgLazyLoading";
 
 import { fetchSingleUser, selectUserById } from "../profile/usersSlice";
 
-import {
-  fetchHashTags,
-  selectHashTagsByPostId,
-} from "../hashTags/hashTagSlice";
+import { fetchHashTags, selectHashTagsByPostId } from "../hashTags/hashTagSlice";
 
-import {
-  selectSingleUserForApp,
-  selectSingleUserForAppStatus,
-  fetchSingleUserForApp,
-} from "../profile/usersSlice";
+import { selectSingleUserForApp, selectSingleUserForAppStatus, fetchSingleUserForApp } from "../profile/usersSlice";
 import { StatusData } from "../../api/ApiRoutes";
 
 // unneeded fetches from explorePostExcerpt and Post components
 // used only for singlePost
 
-export const usePostIdToSelectOrFetchPost = ({
-  postId,
-  postSelector,
-  postFetcher,
-}) => {
+export const usePostIdToSelectOrFetchPost = ({ postId, postSelector, postFetcher }) => {
   const dispatch = useDispatch();
 
   const post = useSelector((state) => postSelector(state, postId));
@@ -54,19 +43,13 @@ export const useUserIdToSelectOrFetchUser = ({ userId }) => {
 };
 
 export const useUserIdToSelectOrFetchUserForTheApp = () => {
-  
   const currentUserApp = useSelector(selectSingleUserForApp);
   const currentUserAppStatus = useSelector(selectSingleUserForAppStatus);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (
-      !currentUserApp &&
-      currentUserAppStatus !== StatusData.loading &&
-      currentUserAppStatus !== StatusData.failed
-    ) {
-
+    if (!currentUserApp && currentUserAppStatus !== StatusData.loading && currentUserAppStatus !== StatusData.failed) {
       dispatch(fetchSingleUserForApp());
     }
   }, [dispatch, currentUserApp, currentUserAppStatus]);
@@ -77,9 +60,7 @@ export const useUserIdToSelectOrFetchUserForTheApp = () => {
 export const usePostIdToSelectOrFetchHashTags = ({ postId }) => {
   const dispatch = useDispatch();
 
-  const hashTags = useSelector((state) =>
-    selectHashTagsByPostId(state, postId)
-  );
+  const hashTags = useSelector((state) => selectHashTagsByPostId(state, postId));
 
   useEffect(() => {
     dispatch(fetchHashTags({ postId }));
@@ -88,11 +69,7 @@ export const usePostIdToSelectOrFetchHashTags = ({ postId }) => {
   return hashTags;
 };
 
-export const usePostIdToGetItsContent = ({
-  postId,
-  postSelector,
-  postFetcher,
-}) => {
+export const usePostIdToGetItsContent = ({ postId, postSelector, postFetcher }) => {
   const post = usePostIdToSelectOrFetchPost({
     postId,
     postSelector,

@@ -1,8 +1,7 @@
-import React from 'react';
+import React from "react";
 import { useState } from "react";
 
 export const ReadMoreText = ({ content, maxCharCount }) => {
-
   const textShortPart = content.substring(0, maxCharCount);
   const textRemainingPart = content.substring(maxCharCount, content.length);
 
@@ -17,12 +16,8 @@ export const ReadMoreText = ({ content, maxCharCount }) => {
     }
   };
 
-  if(textRemainingPart.length === 0){
-    return (
-      <React.Fragment>
-        {textShortPart}
-      </React.Fragment>
-    )
+  if (textRemainingPart.length === 0) {
+    return <React.Fragment>{textShortPart}</React.Fragment>;
   }
 
   return (

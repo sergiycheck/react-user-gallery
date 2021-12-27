@@ -25,15 +25,11 @@ export const CommentsList = (props) => {
   const [from, setPaginationFromProp] = useState(0);
   const [to, setPaginationToProp] = useState(increment);
 
-  const comments = useSelector((state) =>
-    selectCommentsByPostId(state, postId)
-  );
+  const comments = useSelector((state) => selectCommentsByPostId(state, postId));
 
   useEffect(() => {
     async function fetchComments() {
-      const resultFetchedComments = await dispatch(
-        fetchPostComments({ postId, from, to })
-      );
+      const resultFetchedComments = await dispatch(fetchPostComments({ postId, from, to }));
       unwrapResult(resultFetchedComments);
 
       setPaginationProperties(from, to);
@@ -48,20 +44,13 @@ export const CommentsList = (props) => {
   const setPaginationProperties = (from, to) => {
     setPaginationFromProp(from);
     setPaginationToProp(to);
-    // console.log("pagination properties set", " from ", from, " to ", to);
   };
 
   const contentComments = comments.map((comment) => {
-    return (
-      <CommentExcerpt key={comment.id} commentId={comment.id}></CommentExcerpt>
-    );
+    return <CommentExcerpt key={comment.id} commentId={comment.id}></CommentExcerpt>;
   });
 
-  return (
-    <div className="row comments-container align-items-center">
-      {contentComments}
-    </div>
-  );
+  return <div className="row comments-container align-items-center">{contentComments}</div>;
 };
 
 export const CommentExcerpt = (props) => {
@@ -77,16 +66,13 @@ export const CommentExcerpt = (props) => {
           <div className="comment-content">
             <div className="comment-single">
               <span className="author">
-                <Link to={`/profile/${comment.userId}`} style={{color:'black'}}>
+                <Link to={`/profile/${comment.userId}`} style={{ color: "black" }}>
                   <b>{comment.author} </b>
                 </Link>
               </span>
 
               <span>
-                <ReadMoreText
-                  content={content}
-                  maxCharCount={50}
-                ></ReadMoreText>
+                <ReadMoreText content={content} maxCharCount={50}></ReadMoreText>
               </span>
             </div>
 

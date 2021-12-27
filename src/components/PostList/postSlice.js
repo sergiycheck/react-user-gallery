@@ -1,8 +1,4 @@
-import {
-  createSlice,
-  createAsyncThunk,
-  createEntityAdapter,
-} from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createEntityAdapter } from "@reduxjs/toolkit";
 
 import {
   StatusData,
@@ -26,52 +22,43 @@ const initialState = postsAdapter.getInitialState({
   error: null,
 });
 
-export const addLikeToPost = createAsyncThunk(
-  "posts/addLikeToPost",
-  async ({ postId }) => {
-    const response = await client.post(`${postsRoute}/addLikeToPost`, {
-      postId: postId,
-    });
+export const addLikeToPost = createAsyncThunk("posts/addLikeToPost", async ({ postId }) => {
+  const response = await client.post(`${postsRoute}/addLikeToPost`, {
+    postId: postId,
+  });
 
-    const post = response.result;
-    // return {id: post.id, changes: {...post}};
-    return post;
-  }
-);
+  const post = response.result;
+  // return {id: post.id, changes: {...post}};
+  return post;
+});
 
-export const fetchPosts = createAsyncThunk(
-  "posts/fetchPosts",
-  async ({ from, to }, { getState }) => {
-    
-    const { currentUserForApp } = getState().users;
+export const fetchPosts = createAsyncThunk("posts/fetchPosts", async ({ from, to }, { getState }) => {
+  const { currentUserForApp } = getState().users;
 
-    const response = await client.post(
-      `${postsRoute}/postsForCurrentUserForTheApp`,
-      { currentUserId: currentUserForApp.id },
-      {
-        headers: {
-          from: from,
-          to: to,
-        },
-      }
-    );
+  const response = await client.post(
+    `${postsRoute}/postsForCurrentUserForTheApp`,
+    { currentUserId: currentUserForApp.id },
+    {
+      headers: {
+        from: from,
+        to: to,
+      },
+    }
+  );
 
-    const { posts, allPostsLength } = response;
+  const { posts, allPostsLength } = response;
 
-    return { posts, allPostsLength };
-  }
-);
+  return { posts, allPostsLength };
+});
 
 export const fetchAllPostsLengthForUser = createAsyncThunk(
   "posts/fetchAllPostsLengthForUser",
   async (_, { getState }) => {
-    
     const { currentUserForApp } = getState().users;
 
-    const response = await client.post(
-      `${postsRoute}/getNewAllPostsLengthForUser`,
-      { currentUserId: currentUserForApp.id }
-    );
+    const response = await client.post(`${postsRoute}/getNewAllPostsLengthForUser`, {
+      currentUserId: currentUserForApp.id,
+    });
 
     const { allPostsLength } = response;
 
@@ -79,16 +66,13 @@ export const fetchAllPostsLengthForUser = createAsyncThunk(
   }
 );
 
-export const fetchSinglePost = createAsyncThunk(
-  `posts/fetchSinglePost`,
-  async ({ postId }) => {
-    const response = await client.get(`${postsRoute}/single/${postId}`);
+export const fetchSinglePost = createAsyncThunk(`posts/fetchSinglePost`, async ({ postId }) => {
+  const response = await client.get(`${postsRoute}/single/${postId}`);
 
-    const { fetchedPost, allPostsLength } = response;
+  const { fetchedPost, allPostsLength } = response;
 
-    return { fetchedPost, allPostsLength };
-  }
-);
+  return { fetchedPost, allPostsLength };
+});
 //TODO: fetch only that posts that currentUserForTheApp subscribed to
 
 const postsSlice = createSlice({
@@ -96,30 +80,25 @@ const postsSlice = createSlice({
   initialState,
   reducers: {
     changePostStatusToStartFetching(state, action) {
-      // console.log('changePostStatusToStartFetching old status ', state.status);
-
       if (state.status === StatusData.loading) return;
 
       const { newStatus } = action.payload;
       state.status = newStatus;
-      // console.log('changePostStatusToStartFetching post status changed ', state.status);
     },
     postAdded(state, action) {
-      // console.log('adding post ', action.payload);
-
       postsAdapter.addOne(state, action.payload);
     },
-    deleteUnfollowedUserPostsFromSlice(state, action){
-
-      const {unFollowedUserId} = action.payload;
+    deleteUnfollowedUserPostsFromSlice(state, action) {
+      const { unFollowedUserId } = action.payload;
 
       const arrOfEntitiesIdToRemove = Object.values(state.entities)
-      .filter(entity=>{
-        return entity.userId === unFollowedUserId
-      }).map(entity=>entity.id);
+        .filter((entity) => {
+          return entity.userId === unFollowedUserId;
+        })
+        .map((entity) => entity.id);
 
       postsAdapter.removeMany(state, arrOfEntitiesIdToRemove);
-    }
+    },
   },
   extraReducers: {
     [fetchPosts.pending]: (state, action) => {
@@ -150,17 +129,10 @@ const postsSlice = createSlice({
     },
 
     [addLikeToPost.fulfilled]: (state, action) => {
-      // state.status = StatusData.succeeded;
-
-      // console.log('addLikeToPost.fulfilled action.payload.id', action.payload.id);
-
       const updatedPost = action.payload;
       const { id } = updatedPost;
-      // const oldPost = selectPostById(state, id);//state is undefined
-      const oldPost = state.entities[id];
 
-      // console.log(`oldPost id ${oldPost.id}, oldPost likes ${oldPost.likeCount}`);
-      // console.log(`updatedPost id ${updatedPost.id}, updatedPost likes ${updatedPost.likeCount}`);
+      const oldPost = state.entities[id];
 
       Object.assign(oldPost, updatedPost);
       //TODO: refactor with updateOne
@@ -171,8 +143,7 @@ const postsSlice = createSlice({
 
 export default postsSlice.reducer;
 
-export const { changePostStatusToStartFetching, postAdded,deleteUnfollowedUserPostsFromSlice } =
-  postsSlice.actions;
+export const { changePostStatusToStartFetching, postAdded, deleteUnfollowedUserPostsFromSlice } = postsSlice.actions;
 
 export const {
   selectAll: selectAllPosts,
@@ -180,5 +151,4 @@ export const {
   selectIds: selectPostIds,
 } = postsAdapter.getSelectors((state) => state.posts);
 
-export const selectFetchedAllPostsLength = (state) =>
-  state.posts.fetchedAllEntitiesLength;
+export const selectFetchedAllPostsLength = (state) => state.posts.fetchedAllEntitiesLength;

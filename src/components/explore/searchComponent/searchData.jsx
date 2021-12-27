@@ -9,19 +9,15 @@ import {
   selectSearchDataAllEntitiesLength,
   changeSearchDataStatusToStartFetching,
   changePaginationPropsForSearchQuery,
-  // removeAllEntities,
-  // selectSearchQuery,
   setSearchQuery,
   selectFromAndToForPagination,
-  fetchSingleSearchDataPost,
-
 } from "./searchDataSlice";
 
 import { StatusData } from "../../../api/ApiRoutes";
 
 import "../Explore.scss";
 
-import {ExplorePostExcerpt} from '../ExplorePostExcerpt.jsx';
+import { ExplorePostExcerpt } from "../ExplorePostExcerpt.jsx";
 
 import { atTheBottom } from "../../../helpers/atTheBottom";
 
@@ -30,12 +26,12 @@ import {
   useStatusAndArrOfIdsToFetchData,
   scrollHandlerWithCallBack,
   useLoadingStatusToAddOrRemoveScrollListeners,
+} from "../../loadMoreDataOnScrollLogic/loadMoreDataRenderAndHooks.js";
 
-} from '../../loadMoreDataOnScrollLogic/loadMoreDataRenderAndHooks.js';
-
+import { logm } from "../../../helpers/custom-logger";
 
 export const SearchDataComponent = ({ match }) => {
-  console.log("match.params ", match.params);
+  logm("match.params ", match.params);
 
   const { query } = match.params; // bug. Dispatching action for previous query
 
@@ -45,9 +41,7 @@ export const SearchDataComponent = ({ match }) => {
 
   const searchDataPostsStatus = useSelector(selectSearchDataStatus);
 
-  const allFetchedSearchDataPostsLength = useSelector(
-    selectSearchDataAllEntitiesLength
-  );
+  const allFetchedSearchDataPostsLength = useSelector(selectSearchDataAllEntitiesLength);
 
   // const searchQuery = useSelector(selectSearchQuery);
 
@@ -57,18 +51,15 @@ export const SearchDataComponent = ({ match }) => {
     dispatch(setSearchQuery({ query }));
   }, [dispatch, query]);
 
-
   //handleScroll must be without params // otherwise not working
   const handleScroll = scrollHandlerWithCallBack(atTheBottom, () => {
-    dispatch(
-      changeSearchDataStatusToStartFetching({ newStatus: StatusData.idle })
-    );
+    dispatch(changeSearchDataStatusToStartFetching({ newStatus: StatusData.idle }));
   });
 
   useLoadingStatusToAddOrRemoveScrollListeners({
-    itemIdsArr:searchDataPostsIds,
+    itemIdsArr: searchDataPostsIds,
     allItemsLength: allFetchedSearchDataPostsLength,
-    handler:handleScroll
+    handler: handleScroll,
   });
 
   useStatusAndArrOfIdsToFetchData(
@@ -79,7 +70,7 @@ export const SearchDataComponent = ({ match }) => {
       scrollHandler: handleScroll,
     },
     async function fetchPostAndSetPagination() {
-      console.log("fetching posts for query", query);
+      logm("fetching posts for query", query);
 
       await dispatch(searchUsersPostsByUserName({ ...fromAndTo }));
 
@@ -87,19 +78,11 @@ export const SearchDataComponent = ({ match }) => {
     }
   );
 
-  const { statusPostLoadingData } = useLoadingStatusToRenderLoader(
-    searchDataPostsStatus
-  );
+  const { statusPostLoadingData } = useLoadingStatusToRenderLoader(searchDataPostsStatus);
 
   const searchPostsContent = searchDataPostsIds.map((postId, index) => {
-
     return (
-      <ExplorePostExcerpt
-        key={postId}
-        postId={postId}
-        selectDataById={selectSearchedPostById}
-
-      ></ExplorePostExcerpt>
+      <ExplorePostExcerpt key={postId} postId={postId} selectDataById={selectSearchedPostById}></ExplorePostExcerpt>
     );
   });
 

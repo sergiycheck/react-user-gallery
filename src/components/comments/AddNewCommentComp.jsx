@@ -32,7 +32,11 @@ export function AddNewCommentComp({ postId }) {
   };
 
   let isLoading = status === StatusData.loading;
-  let loader = isLoading ? <div className="col-md-2 col-2"><Loader dim="30"></Loader></div>  : null;
+  let loader = isLoading ? (
+    <div className="col-md-2 col-2">
+      <Loader dim="30"></Loader>
+    </div>
+  ) : null;
 
   return (
     <React.Fragment>

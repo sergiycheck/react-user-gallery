@@ -7,12 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import Post from "./Post.jsx";
 
-import {
-  fetchPosts,
-  selectPostIds,
-  changePostStatusToStartFetching,
-  selectFetchedAllPostsLength,
-} from "./postSlice";
+import { fetchPosts, selectPostIds, changePostStatusToStartFetching, selectFetchedAllPostsLength } from "./postSlice";
 
 import { StatusData } from "../../api/ApiRoutes";
 
@@ -23,8 +18,7 @@ import {
   useStatusAndArrOfIdsToFetchData,
   // scrollHandlerWithCallBack,
   useLoadingStatusToAddOrRemoveScrollListeners,
-
-} from '../loadMoreDataOnScrollLogic/loadMoreDataRenderAndHooks.js';
+} from "../loadMoreDataOnScrollLogic/loadMoreDataRenderAndHooks.js";
 
 import { Link } from "react-router-dom";
 
@@ -46,12 +40,11 @@ const PostsList = () => {
   };
 
   useLoadingStatusToAddOrRemoveScrollListeners({
-    itemIdsArr:orderedPostIds,
+    itemIdsArr: orderedPostIds,
     allItemsLength: allFetchedPostsLength,
-    handler:handleScroll
+    handler: handleScroll,
   });
 
-  
   useStatusAndArrOfIdsToFetchData(
     {
       itemsStatus: postsStatus,
@@ -60,7 +53,6 @@ const PostsList = () => {
       scrollHandler: handleScroll,
     },
     async function fetchPostAndSetPagination() {
-
       await dispatch(fetchPosts({ from, to }));
       setPaginationProperties(from + increment, to + increment);
     }
@@ -69,22 +61,20 @@ const PostsList = () => {
   const setPaginationProperties = (from, to) => {
     setFromPaginationProp(from);
     setToPaginationProp(to);
-    // console.log("pagination properties set", " from ", from, " to ", to);
   };
 
-
-  const { statusPostLoadingData } = useLoadingStatusToRenderLoader(
-    postsStatus
-  );
+  const { statusPostLoadingData } = useLoadingStatusToRenderLoader(postsStatus);
 
   let userDoesNotSubscribeToAnybody = orderedPostIds.length === 0;
   let postsAreFetched = postsStatus === StatusData.succeeded;
-  if(userDoesNotSubscribeToAnybody && postsAreFetched){
+  if (userDoesNotSubscribeToAnybody && postsAreFetched) {
     return (
       <div>
-        <h2>follow <Link to={`explore/users`}>users</Link> to see their posts</h2>
+        <h2>
+          follow <Link to={`explore/users`}>users</Link> to see their posts
+        </h2>
       </div>
-    )
+    );
   }
 
   const contentPosts = orderedPostIds.map((postId) => {
