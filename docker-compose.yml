@@ -6,3 +6,5 @@ services:
       context: .
     ports:
       - 3030:80
+    environment:
+      - GENERATE_SOURCEMAP=false

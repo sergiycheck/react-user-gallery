@@ -16,14 +16,13 @@ import {
   selectProfilePostIds,
   selectFetchedAllProfilePostsLength,
   selectProfilePostsStatus,
-  selectProfilePostsCurrentUserId,
+  // selectProfilePostsCurrentUserId,
   setCurrentUser,
   fetchSubscribeRelationsForUser,
   followUserFetchPost,
   unFollowUserFetchPost,
   selectFollowingRelationsStatus,
   selectUserFollowersAndFollowingRelations,
-  selectFollowAndUnFollowRequestsStatus,
 } from "./profilePostsSlice.js";
 
 import {
@@ -93,7 +92,7 @@ export const OtherUserProfile = ({ userId, currentUserApp }) => {
   const { userFollowersRelations } = useSelector(selectUserFollowersAndFollowingRelations);
   const allFetchedPostsLength = useSelector(selectFetchedAllPostsLength);
 
-  const followAndUnFollowRequestsStatus = useSelector(selectFollowAndUnFollowRequestsStatus);
+  // const followAndUnFollowRequestsStatus = useSelector(selectFollowAndUnFollowRequestsStatus);
 
   const isUserIsFollowedByCurrentUser = () => {
     //TODO: dispatch request to know whether currentUserForTheApp follows currentUser
@@ -230,7 +229,7 @@ export const ProfileWrapped = ({ user, render }) => {
 export const ExploreUserProfilePosts = ({ userId }) => {
   const dispatch = useDispatch();
 
-  const currentUserId = useSelector(selectProfilePostsCurrentUserId);
+  // const currentUserId = useSelector(selectProfilePostsCurrentUserId);
 
   //TODO: setCurrentUser refactor with useState
   useEffect(() => {
