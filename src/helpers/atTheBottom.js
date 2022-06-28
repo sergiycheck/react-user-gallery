@@ -4,7 +4,7 @@
 //   return Math.floor(Math.random() * (max - min + 1)) + min;
 // }
 
-import { logm } from "./custom-logger";
+// import { logm } from "./custom-logger";
 
 export const atTheBottom = () => {
   // logPositionScroll()

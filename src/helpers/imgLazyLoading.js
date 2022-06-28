@@ -1,4 +1,4 @@
-import { logm } from "./custom-logger";
+// import { logm } from "./custom-logger";
 
 function isVisible(elem) {
   const imgRect = elem.getBoundingClientRect();
