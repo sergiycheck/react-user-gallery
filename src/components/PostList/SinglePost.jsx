@@ -10,15 +10,15 @@ import {
   usePostIdToSelectOrFetchHashTags,
 } from "./PostDataHelpers.js";
 
-
 import { fetchSinglePost, selectPostById } from "./postSlice";
 
 import { ExploreSameHashTags } from "./ExploreSameHashTags.jsx";
 
 import { PostView } from "./Post.jsx";
+import { logm } from "../../helpers/custom-logger";
 
 export const SinglePost = ({ match }) => {
-  console.log("match.params ", match.params);
+  logm("match.params ", match.params);
 
   const { postId } = match.params;
 
@@ -40,10 +40,7 @@ const LoadingContentForPost = () => {
     <section style={{ marginTop: "100px" }} className="container">
       <div className="row">
         <div className="col-md-10 col-sm-12">
-          <CardPlaceholder
-            showAvatarContent={true}
-            showCardImage={true}
-          ></CardPlaceholder>
+          <CardPlaceholder showAvatarContent={true} showCardImage={true}></CardPlaceholder>
         </div>
       </div>
     </section>

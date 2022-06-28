@@ -1,73 +1,66 @@
-
 $grid-breakpoints: (
   xs: 0,
   sm: 576px,
   md: 768px,
   lg: 992px,
   xl: 1200px,
-  xxl: 1400px
+  xxl: 1400px,
 );
 
-@mixin media-breakpoint-up($var){
-  @media (min-width:$var){
-    @content
+@mixin media-breakpoint-up($var) {
+  @media (min-width: $var) {
+    @content;
   }
 }
 
 .wrapper {
-	position: relative;
-	top: 0;
-	height: 100%;
+  position: relative;
+  top: 0;
+  height: 100%;
 }
 
-.mainContent{
+.mainContent {
   min-height: 100%;
   position: relative;
 
-  .user-wrapper{
+  .user-wrapper {
     height: 100%;
     width: 100%;
     position: absolute;
   }
 }
 
-
-@media screen and (min-width: 960px){
-  .mainContent{
-    margin-left:calc(100vw - 100%)!important;
-    margin-left:0;
+@media screen and (min-width: 960px) {
+  .mainContent {
+    margin-left: calc(100vw - 100%) !important;
+    margin-left: 0;
   }
 }
 
-$svg-search-icon:url("../helpers/search.svg");
-#search{
-	background:$svg-search-icon scroll 95% 50%;
-	padding-left: 10%;
-	background-repeat: no-repeat;
-	margin-right: .5rem;
+$svg-search-icon: url("../helpers/search.svg");
+#search {
+  background: $svg-search-icon scroll 95% 50%;
+  padding-left: 10%;
+  background-repeat: no-repeat;
+  margin-right: 0.5rem;
 
-	&:focus{
-		background-image: none;
-		flex-grow: 3;
-	}
-  &:active{
+  &:focus {
+    background-image: none;
+    flex-grow: 3;
+  }
+  &:active {
     background-image: none;
   }
 
-  @include media-breakpoint-up(
-    map-get($map: $grid-breakpoints, $key: md )){
+  @include media-breakpoint-up(map-get($map: $grid-breakpoints, $key: md)) {
     &.focus {
       width: 135%;
     }
   }
-
 }
 
-@media screen and (min-width:768px) {
-  .width-100-media{
+@media screen and (min-width: 768px) {
+  .width-100-media {
     width: 100% !important;
   }
 }
-
-
-

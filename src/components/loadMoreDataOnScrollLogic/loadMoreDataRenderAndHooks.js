@@ -1,11 +1,9 @@
-
 import { StatusData } from "../../api/ApiRoutes";
 import { Loader } from "../helperComponents/Loader";
 import { useEffect } from "react";
-
+import { logm } from "../../helpers/custom-logger";
 
 export const useLoadingStatusToRenderLoader = (trackingStatus) => {
-	
   let statusPostLoadingData = "";
   if (trackingStatus === StatusData.loading) {
     statusPostLoadingData = <Loader></Loader>;
@@ -16,7 +14,6 @@ export const useLoadingStatusToRenderLoader = (trackingStatus) => {
   return { statusPostLoadingData };
 };
 
-
 export const useStatusAndArrOfIdsToFetchData = (
   { itemsStatus, idsArr, allItemsLength, scrollHandler },
   fetchCallBack
@@ -24,7 +21,7 @@ export const useStatusAndArrOfIdsToFetchData = (
   useEffect(() => {
     const requestProcessing = itemsStatus === StatusData.loading;
     if (requestProcessing) {
-      console.log("requestProcessing");
+      logm("requestProcessing");
       return;
     }
 
@@ -32,7 +29,7 @@ export const useStatusAndArrOfIdsToFetchData = (
     const somePostsFetched = idsArr.length > 0;
 
     if (allPostsFetched && somePostsFetched) {
-      console.log("allPostsFetched && somePostsFetched");
+      logm("allPostsFetched && somePostsFetched");
 
       window.removeEventListener("scroll", scrollHandler);
       return;
@@ -40,21 +37,15 @@ export const useStatusAndArrOfIdsToFetchData = (
 
     const statusChangedToFetchMorePosts = itemsStatus === StatusData.idle;
     if (statusChangedToFetchMorePosts) {
-      console.log("statusChangedToFetchMorePosts");
+      logm("statusChangedToFetchMorePosts");
 
       fetchCallBack();
     }
 
-    return ()=>{
-      console.log('reset callback');
-    }
-  }, [
-    itemsStatus,
-    idsArr.length,
-    allItemsLength,
-    scrollHandler,
-    fetchCallBack,
-  ]);
+    return () => {
+      logm("reset callback");
+    };
+  }, [itemsStatus, idsArr.length, allItemsLength, scrollHandler, fetchCallBack]);
 };
 
 export const scrollHandlerWithCallBack = (checkIfAtTheBottom, callback) => {
@@ -65,26 +56,21 @@ export const scrollHandlerWithCallBack = (checkIfAtTheBottom, callback) => {
   };
 };
 
-
-export const useLoadingStatusToAddOrRemoveScrollListeners = ({itemIdsArr, allItemsLength, handler}) =>{
-
+export const useLoadingStatusToAddOrRemoveScrollListeners = ({ itemIdsArr, allItemsLength, handler }) => {
   useEffect(() => {
-    const allSearchedPostsNotFetched =
-    itemIdsArr.length !== allItemsLength;
+    const allSearchedPostsNotFetched = itemIdsArr.length !== allItemsLength;
     const fetchedSomeSearchPosts = itemIdsArr.length > 0;
 
     if (allSearchedPostsNotFetched && fetchedSomeSearchPosts) {
-      console.log(
-        "allSearchedPostsNotFetched && fetchedSomeSearchPosts setting handleScroll"
-      );
+      logm("allSearchedPostsNotFetched && fetchedSomeSearchPosts setting handleScroll");
 
       window.addEventListener("scroll", handler);
     }
 
     return function removeScrollListener() {
-      console.log("removeScrollListener");
+      logm("removeScrollListener");
 
       window.removeEventListener("scroll", handler);
     };
   });
-}
+};

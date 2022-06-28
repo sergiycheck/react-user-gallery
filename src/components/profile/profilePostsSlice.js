@@ -1,14 +1,9 @@
-import {
-  createSlice,
-  createAsyncThunk,
-  createEntityAdapter,
-} from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createEntityAdapter } from "@reduxjs/toolkit";
 
 import { userPostsRoute, StatusData, usersRoute, subscribeRelationsRoute } from "../../api/ApiRoutes";
 
 import { client } from "../../api/client";
-import { createSelector } from 'reselect';
-
+import { createSelector } from "reselect";
 
 const profilePostsAdapter = createEntityAdapter();
 
@@ -20,11 +15,10 @@ const initialState = profilePostsAdapter.getInitialState({
 
   currentUserId: null,
 
-  followingRelationsStatus:StatusData.idle,
-  userFollowingRelations:[],
-  userFollowersRelations:[],
-  followAndUnFollowRequestsStatus:StatusData.idle,
-
+  followingRelationsStatus: StatusData.idle,
+  userFollowingRelations: [],
+  userFollowersRelations: [],
+  followAndUnFollowRequestsStatus: StatusData.idle,
 });
 
 const sliceName = `profilePosts`;
@@ -61,57 +55,46 @@ export const fetchSingleUserProfilePost = createAsyncThunk(
 
 export const fetchSubscribeRelationsForUser = createAsyncThunk(
   `${sliceName}/fetchSubscribeRelationsForUser`,
-  async({userId})=>{
-
+  async ({ userId }) => {
     const response = await client.get(`${subscribeRelationsRoute}/getUserSubscribeRelations/${userId}`);
 
-    const {
-      userFollowingRelations,
-      userFollowersRelations
-    } = response;
+    const { userFollowingRelations, userFollowersRelations } = response;
     return {
       userFollowingRelations,
-      userFollowersRelations
-    }
+      userFollowersRelations,
+    };
   }
-)
+);
 
 export const followUserFetchPost = createAsyncThunk(
   `${sliceName}/followUser`,
-  async ({userIdToFollow} ,{getState}) =>{
-
+  async ({ userIdToFollow }, { getState }) => {
     const { currentUserForApp } = getState().users;
-    const response = await client.post(`${usersRoute}/followUser`,{
+    const response = await client.post(`${usersRoute}/followUser`, {
       currentUserId: currentUserForApp.id,
-      userIdToFollow: userIdToFollow
+      userIdToFollow: userIdToFollow,
     });
 
-    const {
-      userFollowersRelations
-     } = response;
-    return {userFollowersRelations};
+    const { userFollowersRelations } = response;
+    return { userFollowersRelations };
   }
 );
 
 //TODO: unite followUserFetchPost, unfollowUserFetchPost
 export const unFollowUserFetchPost = createAsyncThunk(
   `${sliceName}/unFollowUser`,
-  async({userIdToUnFollow}, {getState})=>{
+  async ({ userIdToUnFollow }, { getState }) => {
     const { currentUserForApp } = getState().users;
 
-    const response = await client.post(`${usersRoute}/unFollowUser`,{
+    const response = await client.post(`${usersRoute}/unFollowUser`, {
       currentUserId: currentUserForApp.id,
-      userIdToUnFollow: userIdToUnFollow
+      userIdToUnFollow: userIdToUnFollow,
     });
 
-    const {
-      userFollowersRelations
-     } = response;
-    return {userFollowersRelations};
-
+    const { userFollowersRelations } = response;
+    return { userFollowersRelations };
   }
 );
-
 
 const profilePostsReducer = createSlice({
   name: `${sliceName}`,
@@ -169,65 +152,42 @@ const profilePostsReducer = createSlice({
       profilePostsAdapter.upsertOne(state, fetchedPost);
     },
 
-    [fetchSubscribeRelationsForUser.pending]:(state, action) => {
+    [fetchSubscribeRelationsForUser.pending]: (state, action) => {
       state.followingRelationsStatus = StatusData.loading;
     },
-    [fetchSubscribeRelationsForUser.fulfilled]:(state, action) => {
+    [fetchSubscribeRelationsForUser.fulfilled]: (state, action) => {
       state.followingRelationsStatus = StatusData.succeeded;
 
-      const {
-        userFollowingRelations,
-        userFollowersRelations
-      } = action.payload;
+      const { userFollowingRelations, userFollowersRelations } = action.payload;
 
-      state.userFollowingRelations = [
-        ...state.userFollowingRelations,
-        ...userFollowingRelations
-      ];
-      state.userFollowersRelations = [
-        ...state.userFollowersRelations,
-        ...userFollowersRelations
-      ];
+      state.userFollowingRelations = [...state.userFollowingRelations, ...userFollowingRelations];
+      state.userFollowersRelations = [...state.userFollowersRelations, ...userFollowersRelations];
     },
-    [followUserFetchPost.pending]:(state, action) => {
+    [followUserFetchPost.pending]: (state, action) => {
       state.followAndUnFollowRequestsStatus = StatusData.loading;
     },
-    [followUserFetchPost.fulfilled]:(state, action) => {
+    [followUserFetchPost.fulfilled]: (state, action) => {
       state.followAndUnFollowRequestsStatus = StatusData.succeeded;
-      const {
-        userFollowersRelations
-      } = action.payload;
+      const { userFollowersRelations } = action.payload;
 
-       state.userFollowersRelations = [
-        ...state.userFollowersRelations,
-        ...userFollowersRelations
-      ];
-
+      state.userFollowersRelations = [...state.userFollowersRelations, ...userFollowersRelations];
     },
-    [unFollowUserFetchPost.pending]:(state, action) => {
+    [unFollowUserFetchPost.pending]: (state, action) => {
       state.followAndUnFollowRequestsStatus = StatusData.loading;
     },
-    [unFollowUserFetchPost.fulfilled]:(state, action) => {
+    [unFollowUserFetchPost.fulfilled]: (state, action) => {
       state.followAndUnFollowRequestsStatus = StatusData.succeeded;
-      const {
-        userFollowersRelations
-      } = action.payload;
+      const { userFollowersRelations } = action.payload;
 
-       state.userFollowersRelations = [
-        ...userFollowersRelations
-      ];
-
+      state.userFollowersRelations = [...userFollowersRelations];
     },
   },
 });
 
 export default profilePostsReducer.reducer;
 
-export const {
-  changeProfilePostsStatusToStartFetching,
-  resetAllEntities,
-  setCurrentUser,
-} = profilePostsReducer.actions;
+export const { changeProfilePostsStatusToStartFetching, resetAllEntities, setCurrentUser } =
+  profilePostsReducer.actions;
 
 export const {
   selectAll: selectAllProfilePosts,
@@ -235,35 +195,33 @@ export const {
   selectIds: selectProfilePostIds,
 } = profilePostsAdapter.getSelectors((state) => state.profilePosts);
 
-export const selectGlobalProfilePosts = state => state.profilePosts;
+export const selectGlobalProfilePosts = (state) => state.profilePosts;
 
-export const selectFetchedAllProfilePostsLength = (state) =>
-  state.profilePosts.fetchedAllEntitiesLength;
+export const selectFetchedAllProfilePostsLength = (state) => state.profilePosts.fetchedAllEntitiesLength;
 
 export const selectProfilePostsStatus = (state) => state.profilePosts.status;
 
-export const selectProfilePostsCurrentUserId = (state) =>
-  state.profilePosts.currentUserId;
+export const selectProfilePostsCurrentUserId = (state) => state.profilePosts.currentUserId;
 
-  // followingRelationsStatus:StatusData.idle,
-  // followAndUnFollowRequestsStatus:StatusData.idle,
-  // userFollowingRelations:[],
-  // userFollowersRelations:[]
+// followingRelationsStatus:StatusData.idle,
+// followAndUnFollowRequestsStatus:StatusData.idle,
+// userFollowingRelations:[],
+// userFollowersRelations:[]
 
 export const selectFollowingRelationsStatus = createSelector(
   selectGlobalProfilePosts,
-  profilePosts => profilePosts.followingRelationsStatus
+  (profilePosts) => profilePosts.followingRelationsStatus
 );
 
 export const selectFollowAndUnFollowRequestsStatus = createSelector(
   selectGlobalProfilePosts,
-  profilePosts => profilePosts.followAndUnFollowRequestsStatus
+  (profilePosts) => profilePosts.followAndUnFollowRequestsStatus
 );
 
 export const selectUserFollowersAndFollowingRelations = createSelector(
-  (state)=> selectGlobalProfilePosts(state),
+  (state) => selectGlobalProfilePosts(state),
   (profilePosts) => {
-    const {userFollowersRelations, userFollowingRelations} = profilePosts;
-    return {userFollowersRelations, userFollowingRelations} 
+    const { userFollowersRelations, userFollowingRelations } = profilePosts;
+    return { userFollowersRelations, userFollowingRelations };
   }
 );

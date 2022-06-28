@@ -10,10 +10,8 @@ import { useDispatch, useSelector } from "react-redux";
 
 import {
   fetchUserProfilePosts, //{ from, to, userId }
-  // fetchSingleUserProfilePost, //{userId, postId}
   changeProfilePostsStatusToStartFetching,
   resetAllEntities,
-  // selectAllProfilePosts,
   selectProfilePostById,
   selectProfilePostIds,
   selectFetchedAllProfilePostsLength,
@@ -39,15 +37,14 @@ import { ExploreWrapped } from "../explore/ExploreWrapped.jsx";
 
 import { StatusData } from "../../api/ApiRoutes";
 
-// import {useUserIdToSelectOrFetchUserForTheApp} from '../PostList/PostDataHelpers';
+import { selectSingleUserForApp, selectSingleUserForAppStatus } from "./usersSlice";
 
-import {
-  selectSingleUserForApp,
-  selectSingleUserForAppStatus,
-} from "./usersSlice";
+import { logm } from "../../helpers/custom-logger";
+
+import { CardPlaceholder } from "./../helperComponents/CardPlaceholder/CardPlaceholder";
 
 export const Profile = ({ match }) => {
-  console.log("match.params ", match.params);
+  logm("match.params ", match.params);
 
   const { userId } = match.params;
   const dispatch = useDispatch();
@@ -77,43 +74,30 @@ export const Profile = ({ match }) => {
     followingRelationsStatus === StatusData.loading ||
     followingRelationsStatus === StatusData.idle
   ) {
-    return <div>loading...</div>;
+    return <CardPlaceholder showAvatarContent={true}></CardPlaceholder>;
   }
 
-  if (
-    currentUserAppStatus === StatusData.succeeded &&
-    currentUserApp.id !== userIdRef.current
-  ) {
+  if (currentUserAppStatus === StatusData.succeeded && currentUserApp.id !== userIdRef.current) {
     // return other user profile
-    return (
-      <OtherUserProfile
-        userId={userIdRef.current}
-        currentUserApp={currentUserApp}
-      ></OtherUserProfile>
-    );
+    return <OtherUserProfile userId={userIdRef.current} currentUserApp={currentUserApp}></OtherUserProfile>;
   }
 
   // return current user profile
   return <CurrentUserProfile user={currentUserApp}></CurrentUserProfile>;
 };
+
 export const OtherUserProfile = ({ userId, currentUserApp }) => {
   const dispatch = useDispatch();
   const user = useUserIdToSelectOrFetchUser({ userId });
 
-  const { userFollowersRelations } = useSelector(
-    selectUserFollowersAndFollowingRelations
-  );
+  const { userFollowersRelations } = useSelector(selectUserFollowersAndFollowingRelations);
   const allFetchedPostsLength = useSelector(selectFetchedAllPostsLength);
 
-  const followAndUnFollowRequestsStatus = useSelector(
-    selectFollowAndUnFollowRequestsStatus
-  );
+  const followAndUnFollowRequestsStatus = useSelector(selectFollowAndUnFollowRequestsStatus);
 
   const isUserIsFollowedByCurrentUser = () => {
     //TODO: dispatch request to know whether currentUserForTheApp follows currentUser
-    let isFollowed = userFollowersRelations
-      .map((relation) => relation.followerId)
-      .includes(currentUserApp.id);
+    let isFollowed = userFollowersRelations.map((relation) => relation.followerId).includes(currentUserApp.id);
     return isFollowed;
   };
 
@@ -125,15 +109,14 @@ export const OtherUserProfile = ({ userId, currentUserApp }) => {
     );
   }
   const followUserHandler = () => {
-    console.log(`user with id ${userId} is following`);
+    logm(`user with id ${userId} is following`);
     dispatch(followUserFetchPost({ userIdToFollow: userId }));
     dispatch(changePostStatusToStartFetching({ newStatus: StatusData.idle }));
   };
 
   const unFollowUserHandler = () => {
-    console.log(`unfollow from user with id ${userId}`);
+    logm(`unfollow from user with id ${userId}`);
     dispatch(unFollowUserFetchPost({ userIdToUnFollow: userId }));
-    //TODO: delete user posts from postsSlice that current users just unfollow
 
     dispatch(deleteUnfollowedUserPostsFromSlice({ unFollowedUserId: userId }));
     const hasUserFetchedSomePosts = allFetchedPostsLength !== 0;
@@ -179,12 +162,10 @@ export const ProfileWrapped = ({ user, render }) => {
   let renderedFollowButtonContent;
   let renderedFollowButtonResult = render();
   if (renderedFollowButtonResult !== null) {
-    renderedFollowButtonContent = renderedFollowButtonResult;
+    renderedFollowButtonContent = <div className="col-12 col-sm-3">{renderedFollowButtonResult}</div>;
   }
 
-  const { userFollowersRelations, userFollowingRelations } = useSelector(
-    selectUserFollowersAndFollowingRelations
-  );
+  const { userFollowersRelations, userFollowingRelations } = useSelector(selectUserFollowersAndFollowingRelations);
 
   const followersLength = useMemo(() => {
     return userFollowersRelations.length;
@@ -210,15 +191,30 @@ export const ProfileWrapped = ({ user, render }) => {
             </div>
 
             <div className="col-lg-6 col-md-8 mx-auto">
-              <h1 className="fw-light">
-                {user.firstName} {user.lastName}
-              </h1>
-              <p className="lead text-muted">{user.bio}</p>
+              <div className="row">
+                <div className="col">
+                  <h1 className="fw-light">
+                    {user.firstName} {user.lastName}
+                  </h1>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col">
+                  <p className="lead text-muted">{user.bio}</p>
+                </div>
+              </div>
 
-              <div className="d-flex justify-content-between">
-                <p className="small">{user.userName}</p>
-                <p className="fs-5">followers {followersLength}</p>
-                <p className="fs-5">following {followingLength}</p>
+              <div className="row justify-content-between">
+                <div className="col-12 col-sm-3">
+                  <p className="fs-5">{user.userName}</p>
+                </div>
+                <div className="col-12 col-sm-3">
+                  <p className="fs-5">followers {followersLength}</p>
+                </div>
+                <div className="col-12 col-sm-3">
+                  <p className="fs-5">following {followingLength}</p>
+                </div>
+
                 {renderedFollowButtonContent}
               </div>
             </div>
@@ -259,9 +255,7 @@ export const ExploreUserProfilePosts = ({ userId }) => {
 
   return (
     <div className="main-content">
-      <ExploreWrapped
-        explorePageDataMethods={exploreUserProfilePostsDataMethods}
-      ></ExploreWrapped>
+      <ExploreWrapped explorePageDataMethods={exploreUserProfilePostsDataMethods}></ExploreWrapped>
     </div>
   );
 };

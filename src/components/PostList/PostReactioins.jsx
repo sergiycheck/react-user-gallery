@@ -1,13 +1,10 @@
-
-
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 
 import { useDispatch } from "react-redux";
 import { addLikeToPost } from "./postSlice";
 import classNames from "classnames";
 
-
-export const PostReactions = ({ postId, likeCount, isLiked }) =>{
+export const PostReactions = ({ postId, likeCount, isLiked }) => {
   const dispatch = useDispatch();
 
   const addLikeToPostHandler = (e) => {
@@ -28,4 +25,4 @@ export const PostReactions = ({ postId, likeCount, isLiked }) =>{
       </div>
     </div>
   );
-}
+};

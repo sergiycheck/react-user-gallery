@@ -1,26 +1,24 @@
-
-.inputWrapper{
-	position:relative;
+.inputWrapper {
+  position: relative;
 }
-.navbarTransition{
-	transition: all 0.2s;
-}
-
-.searchClasses{
-	position:absolute;
-	width: 100%;
-	z-index: 1;
-	
-	li:hover{
-		cursor: pointer;
-		// z-index: 1;
-		color: #495057;
-		text-decoration: none;
-		background-color: #f8f9fa;
-	}
-	li:active {
-		color: #212529;
-		background-color: #e9ecef;
-	}
+.navbarTransition {
+  transition: all 0.2s;
 }
 
+.searchClasses {
+  position: absolute;
+  width: 100%;
+  z-index: 1;
+
+  li:hover {
+    cursor: pointer;
+    // z-index: 1;
+    color: #495057;
+    text-decoration: none;
+    background-color: #f8f9fa;
+  }
+  li:active {
+    color: #212529;
+    background-color: #e9ecef;
+  }
+}

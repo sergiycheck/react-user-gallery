@@ -1,49 +1,39 @@
-
 import React, { useEffect } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 
 import {
   fetchPostsWithSameHashTags,
-  
-  // fetchSingleSameHashTagsPost,
 
+  // fetchSingleSameHashTagsPost,
   changePostsSameHashTagsStatusToStartFetching,
   selectSameTagsPostById,
   selectSameTagsPostIds,
   selectFetchedAllSameTagsPostsLength,
   selectSameTagsPostsStatus,
   resetState,
-
   selectSameTagsPostsCurrentPostId,
   setCurrentPostId,
-
 } from "./postsWithSameHashTagsSlice.js";
 
 import { ExploreWrapped } from "../explore/ExploreWrapped";
 
-
 export const ExploreSameHashTags = ({ postId }) => {
-
   const dispatch = useDispatch();
 
   const currentPostId = useSelector(selectSameTagsPostsCurrentPostId);
-  
-  useEffect(()=>{
-    dispatch(setCurrentPostId({ postId }))
-  },[postId, dispatch])
 
-  useEffect(()=>{
+  useEffect(() => {
+    dispatch(setCurrentPostId({ postId }));
+  }, [postId, dispatch]);
 
-    if(currentPostId !== null && postId!==currentPostId){
+  useEffect(() => {
+    if (currentPostId !== null && postId !== currentPostId) {
       dispatch(resetState());
     }
-
-  }, [postId,currentPostId, dispatch])
-
+  }, [postId, currentPostId, dispatch]);
 
   const explorePostsWithSameTagsMethods = {
-
     selectItemsIds: selectSameTagsPostIds,
 
     selectItemById: selectSameTagsPostById,
@@ -52,8 +42,7 @@ export const ExploreSameHashTags = ({ postId }) => {
 
     selectFetchedAllItemsLength: selectFetchedAllSameTagsPostsLength,
 
-    changeItemsStatusToStartFetching:
-      changePostsSameHashTagsStatusToStartFetching,
+    changeItemsStatusToStartFetching: changePostsSameHashTagsStatusToStartFetching,
     fetchItems: fetchPostsWithSameHashTags,
 
     postId,
@@ -61,9 +50,7 @@ export const ExploreSameHashTags = ({ postId }) => {
 
   return (
     <div className="main-content">
-      <ExploreWrapped
-        explorePageDataMethods={explorePostsWithSameTagsMethods}
-      ></ExploreWrapped>
+      <ExploreWrapped explorePageDataMethods={explorePostsWithSameTagsMethods}></ExploreWrapped>
     </div>
   );
 };

@@ -54,11 +54,7 @@ export default function App() {
               <LogOut />
             </Route>
 
-            <Route
-              exact
-              path="/searchResults/:query"
-              component={SearchDataComponent}
-            ></Route>
+            <Route exact path="/searchResults/:query" component={SearchDataComponent}></Route>
 
             <Route exact path={singlePostRoute} component={SinglePost}></Route>
 

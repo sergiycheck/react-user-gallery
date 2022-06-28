@@ -2,20 +2,15 @@ import "./Messages.scss";
 
 import React, { Component, useState } from "react";
 
-import activateMessageHandlers from "./message-scripts.js";
-
 import ItemCounter from "./counter/ItemCounter";
 
 import { useSelector, useDispatch } from "react-redux";
 
-import {
-  increment,
-  decrement,
-  incrementByAmount,
-  selectItemCount,
-} from "./counter/itemCounterSlice";
+import { increment, selectItemCount } from "./counter/itemCounterSlice";
 
 import { showVisible } from "../../helpers/imgLazyLoading";
+
+import classNames from "classnames";
 
 let FRIENDS = [
   {
@@ -131,9 +126,6 @@ export default class Messages extends Component {
   }
 
   componentDidMount() {
-    // console.log("componentDidMount");
-    activateMessageHandlers();
-
     this.updateMessageCount();
   }
 
@@ -153,7 +145,6 @@ export default class Messages extends Component {
     this.setState({
       friend: friend,
     });
-    //console.log(friend);
   }
 
   sendMessage(msg) {
@@ -162,9 +153,7 @@ export default class Messages extends Component {
       data: msg,
       date: Date.now(),
     };
-    let friend = this.state.friends.find(
-      (friend) => friend.id === this.state.friend.id
-    );
+    let friend = this.state.friends.find((friend) => friend.id === this.state.friend.id);
     friend.messages.push(message);
     this.setState({
       friend: friend,
@@ -176,58 +165,39 @@ export default class Messages extends Component {
   render() {
     return (
       <div className="user-wrapper d-flex align-items-stretch mt-5">
-        <nav className="sidebar ">
-          <div className="custom-menu">
-            <button
-              type="button"
-              id="sidebarCollapse"
-              className="btn btn-primary"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="25"
-                fill="currentColor"
-                className="bi bi-list"
-                viewBox="0 0 16 16"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <div className="p-4 pt-5">
-            <div className="mb-5">
-              <h3 className="h6">Search user names</h3>
-              <form action="#" className="colorlib-subscribe-form">
-                <div className="form-group d-flex">
-                  <div className="icon">
-                    <span className="icon-paper-plane"></span>
-                  </div>
-                  <input
-                    onChange={this.handleInputChange}
-                    value={this.state.filterText}
-                    type="text"
-                    className="form-control"
-                    placeholder="search user name"
-                  />
+        <SideBar
+          render={() => {
+            return (
+              <div className="p-4 pt-5">
+                <div className="mb-5">
+                  <h3 className="h6">Search user names</h3>
+                  <form action="#" className="colorlib-subscribe-form">
+                    <div className="form-group d-flex">
+                      <div className="icon">
+                        <span className="icon-paper-plane"></span>
+                      </div>
+                      <input
+                        onChange={this.handleInputChange}
+                        value={this.state.filterText}
+                        type="text"
+                        className="form-control"
+                        placeholder="search user name"
+                      />
+                    </div>
+                  </form>
                 </div>
-              </form>
-            </div>
 
-            <ul className="list-unstyled components mb-5">
-              <FriendsContainer
-                friends={this.state.friends}
-                filterTextData={this.state.filterText}
-                startChatWithFriend={this.startChatWithFriend}
-              ></FriendsContainer>
-            </ul>
-          </div>
-        </nav>
-
+                <ul className="list-unstyled components mb-5">
+                  <FriendsContainer
+                    friends={this.state.friends}
+                    filterTextData={this.state.filterText}
+                    startChatWithFriend={this.startChatWithFriend}
+                  ></FriendsContainer>
+                </ul>
+              </div>
+            );
+          }}
+        ></SideBar>
         <div className="container pt-5">
           <div className="row">
             <div className="offset-3 col-sm-4 d-flex justify-content-between align-items-center">
@@ -249,6 +219,40 @@ export default class Messages extends Component {
     );
   }
 }
+
+export const SideBar = ({ render }) => {
+  const [active, setActive] = useState(false);
+
+  return (
+    <nav className={classNames("sidebar", active && "active")}>
+      <div className="custom-menu">
+        <button
+          type="button"
+          id="sidebarCollapse"
+          onClick={(e) => {
+            setActive(!active);
+          }}
+          className="btn btn-primary"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="25"
+            fill="currentColor"
+            className="bi bi-list"
+            viewBox="0 0 16 16"
+          >
+            <path
+              fillRule="evenodd"
+              d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"
+            />
+          </svg>
+        </button>
+      </div>
+      {render()}
+    </nav>
+  );
+};
 
 class FriendsContainer extends Component {
   constructor(props) {
@@ -274,18 +278,11 @@ class FriendsContainer extends Component {
 
     Array.from(friends).forEach((friend) => {
       if (
-        String(friend.name).toUpperCase().indexOf(filterText.toUpperCase()) !==
-          -1 ||
-        String(friend.message)
-          .toUpperCase()
-          .indexOf(filterText.toUpperCase()) !== -1
+        String(friend.name).toUpperCase().indexOf(filterText.toUpperCase()) !== -1 ||
+        String(friend.message).toUpperCase().indexOf(filterText.toUpperCase()) !== -1
       ) {
         friendItems.push(
-          <Friend
-            key={friend.id}
-            friend={friend}
-            startChatWithFriend={this.startChatWithFriend}
-          ></Friend>
+          <Friend key={friend.id} friend={friend} startChatWithFriend={this.startChatWithFriend}></Friend>
         );
       }
     });
@@ -322,7 +319,7 @@ class Friend extends Component {
 
     return (
       <li onClick={() => this.startChatWithFriend(this.props.friend)}>
-        <a className="list-group-item list-group-item-action rounded-0  ">
+        <span className="list-group-item list-group-item-action rounded-0  ">
           <div className="d-flex">
             <div className="col-sm-2 ">
               <img
@@ -335,11 +332,7 @@ class Friend extends Component {
                 height="65"
               />
               <div
-                className={
-                  this.props.friend.isOnline
-                    ? "bg-success rounded-circle"
-                    : "bg-dark rounded-circle"
-                }
+                className={this.props.friend.isOnline ? "bg-success rounded-circle" : "bg-dark rounded-circle"}
                 style={{ height: "20px", width: "20px" }}
               ></div>
             </div>
@@ -352,7 +345,7 @@ class Friend extends Component {
               <p className="font-italic mb-0 text-small">{message}</p>
             </div>
           </div>
-        </a>
+        </span>
       </li>
     );
   }
@@ -416,12 +409,7 @@ function MessagesBox(props) {
             </div>
 
             <div className="col-md-2 col-sm-2">
-              <button
-                onClick={sendMessage}
-                id="send-message-btn"
-                type="submit"
-                className="btn btn-primary"
-              >
+              <button onClick={sendMessage} id="send-message-btn" type="submit" className="btn btn-primary">
                 <span className="material-icons">send</span>
               </button>
             </div>
@@ -443,23 +431,11 @@ function MessageData(props) {
   date = date.toLocaleDateString();
 
   return (
-    <div
-      className={
-        props.message.id === MyId
-          ? "my-2 align-self-end"
-          : "my-2 align-self-end"
-      }
-    >
+    <div className={props.message.id === MyId ? "my-2 align-self-end" : "my-2 align-self-end"}>
       <div className="rounded d-flex mb-1">
         {props.message.id !== MyId && (
           <div className="me-2">
-            <img
-              src={props.friendImg}
-              width="50"
-              height="50"
-              className="rounded me-2"
-              alt="user profile"
-            />
+            <img src={props.friendImg} width="50" height="50" className="rounded me-2" alt="user profile" />
             <p>{props.friendName}</p>
           </div>
         )}
@@ -467,12 +443,7 @@ function MessageData(props) {
         <div className="bg-light">
           <div className="d-flex justify-content-end">
             <small className="text-muted me-2 edit-msg">Edit</small>
-            <button
-              type="button"
-              className="btn-close"
-              data-bs-dismiss="toast"
-              aria-label="Close"
-            ></button>
+            <button type="button" className="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
           </div>
 
           <div className="p-2">
